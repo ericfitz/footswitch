@@ -11,3 +11,4 @@ scripts/signing.env
 scripts/asc.env
 scripts/setup-asc.sh
 scripts/notarize-release.sh
+scripts/build-dmg.sh
