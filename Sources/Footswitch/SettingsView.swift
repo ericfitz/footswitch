@@ -9,7 +9,7 @@ enum SettingsWindowFactory {
         let config = (try? store.load()) ?? .default
         let controller = SettingsViewController(config: config, onSave: onSave)
         let window = NSWindow(contentViewController: controller)
-        window.title = "Footswitch Settings"
+        window.title = L10n.settingsWindowTitle
         window.styleMask = [.titled, .closable]
         window.setContentSize(NSSize(width: 560, height: 460))
         return window
@@ -65,7 +65,7 @@ final class SettingsViewController: NSViewController {
 
     private func buildUI() {
         // Foot switch device section: row 1 = detection, row 2 = config verification.
-        let deviceHeader = makeHeader("Foot switch")
+        let deviceHeader = makeHeader(L10n.settingsHeaderDevice)
         deviceStatusLabel = NSTextField(labelWithString: "")
         deviceStatusLabel.font = .systemFont(ofSize: 12)
         infoButton = NSButton(title: "", target: self, action: #selector(showDeviceInfo))
@@ -79,7 +79,7 @@ final class SettingsViewController: NSViewController {
 
         configStatusLabel = NSTextField(labelWithString: "")
         configStatusLabel.font = .systemFont(ofSize: 12)
-        programButton = NSButton(title: "Program pedal",
+        programButton = NSButton(title: L10n.settingsProgramButton,
                                  target: self, action: #selector(programPedal))
         programButton.bezelStyle = .rounded
         configRow = NSStackView(views: [configStatusLabel, programButton])
@@ -92,14 +92,13 @@ final class SettingsViewController: NSViewController {
         deviceSection.spacing = 4
         refreshDeviceStatus()
 
-        let defaultHeader = makeHeader("Default action")
-        dictationCheckbox = NSButton(checkboxWithTitle: "Start dictation when no app rule matches",
+        let defaultHeader = makeHeader(L10n.settingsHeaderDefault)
+        dictationCheckbox = NSButton(checkboxWithTitle: L10n.settingsDictationCheckbox,
                                      target: self, action: #selector(dictationCheckboxChanged))
         dictationCheckbox.state = (defaultAction == .dictation) ? .on : .off
 
-        let rulesHeader = makeHeader("App rules")
-        let hint = NSTextField(labelWithString:
-            "Press the pedal in an app below to send its shortcut. Other apps use the default action above.")
+        let rulesHeader = makeHeader(L10n.settingsHeaderRules)
+        let hint = NSTextField(labelWithString: L10n.settingsRulesHint)
         hint.font = .systemFont(ofSize: 11)
         hint.textColor = .secondaryLabelColor
 
@@ -164,12 +163,12 @@ final class SettingsViewController: NSViewController {
         tableView.allowsMultipleSelection = false
 
         let appCol = NSTableColumn(identifier: .init("app"))
-        appCol.title = "Application"
+        appCol.title = L10n.settingsColApplication
         appCol.width = 320
         tableView.addTableColumn(appCol)
 
         let keyCol = NSTableColumn(identifier: .init("shortcut"))
-        keyCol.title = "Shortcut"
+        keyCol.title = L10n.settingsColShortcut
         keyCol.width = 180
         tableView.addTableColumn(keyCol)
     }
@@ -179,13 +178,13 @@ final class SettingsViewController: NSViewController {
     private func refreshDeviceStatus() {
         guard let detected = FootswitchHIDController.detect() else {
             // No device: row 1 says so, info button + row 2 hidden entirely.
-            deviceStatusLabel.attributedStringValue = statusLine("⊘", "No supported foot switch detected", .secondaryLabelColor)
+            deviceStatusLabel.attributedStringValue = statusLine("⊘", L10n.deviceNone, .secondaryLabelColor)
             infoButton.isHidden = true
             configRow.isHidden = true
             return
         }
         deviceStatusLabel.attributedStringValue =
-            statusLine("✓", "Detected pedal: \(detected.device.name)", .systemGreen)
+            statusLine("✓", L10n.deviceDetected(name: detected.device.name), .systemGreen)
         infoButton.isHidden = false
         configRow.isHidden = false
 
@@ -193,16 +192,16 @@ final class SettingsViewController: NSViewController {
         switch FootswitchHIDController.verifyConfiguration(expected: expected) {
         case .verified:
             configStatusLabel.attributedStringValue =
-                statusLine("✓", "Verified configuration", .systemGreen)
+                statusLine("✓", L10n.deviceConfigVerified, .systemGreen)
             programButton.isHidden = true
         case .mismatch:
             configStatusLabel.attributedStringValue =
-                statusLine("⚠", "Configuration must be updated", .systemYellow)
+                statusLine("⚠", L10n.deviceConfigMismatch, .systemYellow)
             programButton.isHidden = false
             programButton.isEnabled = true
         case .unreadable:
             configStatusLabel.attributedStringValue =
-                statusLine("✗", "Unable to read configuration", .systemRed)
+                statusLine("✗", L10n.deviceConfigUnreadable, .systemRed)
             programButton.isHidden = true
         case .noDevice:
             configRow.isHidden = true
@@ -221,9 +220,9 @@ final class SettingsViewController: NSViewController {
     }
 
     @objc private func showDeviceInfo() {
-        let info = FootswitchHIDController.deviceInfo() ?? "No supported foot switch is connected."
+        let info = FootswitchHIDController.deviceInfo() ?? L10n.alertDeviceInfoNone
         let alert = NSAlert()
-        alert.messageText = "Foot switch information"
+        alert.messageText = L10n.alertDeviceInfoTitle
         alert.informativeText = info
         // Monospaced so the aligned key/value columns line up.
         let field = NSTextField(labelWithString: info)
@@ -231,7 +230,7 @@ final class SettingsViewController: NSViewController {
         field.sizeToFit()
         alert.accessoryView = field
         alert.informativeText = ""
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: L10n.alertOK)
         if let window = view.window {
             alert.beginSheetModal(for: window, completionHandler: nil)
         } else {
@@ -243,18 +242,18 @@ final class SettingsViewController: NSViewController {
         let combo = KeyCombo(modifiers: [], key: baseConfig.triggerKey)
         do {
             try FootswitchHIDController.program(combo: combo)
-            presentInfo("Programmed the foot switch to send \(baseConfig.triggerKey).")
+            presentInfo(L10n.alertProgrammed(key: baseConfig.triggerKey))
         } catch {
-            presentInfo("Could not program the foot switch.\n\n\(error)")
+            presentInfo(L10n.alertProgramFailed(error: "\(error)"))
         }
         refreshDeviceStatus()
     }
 
     private func presentInfo(_ text: String) {
         let alert = NSAlert()
-        alert.messageText = "Foot switch"
+        alert.messageText = L10n.alertFootswitchTitle
         alert.informativeText = text
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: L10n.alertOK)
         if let window = view.window {
             alert.beginSheetModal(for: window, completionHandler: nil)
         } else {
@@ -273,7 +272,7 @@ final class SettingsViewController: NSViewController {
 
     private func addRule() {
         let panel = NSOpenPanel()
-        panel.title = "Choose an application"
+        panel.title = L10n.openPanelTitle
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         panel.allowsMultipleSelection = false
@@ -479,7 +478,7 @@ final class ShortcutCaptureView: NSView {
 
         let mods = modifiers(from: event.modifierFlags)
         guard let keyName = Keymap.keyName(forCode: event.keyCode) else {
-            flashHint("Unsupported key")
+            flashHint(L10n.captureUnsupportedKey)
             return nil
         }
         let isFunctionKey = keyName.uppercased().hasPrefix("F") && keyName.count >= 2
@@ -487,7 +486,7 @@ final class ShortcutCaptureView: NSView {
 
         // Require at least one modifier unless it's a function key.
         guard !mods.isEmpty || isFunctionKey else {
-            flashHint("Add a modifier (⌘⌥⌃⇧)")
+            flashHint(L10n.captureAddModifier)
             return nil
         }
 
@@ -517,9 +516,9 @@ final class ShortcutCaptureView: NSView {
     // capture is live before they press the final key.
     private func renderLive(_ mods: [Modifier]) {
         guard recording else { return }
-        let glyphs = mods.isEmpty ? "Press shortcut…"
+        let glyphs = mods.isEmpty ? L10n.capturePressShortcut
             : KeyComboFormatter.display(KeyCombo(modifiers: mods, key: "")).trimmingCharacters(in: .whitespaces)
-        label.stringValue = glyphs.isEmpty ? "Press shortcut…" : glyphs
+        label.stringValue = glyphs.isEmpty ? L10n.capturePressShortcut : glyphs
         label.textColor = .secondaryLabelColor
         styleBorder()
     }
@@ -534,12 +533,12 @@ final class ShortcutCaptureView: NSView {
         styleBorder()
         label.textColor = .labelColor
         if recording {
-            label.stringValue = "Press shortcut…"
+            label.stringValue = L10n.capturePressShortcut
             label.textColor = .secondaryLabelColor
         } else if let combo, !combo.key.isEmpty {
             label.stringValue = KeyComboFormatter.display(combo)
         } else {
-            label.stringValue = "Click to set"
+            label.stringValue = L10n.captureClickToSet
             label.textColor = .secondaryLabelColor
         }
     }

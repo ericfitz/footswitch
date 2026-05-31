@@ -4,11 +4,13 @@ import FootswitchCore
 @MainActor
 final class MenuBarController: NSObject, NSMenuDelegate {
     private let statusItem: NSStatusItem
-    private var lastFireText = "No presses yet"
+    private var lastFireText = L10n.menuNoPresses
     private let openSettings: () -> Void
+    private let openAbout: () -> Void
 
-    init(openSettings: @escaping () -> Void) {
+    init(openSettings: @escaping () -> Void, openAbout: @escaping () -> Void) {
         self.openSettings = openSettings
+        self.openAbout = openAbout
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
         statusItem.button?.title = "🦶"
@@ -16,7 +18,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     func setLastFire(app: String?, action: ResolvedAction) {
-        lastFireText = "Last: \(app ?? "unknown") → \(describe(action))"
+        lastFireText = L10n.menuLastFire(app: app ?? L10n.appUnknown, action: describe(action))
         rebuildMenu(trusted: PermissionsManager.isTrusted())
     }
 
@@ -29,15 +31,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     private func describe(_ action: ResolvedAction) -> String {
         switch action {
         case .keyCombo(let c): return KeyComboFormatter.display(c)
-        case .dictation: return "dictation"
-        case .none: return "no action"
+        case .dictation: return L10n.actionDictation
+        case .none: return L10n.actionNone
         }
     }
 
     private func rebuildMenu(trusted: Bool) {
         let menu = NSMenu()
         if !trusted {
-            let warn = NSMenuItem(title: "⚠️ Needs Accessibility permission",
+            let warn = NSMenuItem(title: L10n.menuNeedsPermission,
                                   action: #selector(grantPermission), keyEquivalent: "")
             warn.target = self
             menu.addItem(warn)
@@ -45,11 +47,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         }
         menu.addItem(NSMenuItem(title: lastFireText, action: nil, keyEquivalent: ""))
         menu.addItem(.separator())
-        let settings = NSMenuItem(title: "Settings…",
+        let about = NSMenuItem(title: L10n.menuAbout,
+                               action: #selector(showAbout), keyEquivalent: "")
+        about.target = self
+        menu.addItem(about)
+        let settings = NSMenuItem(title: L10n.menuSettings,
                                   action: #selector(showSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
-        let quit = NSMenuItem(title: "Quit Footswitch",
+        let quit = NSMenuItem(title: L10n.menuQuit,
                               action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         // Power glyph (⏻) via the SF Symbol so it renders crisply and tracks the
         // menu text color, instead of embedding the raw character in the title.
@@ -65,4 +71,5 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     @objc private func showSettings() { openSettings() }
+    @objc private func showAbout() { openAbout() }
 }

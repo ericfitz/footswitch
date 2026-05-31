@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var config = Config.default
     private let store = ConfigStore()
     private var settingsWindow: NSWindow?
+    private var aboutWindowController: AboutWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         config = (try? store.load()) ?? .default
@@ -17,7 +18,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             poster: LiveEventPoster(),
             dictationShortcut: config.dictationShortcut)
 
-        menuBar = MenuBarController(openSettings: { [weak self] in self?.showSettings() })
+        menuBar = MenuBarController(
+            openSettings: { [weak self] in self?.showSettings() },
+            openAbout: { [weak self] in self?.showAbout() })
 
         if !PermissionsManager.isTrusted() {
             PermissionsManager.requestTrust()
@@ -46,6 +49,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 onSave: { [weak self] newConfig in self?.reload(newConfig) })
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func showAbout() {
+        if aboutWindowController == nil {
+            aboutWindowController = AboutWindowController()
+        }
+        aboutWindowController?.showWindow(nil)
+        aboutWindowController?.window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
