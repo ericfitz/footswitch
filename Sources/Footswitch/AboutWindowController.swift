@@ -17,6 +17,7 @@ final class AboutWindowController: NSWindowController {
         let content = AboutWindowController.makeContentView()
         window.contentView = content
         wireLinkTargets(in: content)
+        window.setContentSize(content.fittingSize)
         window.center()
     }
 
@@ -138,7 +139,7 @@ final class AboutWindowController: NSWindowController {
         - macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)
         - Architecture: \(Self.archString())
         """
-        var components = URLComponents(string: "\(Self.repoURL)/issues/new")!
+        guard var components = URLComponents(string: "\(Self.repoURL)/issues/new") else { return }
         components.queryItems = [
             URLQueryItem(name: "labels", value: "bug"),
             URLQueryItem(name: "body", value: body),
