@@ -36,11 +36,12 @@ final class ConfigCodingTests: XCTestCase {
         XCTAssertEqual(Config.default.triggerKey, "F13")
     }
 
-    func testDecodesMuteAndNoneDefaults() throws {
+    func testDecodesDefaultsAndMigratesRemovedMute() throws {
         for (raw, expected): (String, DefaultAction) in [
-            (#"{"type":"muteInput"}"#, .muteInput),
             (#"{"type":"none"}"#, .none),
             (#"{"type":"dictation"}"#, .dictation),
+            // The removed device-mute default migrates to a no-op.
+            (#"{"type":"muteInput"}"#, .none),
         ] {
             let json = """
             { "triggerKey":"F13",

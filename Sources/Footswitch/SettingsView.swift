@@ -32,9 +32,7 @@ final class SettingsViewController: NSViewController {
 
     private let tableView = NSTableView()
     private let addRemove = NSSegmentedControl()
-    private var dictationRadio: NSButton!
-    private var muteRadio: NSButton!
-    private var noneRadio: NSButton!
+    private var dictationCheckbox: NSButton!
     private var deviceStatusLabel: NSTextField!
     private var configStatusLabel: NSTextField!
     private var programButton: NSButton!
@@ -85,20 +83,10 @@ final class SettingsViewController: NSViewController {
         deviceSection.spacing = 4
         refreshDeviceStatus()
 
-        let defaultHeader = makeHeader("Default action when no app rule matches")
-
-        // Radio buttons sharing one action+superview auto-group into one selector.
-        dictationRadio = NSButton(radioButtonWithTitle: "Start dictation",
-                                  target: self, action: #selector(defaultRadioChanged))
-        muteRadio = NSButton(radioButtonWithTitle: "Mute sound input",
-                             target: self, action: #selector(defaultRadioChanged))
-        noneRadio = NSButton(radioButtonWithTitle: "No action",
-                             target: self, action: #selector(defaultRadioChanged))
-        syncRadioState()
-        let radioStack = NSStackView(views: [dictationRadio, muteRadio, noneRadio])
-        radioStack.orientation = .vertical
-        radioStack.alignment = .leading
-        radioStack.spacing = 4
+        let defaultHeader = makeHeader("Default action")
+        dictationCheckbox = NSButton(checkboxWithTitle: "Start dictation when no app rule matches",
+                                     target: self, action: #selector(dictationCheckboxChanged))
+        dictationCheckbox.state = (defaultAction == .dictation) ? .on : .off
 
         let rulesHeader = makeHeader("App rules")
         let hint = NSTextField(labelWithString:
@@ -128,7 +116,7 @@ final class SettingsViewController: NSViewController {
         updateRemoveEnabled()
 
         let stack = NSStackView(views: [deviceHeader, deviceSection, makeSpacer(8),
-                                        defaultHeader, radioStack, makeSpacer(8),
+                                        defaultHeader, dictationCheckbox, makeSpacer(8),
                                         rulesHeader, hint, scroll, addRemove])
         stack.orientation = .vertical
         stack.alignment = .leading
@@ -244,17 +232,9 @@ final class SettingsViewController: NSViewController {
         }
     }
 
-    @objc private func defaultRadioChanged() {
-        if muteRadio.state == .on { defaultAction = .muteInput }
-        else if noneRadio.state == .on { defaultAction = .none }
-        else { defaultAction = .dictation }
+    @objc private func dictationCheckboxChanged() {
+        defaultAction = (dictationCheckbox.state == .on) ? .dictation : .none
         save()
-    }
-
-    private func syncRadioState() {
-        dictationRadio.state = (defaultAction == .dictation) ? .on : .off
-        muteRadio.state = (defaultAction == .muteInput) ? .on : .off
-        noneRadio.state = (defaultAction == .none) ? .on : .off
     }
 
     @objc private func addRemoveClicked() {

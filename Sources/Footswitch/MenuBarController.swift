@@ -30,7 +30,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch action {
         case .keyCombo(let c): return KeyComboFormatter.display(c)
         case .dictation: return "dictation"
-        case .muteInput: return "mute input"
         case .none: return "no action"
         }
     }

@@ -9,49 +9,35 @@ final class MockEventPoster: EventPosting {
     }
 }
 
-final class MockInputMuter: InputMuting {
-    var toggleCount = 0
-    func toggleInputMute() { toggleCount += 1 }
-}
-
 final class ActionDispatcherTests: XCTestCase {
-    private func makeDispatcher(_ poster: MockEventPoster, _ muter: MockInputMuter,
+    private func makeDispatcher(_ poster: MockEventPoster,
                                 dictation: KeyCombo = KeyCombo(modifiers: [.control, .option, .command], key: "D"))
         -> ActionDispatcher {
-        ActionDispatcher(poster: poster, muter: muter, dictationShortcut: dictation)
+        ActionDispatcher(poster: poster, dictationShortcut: dictation)
     }
 
     func testKeyComboPostsCorrectStroke() {
-        let poster = MockEventPoster(); let muter = MockInputMuter()
-        makeDispatcher(poster, muter).dispatch(.keyCombo(KeyCombo(modifiers: [.command], key: "D")))
+        let poster = MockEventPoster()
+        makeDispatcher(poster).dispatch(.keyCombo(KeyCombo(modifiers: [.command], key: "D")))
         XCTAssertEqual(poster.posted, [.init(keyCode: 0x02, flagBits: 0x100000)])
-        XCTAssertEqual(muter.toggleCount, 0)
     }
 
     func testDictationPostsConfiguredShortcut() {
-        let poster = MockEventPoster(); let muter = MockInputMuter()
-        makeDispatcher(poster, muter).dispatch(.dictation)
+        let poster = MockEventPoster()
+        makeDispatcher(poster).dispatch(.dictation)
         XCTAssertEqual(poster.posted,
             [.init(keyCode: 0x02, flagBits: 0x040000 | 0x080000 | 0x100000)])
     }
 
-    func testMuteInputTogglesMuter() {
-        let poster = MockEventPoster(); let muter = MockInputMuter()
-        makeDispatcher(poster, muter).dispatch(.muteInput)
-        XCTAssertEqual(muter.toggleCount, 1)
-        XCTAssertTrue(poster.posted.isEmpty)
-    }
-
     func testNoneDoesNothing() {
-        let poster = MockEventPoster(); let muter = MockInputMuter()
-        makeDispatcher(poster, muter).dispatch(.none)
+        let poster = MockEventPoster()
+        makeDispatcher(poster).dispatch(.none)
         XCTAssertTrue(poster.posted.isEmpty)
-        XCTAssertEqual(muter.toggleCount, 0)
     }
 
     func testUnknownKeyNamePostsNothing() {
-        let poster = MockEventPoster(); let muter = MockInputMuter()
-        makeDispatcher(poster, muter).dispatch(.keyCombo(KeyCombo(modifiers: [.command], key: "NotAKey")))
+        let poster = MockEventPoster()
+        makeDispatcher(poster).dispatch(.keyCombo(KeyCombo(modifiers: [.command], key: "NotAKey")))
         XCTAssertTrue(poster.posted.isEmpty)
     }
 }

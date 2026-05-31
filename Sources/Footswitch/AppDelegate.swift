@@ -15,7 +15,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
-            muter: AudioInputMuter(),
             dictationShortcut: config.dictationShortcut)
 
         menuBar = MenuBarController(openSettings: { [weak self] in self?.showSettings() })
@@ -55,7 +54,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         try? store.save(newConfig)
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
-            muter: AudioInputMuter(),
             dictationShortcut: config.dictationShortcut)
         // triggerKey/debounce changes take effect on next launch (documented).
     }

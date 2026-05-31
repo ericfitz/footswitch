@@ -2,12 +2,10 @@ import Foundation
 
 public final class ActionDispatcher {
     private let poster: EventPosting
-    private let muter: InputMuting
     private let dictationShortcut: KeyCombo
 
-    public init(poster: EventPosting, muter: InputMuting, dictationShortcut: KeyCombo) {
+    public init(poster: EventPosting, dictationShortcut: KeyCombo) {
         self.poster = poster
-        self.muter = muter
         self.dictationShortcut = dictationShortcut
     }
 
@@ -17,8 +15,6 @@ public final class ActionDispatcher {
             postCombo(combo)
         case .dictation:
             postCombo(dictationShortcut)
-        case .muteInput:
-            muter.toggleInputMute()
         case .none:
             break
         }

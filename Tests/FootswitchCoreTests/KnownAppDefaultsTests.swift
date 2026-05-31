@@ -7,9 +7,13 @@ final class KnownAppDefaultsTests: XCTestCase {
                        KeyCombo(modifiers: [.command, .shift], key: "A"))
         XCTAssertTrue(KnownAppDefaults.isKnown(bundleID: "us.zoom.xos"))
     }
-    func testKnownButBlank() {
-        XCTAssertNil(KnownAppDefaults.suggestedShortcut(forBundleID: "com.apple.FaceTime"))
+    func testFaceTimeMuteSeeded() {
+        XCTAssertEqual(KnownAppDefaults.suggestedShortcut(forBundleID: "com.apple.FaceTime"),
+                       KeyCombo(modifiers: [.command, .shift], key: "M"))
         XCTAssertTrue(KnownAppDefaults.isKnown(bundleID: "com.apple.FaceTime"))
+    }
+    func testKnownButBlank() {
+        XCTAssertNil(KnownAppDefaults.suggestedShortcut(forBundleID: "com.microsoft.VSCode"))
         XCTAssertTrue(KnownAppDefaults.isKnown(bundleID: "com.microsoft.VSCode"))
     }
     func testTeamsBothIds() {

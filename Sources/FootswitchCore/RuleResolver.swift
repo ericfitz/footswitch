@@ -13,7 +13,6 @@ public enum RuleResolver {
         }
         switch config.defaultAction {
         case .dictation: return .dictation
-        case .muteInput: return .muteInput
         case .none:      return .none
         }
     }

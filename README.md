@@ -2,7 +2,7 @@
 
 Context-aware macOS menu bar app for a single-pedal iKKEGOL / PCsensor USB foot
 switch. Press the pedal to run an action chosen by the frontmost app: a key
-combo, or macOS dictation / input mute as the default action.
+combo for apps you've configured, or macOS dictation as the default action.
 
 ## How it works
 
@@ -103,30 +103,35 @@ Example:
 
 - `match` is the frontmost app's **bundle ID** (stable across renames). Exact
   match wins; otherwise `defaultAction` runs.
-- `defaultAction.type` is `dictation`, `muteInput`, or `none`.
+- `defaultAction.type` is `dictation` or `none`.
 - Modifiers accept `cmd`/`opt`/`ctrl`/`shift` (or the long forms).
 
 ## Action types
 
 Per-app rules send a key combo:
 
-- `keyCombo` — synthesize a keystroke (e.g. VS Code → ⌘D)
+- `keyCombo` — synthesize a keystroke to the frontmost app (e.g. VS Code → ⌘D)
 
-The default action (when no app rule matches) is one of:
+The default action (when no app rule matches) is either **Start dictation**
+(replay your configured dictation shortcut) or nothing — controlled by the
+"Start dictation when no app rule matches" checkbox.
 
-- **Start dictation** — replay your configured dictation shortcut
-- **Mute sound input** — toggle hardware mute on the default input device
-- **No action** — do nothing
+### Muting on calls
+
+To mute in a conferencing app, add a per-app rule with that app's own mute
+shortcut. Picking a known app pre-fills it: FaceTime ⌘⇧M, Zoom ⌘⇧A, Teams ⌘⇧M,
+Google Meet (in Chrome) ⌘D. This drives the app's real mute — a system-wide
+device mute does **not** work for these apps, since each keeps its own mute
+state independent of the OS input device.
 
 ## Project layout
 
 - `Sources/FootswitchCore/` — pure, headlessly-testable logic (models,
   `RuleResolver`, `Debouncer`, `Keymap`, `ActionDispatcher`, `ConfigStore`,
-  device protocol, injectable `EventPosting`/`InputMuting` seams). Covered by
-  `swift test`.
+  device protocol, injectable `EventPosting` seam). Covered by `swift test`.
 - `Sources/Footswitch/` — the AppKit/SwiftUI app and OS glue (event tap, live
-  CGEvent key synthesis, CoreAudio mute, IOKit device detection, menu bar,
-  settings window, permissions). Verified manually.
+  CGEvent key synthesis, IOKit device detection, menu bar, settings window,
+  permissions). Verified manually.
 - `docs/supported-devices.md` — the USB foot switch models this app recognizes.
 
 ## Manual verification checklist
@@ -140,7 +145,7 @@ The core logic is unit-tested, but the OS integration needs the real device:
 4. Add a VS Code rule via the **+** button and capture ⌘D (changes auto-save).
 5. Focus VS Code, press the pedal → ⌘D fires.
 6. Focus another app (e.g. TextEdit), press the pedal → the default action runs
-   (dictation, mute, or nothing per the radio selection).
+   (dictation, or nothing, per the checkbox).
 7. Confirm the trigger key never appears as a character anywhere (it is swallowed).
 
 ## License

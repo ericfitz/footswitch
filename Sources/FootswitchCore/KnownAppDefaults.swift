@@ -12,14 +12,16 @@ import Foundation
 public enum KnownAppDefaults {
     // swiftlint:disable:next discouraged_optional_collection
     private static let table: [String: KeyCombo?] = [
-        // Apps with a well-known default shortcut
-        "us.zoom.xos":            KeyCombo(modifiers: [.command, .shift], key: "A"),
-        "com.microsoft.teams2":   KeyCombo(modifiers: [.command, .shift], key: "M"),
-        "com.microsoft.teams":    KeyCombo(modifiers: [.command, .shift], key: "M"),
-        "com.google.Chrome":      KeyCombo(modifiers: [.command],         key: "D"),
+        // Conferencing apps with a well-known mute/unmute shortcut. These drive
+        // the app's own mute (the only thing those apps honor — a system device
+        // mute does not affect FaceTime/Zoom/Teams, which keep their own state).
+        "us.zoom.xos":            KeyCombo(modifiers: [.command, .shift], key: "A"),  // Zoom mute
+        "com.microsoft.teams2":   KeyCombo(modifiers: [.command, .shift], key: "M"),  // Teams mute
+        "com.microsoft.teams":    KeyCombo(modifiers: [.command, .shift], key: "M"),  // Teams (classic)
+        "com.apple.FaceTime":     KeyCombo(modifiers: [.command, .shift], key: "M"),  // FaceTime Video > Mute
+        "com.google.Chrome":      KeyCombo(modifiers: [.command],         key: "D"),  // Google Meet mic
 
         // Known apps — user must capture their own shortcut
-        "com.apple.FaceTime":     nil,
         "com.microsoft.VSCode":   nil,
         "com.apple.dt.Xcode":     nil,
         "com.apple.Terminal":     nil,

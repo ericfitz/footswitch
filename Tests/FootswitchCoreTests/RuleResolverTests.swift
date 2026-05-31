@@ -27,14 +27,13 @@ final class RuleResolverTests: XCTestCase {
         XCTAssertEqual(RuleResolver.resolve(bundleID: nil, config: config), .dictation)
     }
 
-    func testMuteAndNoneDefaultsResolve() {
-        XCTAssertEqual(RuleResolver.resolve(bundleID: "x", config: makeConfig(rules: [], def: .muteInput)), .muteInput)
+    func testNoneDefaultResolves() {
         XCTAssertEqual(RuleResolver.resolve(bundleID: "x", config: makeConfig(rules: [], def: .none)), ResolvedAction.none)
     }
 
-    func testMatchedRuleWinsOverMuteDefault() {
+    func testMatchedRuleWinsOverDefault() {
         let r = Rule(match: "com.x.app", appName: "X", action: .keyCombo(KeyCombo(modifiers: [.command], key: "M")))
-        let config = makeConfig(rules: [r], def: .muteInput)
+        let config = makeConfig(rules: [r], def: .none)
         XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", config: config),
                        .keyCombo(KeyCombo(modifiers: [.command], key: "M")))
     }
