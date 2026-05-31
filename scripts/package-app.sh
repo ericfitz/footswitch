@@ -37,6 +37,17 @@ cp "$BIN" "$APP/Contents/MacOS/Footswitch"
 cp "$ROOT/Sources/Footswitch/Resources/Info.plist" "$APP/Contents/Info.plist"
 cp "$ROOT/Sources/Footswitch/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
+# Copy hand-managed localization folders into the app bundle (.lproj live in the
+# main bundle's Resources so NSLocalizedString resolves them via Bundle.main).
+for lproj in "$ROOT/Sources/Footswitch/Resources/Localizations/"*.lproj; do
+  cp -R "$lproj" "$APP/Contents/Resources/"
+done
+
+# Inject the build's git short SHA into the packaged Info.plist's GitCommitHash
+# (the source plist ships a 0000000 placeholder for unpackaged dev runs).
+GIT_SHA="$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo 0000000)"
+/usr/libexec/PlistBuddy -c "Set :GitCommitHash $GIT_SHA" "$APP/Contents/Info.plist"
+
 echo "Signing with: $SIGN_IDENTITY (hardened runtime)"
 codesign --force --options runtime --timestamp \
   --entitlements "$ENTITLEMENTS" \
