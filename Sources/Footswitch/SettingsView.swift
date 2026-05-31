@@ -34,6 +34,7 @@ final class SettingsViewController: NSViewController {
     private let addRemove = NSSegmentedControl()
     private var dictationCheckbox: NSButton!
     private var deviceStatusLabel: NSTextField!
+    private var infoButton: NSButton!
     private var configStatusLabel: NSTextField!
     private var programButton: NSButton!
     private var configRow: NSStackView!
@@ -67,6 +68,14 @@ final class SettingsViewController: NSViewController {
         let deviceHeader = makeHeader("Foot switch")
         deviceStatusLabel = NSTextField(labelWithString: "")
         deviceStatusLabel.font = .systemFont(ofSize: 12)
+        infoButton = NSButton(title: "", target: self, action: #selector(showDeviceInfo))
+        infoButton.bezelStyle = .helpButton
+        infoButton.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "Switch info")
+        infoButton.isBordered = false
+        infoButton.imagePosition = .imageOnly
+        let detectedRow = NSStackView(views: [deviceStatusLabel, infoButton])
+        detectedRow.orientation = .horizontal
+        detectedRow.spacing = 8
 
         configStatusLabel = NSTextField(labelWithString: "")
         configStatusLabel.font = .systemFont(ofSize: 12)
@@ -77,7 +86,7 @@ final class SettingsViewController: NSViewController {
         configRow.orientation = .horizontal
         configRow.spacing = 12
 
-        deviceSection = NSStackView(views: [deviceStatusLabel, configRow])
+        deviceSection = NSStackView(views: [detectedRow, configRow])
         deviceSection.orientation = .vertical
         deviceSection.alignment = .leading
         deviceSection.spacing = 4
@@ -169,13 +178,15 @@ final class SettingsViewController: NSViewController {
 
     private func refreshDeviceStatus() {
         guard let detected = FootswitchHIDController.detect() else {
-            // No device: row 1 says so, row 2 hidden entirely.
+            // No device: row 1 says so, info button + row 2 hidden entirely.
             deviceStatusLabel.attributedStringValue = statusLine("⊘", "No supported foot switch detected", .secondaryLabelColor)
+            infoButton.isHidden = true
             configRow.isHidden = true
             return
         }
         deviceStatusLabel.attributedStringValue =
             statusLine("✓", "Detected pedal: \(detected.device.name)", .systemGreen)
+        infoButton.isHidden = false
         configRow.isHidden = false
 
         let expected = KeyCombo(modifiers: [], key: baseConfig.triggerKey)
@@ -207,6 +218,25 @@ final class SettingsViewController: NSViewController {
             string: text,
             attributes: [.foregroundColor: NSColor.labelColor, .font: NSFont.systemFont(ofSize: 12)]))
         return s
+    }
+
+    @objc private func showDeviceInfo() {
+        let info = FootswitchHIDController.deviceInfo() ?? "No supported foot switch is connected."
+        let alert = NSAlert()
+        alert.messageText = "Foot switch information"
+        alert.informativeText = info
+        // Monospaced so the aligned key/value columns line up.
+        let field = NSTextField(labelWithString: info)
+        field.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        field.sizeToFit()
+        alert.accessoryView = field
+        alert.informativeText = ""
+        alert.addButton(withTitle: "OK")
+        if let window = view.window {
+            alert.beginSheetModal(for: window, completionHandler: nil)
+        } else {
+            alert.runModal()
+        }
     }
 
     @objc private func programPedal() {
@@ -320,25 +350,19 @@ extension SettingsViewController: NSTableViewDataSource, NSTableViewDelegate {
             let icon = NSImageView()
             icon.image = NSWorkspace.shared.icon(forFile: appPath(forBundleID: rule.match) ?? "")
             icon.translatesAutoresizingMaskIntoConstraints = false
+            // Friendly app name; fall back to the bundle ID only when no name.
             let name = NSTextField(labelWithString: rule.appName.isEmpty ? rule.match : rule.appName)
-            let sub = NSTextField(labelWithString: rule.match)
-            sub.font = .systemFont(ofSize: 10)
-            sub.textColor = .secondaryLabelColor
-            let text = NSStackView(views: [name, sub])
-            text.orientation = .vertical
-            text.alignment = .leading
-            text.spacing = 0
-            text.translatesAutoresizingMaskIntoConstraints = false
+            name.translatesAutoresizingMaskIntoConstraints = false
             cell.addSubview(icon)
-            cell.addSubview(text)
+            cell.addSubview(name)
             NSLayoutConstraint.activate([
                 icon.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 2),
                 icon.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
                 icon.widthAnchor.constraint(equalToConstant: 20),
                 icon.heightAnchor.constraint(equalToConstant: 20),
-                text.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 6),
-                text.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
-                text.trailingAnchor.constraint(lessThanOrEqualTo: cell.trailingAnchor),
+                name.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 6),
+                name.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+                name.trailingAnchor.constraint(lessThanOrEqualTo: cell.trailingAnchor),
             ])
             return cell
 

@@ -68,6 +68,54 @@ enum FootswitchHIDController {
         return .unreadable   // no interface returned a config
     }
 
+    /// A human-readable, read-only report of the connected device: USB identity,
+    /// the matched model/protocol, and the pedal's currently-programmed key.
+    /// Returns nil if no supported device is connected.
+    static func deviceInfo() -> String? {
+        guard let detected = detect() else { return nil }
+        let dev = detected.hidDevice
+        var lines: [String] = []
+
+        func hex(_ n: Int?) -> String { n.map { String(format: "0x%04X", $0) } ?? "—" }
+
+        lines.append("USB device")
+        lines.append("  Vendor:      \(stringProperty(dev, kIOHIDManufacturerKey) ?? "—") (\(hex(intProperty(dev, kIOHIDVendorIDKey))))")
+        lines.append("  Product:     \(stringProperty(dev, kIOHIDProductKey) ?? "—") (\(hex(intProperty(dev, kIOHIDProductIDKey))))")
+        if let serial = stringProperty(dev, kIOHIDSerialNumberKey), !serial.isEmpty {
+            lines.append("  Serial:      \(serial)")
+        }
+        if let loc = intProperty(dev, kIOHIDLocationIDKey) {
+            lines.append("  Location ID: \(String(format: "0x%08X", loc))")
+        }
+        if let ver = intProperty(dev, kIOHIDVersionNumberKey) {
+            lines.append("  Version:     \(ver)")
+        }
+
+        lines.append("")
+        lines.append("Recognized model")
+        lines.append("  \(detected.device.name)")
+        lines.append("  Protocol: \(detected.device.program.rawValue)")
+
+        lines.append("")
+        lines.append("Programmed configuration")
+        if detected.device.program == .footswitch,
+           let stored = matches().filter({ $0.device.program == .footswitch })
+               .lazy.compactMap({ readStoredConfig($0.hidDevice, pedalIndex: 0) }).first {
+            switch stored {
+            case .key(let combo):
+                lines.append("  Emits: \(KeyComboFormatter.display(combo))")
+            case .unconfigured:
+                lines.append("  Unconfigured")
+            case .other:
+                lines.append("  Non-key configuration (mouse / string)")
+            }
+        } else {
+            lines.append("  Could not read configuration")
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
     // The device returns its stored config as an interrupt IN report, delivered
     // via an input-report callback on a run loop — NOT retrievable with a
     // synchronous IOHIDDeviceGetReport (that returns 0 bytes). We register a
@@ -193,5 +241,9 @@ enum FootswitchHIDController {
     private static func intProperty(_ dev: IOHIDDevice, _ key: String) -> Int? {
         guard let value = IOHIDDeviceGetProperty(dev, key as CFString) as? Int else { return nil }
         return value
+    }
+
+    private static func stringProperty(_ dev: IOHIDDevice, _ key: String) -> String? {
+        IOHIDDeviceGetProperty(dev, key as CFString) as? String
     }
 }
