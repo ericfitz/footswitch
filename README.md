@@ -149,3 +149,11 @@ The core logic is unit-tested, but the OS integration needs the real device:
 software for any **noncommercial** purpose (personal use, hobby projects,
 education, research). **Commercial use is not permitted.** See [LICENSE](LICENSE)
 for the full terms.
+
+## Acknowledgements
+
+Thanks to Radoslav Gerganov for [`footswitch`](https://github.com/rgerganov/footswitch),
+the command-line utility for programming PCsensor and Scythe foot switches. It
+was invaluable for understanding how these devices work, and this project's
+device detection and programming were inspired by it. No code from that project
+is used here — the USB HID logic is an independent reimplementation in Swift.
