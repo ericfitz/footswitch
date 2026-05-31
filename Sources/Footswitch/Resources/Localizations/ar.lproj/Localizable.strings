@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "حول Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "الإعدادات…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "إنهاء Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ يلزم إذن إمكانية الوصول";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "الأخير: %1$@ ← %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "لا توجد ضغطات بعد";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "الإملاء";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "بلا إجراء";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "غير معروف";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "إعدادات Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "مفتاح القدم";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "الإجراء الافتراضي";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "قواعد التطبيقات";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "بدء الإملاء عند عدم تطابق أي قاعدة تطبيق";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "اضغط على المفتاح بالقدم في أحد التطبيقات أدناه لإرسال اختصاره. تستخدم التطبيقات الأخرى الإجراء الافتراضي أعلاه.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "برمجة الدواسة";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "التطبيق";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "الاختصار";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "لم يتم اكتشاف مفتاح قدم مدعوم";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "تم اكتشاف الدواسة: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "تم التحقق من التهيئة";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "يجب تحديث التهيئة";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "تعذّرت قراءة التهيئة";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "معلومات مفتاح القدم";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "لا يوجد مفتاح قدم مدعوم متصل.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "مفتاح القدم";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "تمت برمجة مفتاح القدم لإرسال %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "تعذّرت برمجة مفتاح القدم.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "موافق";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "اختر تطبيقًا";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "انقر للتعيين";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "اضغط الاختصار…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "مفتاح غير مدعوم";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "أضف مفتاح تعديل (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "حول Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "اربط مفتاح القدم USB باختصارات لوحة المفاتيح لكل تطبيق.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "الإصدار %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "عرض على GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "الإبلاغ عن مشكلة";
+
+/* About window link button: open the license. */
+"about.license" = "الترخيص";
