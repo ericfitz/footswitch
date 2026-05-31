@@ -30,6 +30,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Footswitch"
 cp "$ROOT/Sources/Footswitch/Resources/Info.plist" "$APP/Contents/Info.plist"
+cp "$ROOT/Sources/Footswitch/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
 echo "Signing with: $SIGN_IDENTITY (hardened runtime)"
 codesign --force --options runtime --timestamp \

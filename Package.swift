@@ -9,10 +9,10 @@ let package = Package(
         .executableTarget(
             name: "Footswitch",
             dependencies: ["FootswitchCore"],
-            // Info.plist is not allowed as a top-level processed resource by SwiftPM.
-            // It is kept in Resources/ for the eventual .app bundle packaging step and
-            // excluded from the resource bundle here.
-            exclude: ["Resources/Info.plist"],
+            // Info.plist and AppIcon.icns are bundle artifacts, not SwiftPM
+            // resources — the packaging scripts copy them into the .app's
+            // Contents/ directly. Exclude them from the SwiftPM resource bundle.
+            exclude: ["Resources/Info.plist", "Resources/AppIcon.icns"],
             resources: [.process("Resources")]
         ),
         .testTarget(
