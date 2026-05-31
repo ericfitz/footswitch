@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Footswitch needs no special entitlements under the hardened runtime.
+
+    The app installs a CGEvent tap and synthesizes keystrokes; on macOS those
+    capabilities are gated by the Accessibility TCC permission the user grants
+    at runtime (System Settings -> Privacy & Security -> Accessibility), NOT by
+    a code-signing entitlement. The app is not sandboxed, has no network use,
+    and reads/writes only ~/.footswitch which it owns.
+
+    This file exists so the signing command is uniform and any future
+    entitlement has an obvious home. An empty dict is valid and intentional.
+  -->
+</dict>
+</plist>

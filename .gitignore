@@ -1,0 +1,13 @@
+.build/
+build/
+*.xcodeproj
+.DS_Store
+
+# Local signing config (personal Apple Development identity).
+scripts/signing.env
+
+# Personal notarized-release / App Store Connect workflow (me-only; not part of
+# the public source).
+scripts/asc.env
+scripts/setup-asc.sh
+scripts/notarize-release.sh
