@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$ROOT/build/Footswitch.app"
-BIN="$ROOT/.build/release/Footswitch"
 ENTITLEMENTS="$ROOT/Footswitch.entitlements"
+BUILD_FLAGS="-c release --arch arm64 --arch x86_64"
 SIGNING_ENV="$ROOT/scripts/signing.env"
 
 # Local signing config lives in an untracked scripts/signing.env (created by
@@ -24,7 +24,12 @@ if [ -z "${SIGN_IDENTITY:-}" ]; then
   exit 1
 fi
 
-swift build -c release --package-path "$ROOT"
+# shellcheck disable=SC2086
+swift build $BUILD_FLAGS --package-path "$ROOT"
+# Resolve the product dir from SwiftPM (universal builds live under
+# .build/apple/Products/Release, not .build/release).
+# shellcheck disable=SC2086
+BIN="$(swift build $BUILD_FLAGS --package-path "$ROOT" --show-bin-path)/Footswitch"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
