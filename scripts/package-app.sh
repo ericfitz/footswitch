@@ -7,6 +7,10 @@ ENTITLEMENTS="$ROOT/Footswitch.entitlements"
 BUILD_FLAGS="-c release --arch arm64 --arch x86_64"
 SIGNING_ENV="$ROOT/scripts/signing.env"
 
+# Shared bundle-assembly helpers (build binary + assemble .app incl. .lproj + SHA).
+# shellcheck source=lib-bundle.sh
+source "$(dirname "$0")/lib-bundle.sh"
+
 # Local signing config lives in an untracked scripts/signing.env (created by
 # scripts/setup-signing.sh). It must define SIGN_IDENTITY. We sign dev builds
 # with a stable "Apple Development" identity so the Accessibility (TCC) grant
@@ -24,29 +28,8 @@ if [ -z "${SIGN_IDENTITY:-}" ]; then
   exit 1
 fi
 
-# shellcheck disable=SC2086
-swift build $BUILD_FLAGS --package-path "$ROOT"
-# Resolve the product dir from SwiftPM (universal builds live under
-# .build/apple/Products/Release, not .build/release).
-# shellcheck disable=SC2086
-BIN="$(swift build $BUILD_FLAGS --package-path "$ROOT" --show-bin-path)/Footswitch"
-
-rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$BIN" "$APP/Contents/MacOS/Footswitch"
-cp "$ROOT/Sources/Footswitch/Resources/Info.plist" "$APP/Contents/Info.plist"
-cp "$ROOT/Sources/Footswitch/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
-
-# Copy hand-managed localization folders into the app bundle (.lproj live in the
-# main bundle's Resources so NSLocalizedString resolves them via Bundle.main).
-for lproj in "$ROOT/Sources/Footswitch/Resources/Localizations/"*.lproj; do
-  cp -R "$lproj" "$APP/Contents/Resources/"
-done
-
-# Inject the build's git short SHA into the packaged Info.plist's GitCommitHash
-# (the source plist ships a 0000000 placeholder for unpackaged dev runs).
-GIT_SHA="$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo 0000000)"
-/usr/libexec/PlistBuddy -c "Set :GitCommitHash $GIT_SHA" "$APP/Contents/Info.plist"
+BIN="$(footswitch_build_binary "$ROOT" "$BUILD_FLAGS")"
+footswitch_assemble_app "$ROOT" "$BIN" "$APP"
 
 echo "Signing with: $SIGN_IDENTITY (hardened runtime)"
 codesign --force --options runtime --timestamp \
