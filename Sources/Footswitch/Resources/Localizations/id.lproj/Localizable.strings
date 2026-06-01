@@ -29,7 +29,7 @@
 "settings.windowTitle" = "Pengaturan Footswitch";
 
 /* Settings section header for the foot switch device. */
-"settings.header.device" = "Foot switch";
+"settings.header.device" = "Sakelar kaki";
 
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "Tindakan default";
@@ -53,7 +53,7 @@
 "settings.col.shortcut" = "Pintasan";
 
 /* Device status: no supported foot switch is connected. */
-"device.none" = "Tidak ada foot switch yang didukung terdeteksi";
+"device.none" = "Tidak ada sakelar kaki yang didukung terdeteksi";
 
 /* Device status: a pedal was detected. %@ = device name. */
 "device.detected" = "Pedal terdeteksi: %@";
@@ -68,13 +68,13 @@
 "device.config.unreadable" = "Tidak dapat membaca konfigurasi";
 
 /* Title of the device-info alert. */
-"alert.deviceInfo.title" = "Informasi foot switch";
+"alert.deviceInfo.title" = "Informasi sakelar kaki";
 
 /* Device-info alert body when no device is connected. */
-"alert.deviceInfo.none" = "Tidak ada foot switch yang didukung yang terhubung.";
+"alert.deviceInfo.none" = "Tidak ada sakelar kaki yang didukung yang terhubung.";
 
 /* Generic title for foot switch alerts. */
-"alert.footswitch.title" = "Foot switch";
+"alert.footswitch.title" = "Sakelar kaki";
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Sakelar kaki berhasil diprogram untuk mengirim %@.";
@@ -104,7 +104,7 @@
 "about.windowTitle" = "Tentang Footswitch";
 
 /* About window one-line description of the app. */
-"about.description" = "Petakan foot switch USB ke pintasan keyboard, per aplikasi.";
+"about.description" = "Petakan sakelar kaki USB ke pintasan keyboard, per aplikasi.";
 
 /* About window version line. %1$@ = short version, %2$@ = git commit hash. */
 "about.version" = "Versi %1$@ (%2$@)";
