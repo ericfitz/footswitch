@@ -12,3 +12,7 @@ scripts/asc.env
 scripts/setup-asc.sh
 scripts/notarize-release.sh
 scripts/build-dmg.sh
+
+# Local Claude Code tooling state and instructions (not part of the public source).
+.claude/
+CLAUDE.md
