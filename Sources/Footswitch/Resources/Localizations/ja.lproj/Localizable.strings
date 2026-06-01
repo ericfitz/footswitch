@@ -11,7 +11,7 @@
 "menu.needsPermission" = "⚠️ アクセシビリティのアクセス許可が必要";
 
 /* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
-"menu.lastFire" = "最後: %1$@ → %2$@";
+"menu.lastFire" = "前回: %1$@ → %2$@";
 
 /* Menu line shown before any pedal press has happened. */
 "menu.noPresses" = "まだ押されていません";

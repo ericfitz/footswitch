@@ -86,7 +86,7 @@
 "alert.ok" = "好";
 
 /* Title of the open panel used to pick an application for a rule. */
-"openPanel.title" = "选择一个应用程序";
+"openPanel.title" = "选取应用程序";
 
 /* Shortcut capture field: prompt before a shortcut is set. */
 "capture.clickToSet" = "点按以设置";
@@ -107,7 +107,7 @@
 "about.description" = "为每个应用将 USB 脚踏开关映射到键盘快捷键。";
 
 /* About window version line. %1$@ = short version, %2$@ = git commit hash. */
-"about.version" = "版本 %1$@（%2$@）";
+"about.version" = "版本 %1$@ (%2$@)";
 
 /* About window copyright line. */
 "about.copyright" = "© 2026 Eric Fitzgerald";

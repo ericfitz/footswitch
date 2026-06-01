@@ -44,13 +44,13 @@
 "settings.rulesHint" = "Aşağıdaki bir uygulamada pedala basarak kısayolunu gönderin. Diğer uygulamalar yukarıdaki varsayılan eylemi kullanır.";
 
 /* Button: program the foot switch hardware with the trigger key. */
-"settings.programButton" = "Pedali programla";
+"settings.programButton" = "Pedalı programla";
 
 /* Rules table column header for the application. */
 "settings.col.application" = "Uygulama";
 
 /* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Klavye kısayolu";
+"settings.col.shortcut" = "Kısayol";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Desteklenen ayak pedalı algılanmadı";

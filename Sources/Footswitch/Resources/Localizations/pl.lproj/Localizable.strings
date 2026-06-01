@@ -8,7 +8,7 @@
 "menu.quit" = "Zakończ Footswitch";
 
 /* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
-"menu.needsPermission" = "⚠️ Wymagane uprawnienia dostępu";
+"menu.needsPermission" = "⚠️ Wymaga uprawnień Dostępności";
 
 /* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
 "menu.lastFire" = "Ostatnio: %1$@ → %2$@";
@@ -104,7 +104,7 @@
 "about.windowTitle" = "O aplikacji Footswitch";
 
 /* About window one-line description of the app. */
-"about.description" = "Mapuj USB przełącznik nożny na skróty klawiszowe dla każdej aplikacji.";
+"about.description" = "Mapuj przełącznik nożny USB na skróty klawiszowe dla każdej aplikacji.";
 
 /* About window version line. %1$@ = short version, %2$@ = git commit hash. */
 "about.version" = "Wersja %1$@ (%2$@)";

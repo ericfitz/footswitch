@@ -92,7 +92,7 @@
 "capture.clickToSet" = "Klicka för att ange";
 
 /* Shortcut capture field: prompt while recording a shortcut. */
-"capture.pressShortcut" = "Tryck kortkommando…";
+"capture.pressShortcut" = "Tryck på kortkommando…";
 
 /* Shortcut capture field: shown when an unsupported key is pressed. */
 "capture.unsupportedKey" = "Tangenten stöds inte";

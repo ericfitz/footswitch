@@ -44,7 +44,7 @@
 "settings.rulesHint" = "לחץ על הדוושה באפליקציה שלהלן כדי לשלוח את קיצור המקלדת שלה. אפליקציות אחרות משתמשות בפעולת ברירת המחדל שלמעלה.";
 
 /* Button: program the foot switch hardware with the trigger key. */
-"settings.programButton" = "תכנת דוושה";
+"settings.programButton" = "תכנות דוושה";
 
 /* Rules table column header for the application. */
 "settings.col.application" = "אפליקציה";
@@ -113,7 +113,7 @@
 "about.copyright" = "© 2026 Eric Fitzgerald";
 
 /* About window link button: open the GitHub repository. */
-"about.viewOnGitHub" = "צפה ב-GitHub";
+"about.viewOnGitHub" = "צפייה ב-GitHub";
 
 /* About window link button: open a prefilled new GitHub issue. */
 "about.reportProblem" = "דווח על בעיה";

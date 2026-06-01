@@ -8,7 +8,7 @@
 "menu.quit" = "Avslutt Footswitch";
 
 /* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
-"menu.needsPermission" = "⚠️ Trenger tillatelse til tilgjengelighet";
+"menu.needsPermission" = "⚠️ Trenger tilgang til Tilgjengelighet";
 
 /* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
 "menu.lastFire" = "Sist: %1$@ → %2$@";

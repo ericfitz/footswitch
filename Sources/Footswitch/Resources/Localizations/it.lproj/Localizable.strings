@@ -98,7 +98,7 @@
 "capture.unsupportedKey" = "Tasto non supportato";
 
 /* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
-"capture.addModifier" = "Aggiungi un modificatore (⌘⌥⌃⇧)";
+"capture.addModifier" = "Aggiungi un tasto modificatore (⌘⌥⌃⇧)";
 
 /* About window title. */
 "about.windowTitle" = "Informazioni su Footswitch";

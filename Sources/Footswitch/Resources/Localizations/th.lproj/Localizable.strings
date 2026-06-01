@@ -17,7 +17,7 @@
 "menu.noPresses" = "ยังไม่มีการกด";
 
 /* Action description: starts macOS dictation. Used inside menu.lastFire. */
-"action.dictation" = "การบอกตามคำบอก";
+"action.dictation" = "การป้อนตามคำบอก";
 
 /* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
 "action.none" = "ไม่มีการดำเนินการ";
@@ -38,7 +38,7 @@
 "settings.header.rules" = "กฎสำหรับแอป";
 
 /* Settings checkbox: enable dictation when no per-app rule matches. */
-"settings.dictationCheckbox" = "เริ่มการบอกตามคำบอกเมื่อไม่มีกฎแอปที่ตรงกัน";
+"settings.dictationCheckbox" = "เริ่มการป้อนตามคำบอกเมื่อไม่มีกฎแอปที่ตรงกัน";
 
 /* Settings hint text below the rules table. */
 "settings.rulesHint" = "กดแป้นเหยียบในแอปด้านล่างเพื่อส่งแป้นพิมพ์ลัด แอปอื่นใช้การดำเนินการเริ่มต้นด้านบน";

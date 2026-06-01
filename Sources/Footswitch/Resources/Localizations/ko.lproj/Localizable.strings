@@ -38,7 +38,7 @@
 "settings.header.rules" = "앱 규칙";
 
 /* Settings checkbox: enable dictation when no per-app rule matches. */
-"settings.dictationCheckbox" = "앱 규칙이 없을 때 받아쓰기 시작";
+"settings.dictationCheckbox" = "일치하는 앱 규칙이 없을 때 받아쓰기 시작";
 
 /* Settings hint text below the rules table. */
 "settings.rulesHint" = "아래 앱에서 페달을 누르면 해당 단축키가 전송됩니다. 다른 앱은 위의 기본 동작을 사용합니다.";
@@ -98,7 +98,7 @@
 "capture.unsupportedKey" = "지원되지 않는 키";
 
 /* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
-"capture.addModifier" = "조합키를 추가하십시오 (⌘⌥⌃⇧)";
+"capture.addModifier" = "보조 키를 추가하십시오 (⌘⌥⌃⇧)";
 
 /* About window title. */
 "about.windowTitle" = "Footswitch 정보";

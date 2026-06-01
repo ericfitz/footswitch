@@ -44,7 +44,7 @@
 "settings.rulesHint" = "Press the pedal in an app below to send its shortcut. Other apps use the default action above.";
 
 /* Button: program the foot switch hardware with the trigger key. */
-"settings.programButton" = "Programme pedal";
+"settings.programButton" = "Program pedal";
 
 /* Rules table column header for the application. */
 "settings.col.application" = "Application";

@@ -5,7 +5,7 @@
 "menu.settings" = "Ajustes…";
 
 /* Menu item: quit the application entirely. */
-"menu.quit" = "Encerrar o Footswitch";
+"menu.quit" = "Encerrar Footswitch";
 
 /* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
 "menu.needsPermission" = "⚠️ Permissão de Acessibilidade necessária";

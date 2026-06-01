@@ -92,13 +92,13 @@
 "capture.clickToSet" = "Cliquer pour définir";
 
 /* Shortcut capture field: prompt while recording a shortcut. */
-"capture.pressShortcut" = "Appuyez sur le raccourci…";
+"capture.pressShortcut" = "Appuyer sur le raccourci…";
 
 /* Shortcut capture field: shown when an unsupported key is pressed. */
 "capture.unsupportedKey" = "Touche non prise en charge";
 
 /* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
-"capture.addModifier" = "Ajoutez un modificateur (⌘⌥⌃⇧)";
+"capture.addModifier" = "Ajouter un modificateur (⌘⌥⌃⇧)";
 
 /* About window title. */
 "about.windowTitle" = "À propos de Footswitch";
