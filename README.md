@@ -4,6 +4,19 @@ Context-aware macOS menu bar app for a single-pedal iKKEGOL / PCsensor USB foot
 switch. Press the pedal to run an action chosen by the frontmost app: a key
 combo for apps you've configured, or macOS dictation as the default action.
 
+The app is a universal binary (Apple Silicon + Intel), runs as a menu bar
+(`LSUIElement`) app, and is localized into 30 languages — it follows your macOS
+language automatically.
+
+## Install
+
+Download `Footswitch.dmg` from the [latest release](https://github.com/ericfitz/footswitch/releases/latest),
+open it, and drag **Footswitch** to Applications. The app is signed with a
+Developer ID and notarized by Apple, so it launches without Gatekeeper warnings.
+
+On first launch, grant **Accessibility** permission (see below). To build from
+source instead, see [Build & run](#build--run).
+
 ## How it works
 
 The pedal is programmed once to emit **F13** — a key with no physical key on Mac
@@ -123,6 +136,23 @@ shortcut. Picking a known app pre-fills it: FaceTime ⌘⇧M, Zoom ⌘⇧A, Team
 Google Meet (in Chrome) ⌘D. This drives the app's real mute — a system-wide
 device mute does **not** work for these apps, since each keeps its own mute
 state independent of the OS input device.
+
+## Menu bar
+
+The 🦶 status item shows the most recent press and a menu with **About
+Footswitch**, **Settings…**, and **Quit**. The About window shows the version and
+build commit and links to the GitHub repo, a prefilled "Report a problem" issue
+(with your app version, macOS version, and architecture), and the license.
+
+## Localization
+
+The UI ships in 30 languages and follows your macOS language automatically
+(System Settings → General → Language & Region). If your language isn't included,
+it falls back to English. Strings live in
+`Sources/Footswitch/Resources/Localizations/<lang>.lproj/Localizable.strings`,
+with English (`en`) as the authoritative source; the packaging scripts copy them
+into the app bundle. See [docs/localization-review-backlog.md](docs/localization-review-backlog.md)
+for the status of per-language review.
 
 ## Project layout
 
