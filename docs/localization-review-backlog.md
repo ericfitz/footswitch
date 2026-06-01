@@ -8,6 +8,12 @@ stylistic preference or an adjudicated toss-up. None of the three models are
 native speakers, so these are candidates for a future native-speaker review,
 not confirmed defects. Finnish (fi) was dropped entirely.
 
+## Native review status
+
+- **Thai (th)** — ✅ reviewed by a native speaker, who confirmed all 5 of
+  gpt-5-codex's suggestions were improvements. All 5 applied; Thai is resolved and
+  its entries have been removed from the tiers below.
+
 ## Tier 1 — both automated reviewers flagged, but adjudication rejected the change
 
 These had two independent flags; worth a native look first.
@@ -32,7 +38,6 @@ These had two independent flags; worth a native look first.
 - **pt-BR / `capture.unsupportedKey`** — gpt5: `Tecla incompatível`  ·  sonnet: `Tecla sem suporte`
 - **pt-PT / `capture.addModifier`** — gpt5: `Adicione uma tecla modificadora (⌘⌥⌃⇧)`  ·  sonnet: `Adicionar um modificador (⌘⌥⌃⇧)`
 - **sv / `menu.needsPermission`** — gpt5: `⚠️ Behörighet till Hjälpmedel krävs`  ·  sonnet: `⚠️ Kräver åtkomst till Hjälpmedel`
-- **th / `capture.addModifier`** — gpt5: `เพิ่มปุ่มปรับค่า (⌘⌥⌃⇧)`  ·  sonnet: `เพิ่มปุ่มดัดแปลง (⌘⌥⌃⇧)`
 - **zh-Hant / `settings.dictationCheckbox`** — gpt5: `沒有符合的 App 規則時開始聽寫`  ·  sonnet: `未符合任何應用程式規則時啟動語音輸入`
 
 ## Tier 2 — single-source stylistic suggestions (one reviewer only)
@@ -128,8 +133,6 @@ Lower priority; one model's terminology preference.
 - sv / `settings.header.rules` (gpt-5-codex): `Appregler`
 - sv / `settings.programButton` (gpt-5-codex): `Programmera pedalen`
 - sv / `settings.rulesHint` (gpt-5-codex): `Tryck på pedalen i någon av apparna nedan för att skicka appens kortkommando. Andra appar använder standardåtgärden ovan.`
-- th / `capture.unsupportedKey` (gpt-5-codex): `ปุ่มที่ไม่รองรับ`
-- th / `settings.rulesHint` (gpt-5-codex): `กดแป้นเหยียบในแอปใดแอปหนึ่งด้านล่างเพื่อส่งแป้นพิมพ์ลัดของแอปนั้น แอปอื่นๆ ใช้การดำเนินการเริ่มต้นด้านบน`
 - tr / `about.description` (gpt-5-codex): `USB ayak pedalınızı uygulamaya göre klavye kestirmelerine eşleyin.`
 - tr / `capture.addModifier` (gpt-5-codex): `Niteleme tuşu ekleyin (⌘⌥⌃⇧)`
 - tr / `capture.pressShortcut` (gpt-5-codex): `Bir klavye kestirmesine basın…`

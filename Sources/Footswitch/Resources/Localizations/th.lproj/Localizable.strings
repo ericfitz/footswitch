@@ -38,10 +38,10 @@
 "settings.header.rules" = "กฎสำหรับแอป";
 
 /* Settings checkbox: enable dictation when no per-app rule matches. */
-"settings.dictationCheckbox" = "เริ่มการป้อนตามคำบอกเมื่อไม่มีกฎแอปที่ตรงกัน";
+"settings.dictationCheckbox" = "เริ่มการป้อนตามคำบอกเมื่อไม่มีกฎสำหรับแอปที่ตรงกัน";
 
 /* Settings hint text below the rules table. */
-"settings.rulesHint" = "กดแป้นเหยียบในแอปด้านล่างเพื่อส่งแป้นพิมพ์ลัด แอปอื่นใช้การดำเนินการเริ่มต้นด้านบน";
+"settings.rulesHint" = "กดแป้นเหยียบในแอปใดแอปหนึ่งด้านล่างเพื่อส่งแป้นพิมพ์ลัดของแอปนั้น แอปอื่นๆ ใช้การดำเนินการเริ่มต้นด้านบน";
 
 /* Button: program the foot switch hardware with the trigger key. */
 "settings.programButton" = "ตั้งโปรแกรมแป้นเหยียบ";
@@ -95,10 +95,10 @@
 "capture.pressShortcut" = "กดแป้นพิมพ์ลัด…";
 
 /* Shortcut capture field: shown when an unsupported key is pressed. */
-"capture.unsupportedKey" = "คีย์ที่ไม่รองรับ";
+"capture.unsupportedKey" = "ปุ่มที่ไม่รองรับ";
 
 /* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
-"capture.addModifier" = "เพิ่มตัวปรับแต่ง (⌘⌥⌃⇧)";
+"capture.addModifier" = "เพิ่มปุ่มปรับค่า (⌘⌥⌃⇧)";
 
 /* About window title. */
 "about.windowTitle" = "เกี่ยวกับ Footswitch";
