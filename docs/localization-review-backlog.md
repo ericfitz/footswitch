@@ -14,6 +14,17 @@ not confirmed defects. Finnish (fi) was dropped entirely.
   gpt-5-codex's suggestions were improvements. All 5 applied; Thai is resolved and
   its entries have been removed from the tiers below.
 
+## Automated review rounds
+
+- **Round 1** — gpt-5-codex + blind Claude-Sonnet, Opus-adjudicated → 23 fixes applied.
+- **Round 2** — added **Grok** and **Gemini** (via `scripts/review_locales.py`),
+  giving 4 independent sources. A further **13 fixes** were applied where ≥2 sources
+  independently converged on the same replacement (3 agreed by gpt-5+Grok+Gemini), plus
+  1 consistency follow-on (zh-Hant dictation term). 21 Round-1 fixes were independently
+  corroborated. Remaining multi-source items whose suggestions **diverge** are listed
+  below for native review; full agreement data is in
+  `.localization-reviews/claude-pipeline/agreement4.json`.
+
 ## Tier 1 — both automated reviewers flagged, but adjudication rejected the change
 
 These had two independent flags; worth a native look first.
@@ -21,7 +32,6 @@ These had two independent flags; worth a native look first.
 - **da / `capture.addModifier`** — gpt5: `Tilføj en kombitast (⌘⌥⌃⇧)`  ·  sonnet: `Tilføj en modifikatortast (⌘⌥⌃⇧)`
 - **de / `capture.addModifier`** — gpt5: `Sondertaste hinzufügen (⌘⌥⌃⇧)`  ·  sonnet: `Zusatztaste hinzufügen (⌘⌥⌃⇧)`
 - **de / `settings.rulesHint`** — gpt5: `Betätigen Sie den Fußschalter in einer unten aufgeführten App, um den zugehörigen Tastaturkurzbefehl zu senden. Andere Apps verwenden die Standardaktion oben.`  ·  sonnet: `Fußschalter in einer der untenstehenden Apps betätigen, um deren Kurzbefehl zu senden. Andere Apps verwenden die Standardaktion oben.`
-- **el / `capture.addModifier`** — gpt5: `Προσθέστε πλήκτρο τροποποίησης (⌘⌥⌃⇧)`  ·  sonnet: `Προσθέστε πλήκτρο τροποποίησης (⌘⌥⌃⇧)`
 - **es / `about.description`** — gpt5: `Asigna tu pedal USB a funciones rápidas de teclado para cada app.`  ·  sonnet: `Asigna tu pedal USB a atajos de teclado, por aplicación.`
 - **es / `capture.clickToSet`** — gpt5: `Haz clic para definir`  ·  sonnet: `Clic para establecer`
 - **es / `settings.rulesHint`** — gpt5: `Pulsa el pedal en una app de la lista para enviar su función rápida de teclado. Las demás apps usan la acción predeterminada de arriba.`  ·  sonnet: `Pulsa el pedal en una aplicación de abajo para enviar su atajo. Las demás aplicaciones usan la acción predeterminada de arriba.`
@@ -38,7 +48,6 @@ These had two independent flags; worth a native look first.
 - **pt-BR / `capture.unsupportedKey`** — gpt5: `Tecla incompatível`  ·  sonnet: `Tecla sem suporte`
 - **pt-PT / `capture.addModifier`** — gpt5: `Adicione uma tecla modificadora (⌘⌥⌃⇧)`  ·  sonnet: `Adicionar um modificador (⌘⌥⌃⇧)`
 - **sv / `menu.needsPermission`** — gpt5: `⚠️ Behörighet till Hjälpmedel krävs`  ·  sonnet: `⚠️ Kräver åtkomst till Hjälpmedel`
-- **zh-Hant / `settings.dictationCheckbox`** — gpt5: `沒有符合的 App 規則時開始聽寫`  ·  sonnet: `未符合任何應用程式規則時啟動語音輸入`
 
 ## Tier 2 — single-source stylistic suggestions (one reviewer only)
 
@@ -58,14 +67,12 @@ Lower priority; one model's terminology preference.
 - de / `capture.pressShortcut` (gpt-5-codex): `Tastaturkurzbefehl drücken…`
 - de / `settings.col.shortcut` (gpt-5-codex): `Tastaturkurzbefehl`
 - el / `about.description` (gpt-5-codex): `Αντιστοιχίστε τον ποδοδιακόπτη USB σας σε συντομεύσεις πληκτρολογίου, ανά εφαρμογή.`
-- el / `about.windowTitle` (gpt-5-codex): `Πληροφορίες για το Footswitch`
 - el / `alert.deviceInfo.none` (gpt-5-codex): `Δεν είναι συνδεδεμένος υποστηριζόμενος ποδοδιακόπτης.`
 - el / `alert.deviceInfo.title` (gpt-5-codex): `Πληροφορίες ποδοδιακόπτη`
 - el / `alert.footswitch.title` (gpt-5-codex): `Ποδοδιακόπτης`
 - el / `alert.programFailed` (gpt-5-codex): `Δεν ήταν δυνατός ο προγραμματισμός του ποδοδιακόπτη.\n\n%@`
 - el / `alert.programmed` (gpt-5-codex): `Ο ποδοδιακόπτης προγραμματίστηκε να στέλνει %@.`
 - el / `device.none` (gpt-5-codex): `Δεν εντοπίστηκε υποστηριζόμενος ποδοδιακόπτης`
-- el / `menu.about` (gpt-5-codex): `Πληροφορίες για το Footswitch`
 - el / `settings.dictationCheckbox` (gpt-5-codex): `Έναρξη υπαγόρευσης όταν δεν ταιριάζει κανόνας εφαρμογής`
 - el / `settings.header.device` (gpt-5-codex): `Ποδοδιακόπτης`
 - es / `capture.addModifier` (gpt-5-codex): `Añade una tecla modificadora (⌘⌥⌃⇧)`
@@ -81,14 +88,11 @@ Lower priority; one model's terminology preference.
 - fr-CA / `settings.rulesHint` (gpt-5-codex): `Appuyez sur la pédale dans l’une des apps ci-dessous pour envoyer son raccourci clavier. Les autres apps utilisent l’action par défaut ci-dessus.`
 - he / `about.description` (gpt-5-codex): `מפה את דוושת הרגל בחיבור USB לקיצורי מקלדת, לפי אפליקציה.`
 - he / `capture.addModifier` (gpt-5-codex): `הוסף מקש צירוף (⌘⌥⌃⇧)`
-- he / `capture.pressShortcut` (gpt-5-codex): `הקש קיצור מקלדת…`
 - he / `settings.rulesHint` (gpt-5-codex): `לחץ על הדוושה באחת מהאפליקציות שלהלן כדי לשלוח את קיצור המקלדת שלה. אפליקציות אחרות משתמשות בפעולת ברירת המחדל שלמעלה.`
 - id / `about.description` (gpt-5-codex): `Petakan sakelar kaki USB Anda ke pintasan papan ketik, untuk tiap aplikasi.`
 - id / `alert.deviceInfo.none` (gpt-5-codex): `Tidak ada sakelar kaki yang didukung yang terhubung.`
 - id / `alert.deviceInfo.title` (gpt-5-codex): `Informasi sakelar kaki`
 - id / `alert.footswitch.title` (gpt-5-codex): `Sakelar kaki`
-- id / `alert.programFailed` (gpt-5-codex): `Tidak dapat memprogram sakelar kaki.\n\n%@`
-- id / `alert.programmed` (gpt-5-codex): `Sakelar kaki berhasil diprogram untuk mengirim %@.`
 - id / `capture.pressShortcut` (gpt-5-codex): `Tekan pintasan papan ketik…`
 - id / `device.none` (gpt-5-codex): `Tidak terdeteksi sakelar kaki yang didukung`
 - id / `menu.noPresses` (gpt-5-codex): `Pedal belum pernah ditekan`
@@ -105,7 +109,6 @@ Lower priority; one model's terminology preference.
 - ko / `menu.about` (gpt-5-codex): `Footswitch에 관하여`
 - ko / `menu.noPresses` (gpt-5-codex): `아직 누른 적 없음`
 - nb / `capture.addModifier` (gpt-5-codex): `Legg til en spesialtast (⌘⌥⌃⇧)`
-- nb / `settings.header.default` (gpt-5-codex): `Standardhandling`
 - nb / `settings.rulesHint` (gpt-5-codex): `Trykk på pedalen i en av appene nedenfor for å sende appens tastatursnarvei. Andre apper bruker standardhandlingen ovenfor.`
 - nl / `capture.pressShortcut` (gpt-5-codex): `Druk op een toetscombinatie…`
 - nl / `settings.rulesHint` (gpt-5-codex): `Druk op het pedaal in een van de onderstaande apps om de toetscombinatie te verzenden. Andere apps gebruiken de bovenstaande standaardactie.`
@@ -116,7 +119,6 @@ Lower priority; one model's terminology preference.
 - pl / `menu.about` (gpt-5-codex): `O programie Footswitch`
 - pl / `settings.rulesHint` (gpt-5-codex): `Naciśnij pedał w jednej z poniższych aplikacji, aby wysłać jej skrót klawiszowy. Pozostałe aplikacje używają powyższej akcji domyślnej.`
 - pt-BR / `capture.pressShortcut` (gpt-5-codex): `Pressione um atalho de teclado…`
-- pt-BR / `menu.noPresses` (gpt-5-codex): `Nenhum acionamento ainda`
 - pt-BR / `settings.rulesHint` (gpt-5-codex): `Pressione o pedal em um dos apps abaixo para enviar o atalho desse app. Os outros apps usam a ação padrão acima.`
 - pt-PT / `about.windowTitle` (gpt-5-codex): `Acerca do Footswitch`
 - pt-PT / `capture.pressShortcut` (gpt-5-codex): `Prima um atalho de teclado…`
@@ -148,12 +150,10 @@ Lower priority; one model's terminology preference.
 - vi / `capture.clickToSet` (gpt-5-codex): `Bấm để đặt`
 - vi / `settings.rulesHint` (gpt-5-codex): `Nhấn bàn đạp khi đang dùng một trong các ứng dụng bên dưới để gửi phím tắt của ứng dụng đó. Các ứng dụng khác sử dụng tác vụ mặc định ở trên.`
 - zh-HK / `capture.addModifier` (gpt-5-codex): `請加入變更鍵 (⌘⌥⌃⇧)`
-- zh-HK / `menu.needsPermission` (gpt-5-codex): `⚠️ 需要輔助使用權限`
 - zh-HK / `settings.dictationCheckbox` (gpt-5-codex): `沒有任何 App 規則相符時開始聽寫`
 - zh-Hans / `menu.lastFire` (gpt-5-codex): `上次：%1$@ → %2$@`
 - zh-Hans / `menu.noPresses` (gpt-5-codex): `尚无踩踏记录`
 - zh-Hans / `settings.rulesHint` (gpt-5-codex): `在下方任一应用中踩下踏板，即可发送该应用的快捷键。其他应用使用上方的默认操作。`
-- zh-Hant / `action.dictation` (gpt-5-codex): `聽寫`
 - cs / `action.dictation` (sonnet): `Diktování`
 - cs / `app.unknown` (sonnet): `neznámá aplikace`
 - cs / `menu.needsPermission` (sonnet): `⚠️ Vyžaduje oprávnění Usnadnění přístupu`
@@ -162,13 +162,11 @@ Lower priority; one model's terminology preference.
 - da / `about.description` (sonnet): `Knyt din USB-fodpedal til tastaturgenveje, per app.`
 - da / `menu.needsPermission` (sonnet): `⚠️ Kræver tilladelse til Tilgængelighed`
 - da / `settings.col.application` (sonnet): `App`
-- da / `settings.col.shortcut` (sonnet): `Genvej`
 - de / `about.description` (sonnet): `USB-Fußschalter pro App Tastaturkürzeln zuordnen.`
 - de / `action.dictation` (sonnet): `Diktieren`
 - de / `capture.clickToSet` (sonnet): `Klicken zum Festlegen`
 - de / `settings.col.application` (sonnet): `App`
 - el / `menu.quit` (sonnet): `Έξοδος από Footswitch`
-- el / `settings.col.shortcut` (sonnet): `Συντόμευση`
 - es / `menu.settings` (sonnet): `Configuración…`
 - es / `settings.dictationCheckbox` (sonnet): `Iniciar dictado cuando no coincida ninguna regla de aplicación`
 - es / `settings.header.rules` (sonnet): `Reglas por aplicación`
@@ -200,7 +198,6 @@ Lower priority; one model's terminology preference.
 - nl / `menu.quit` (sonnet): `Sluit Footswitch af`
 - nl / `settings.col.application` (sonnet): `Toepassing`
 - pl / `app.unknown` (sonnet): `nieznane`
-- pl / `settings.col.shortcut` (sonnet): `Skrót`
 - pl / `settings.header.device` (sonnet): `Pedał`
 - pt-BR / `menu.settings` (sonnet): `Preferências…`
 - pt-BR / `settings.windowTitle` (sonnet): `Preferências do Footswitch`

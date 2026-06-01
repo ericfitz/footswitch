@@ -50,7 +50,7 @@
 "settings.col.application" = "Aplikacja";
 
 /* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Skrót klawiszowy";
+"settings.col.shortcut" = "Skrót";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Nie wykryto obsługiwanego przełącznika nożnego";

@@ -77,10 +77,10 @@
 "alert.footswitch.title" = "Foot switch";
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
-"alert.programmed" = "Foot switch berhasil diprogram untuk mengirim %@.";
+"alert.programmed" = "Sakelar kaki berhasil diprogram untuk mengirim %@.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
-"alert.programFailed" = "Tidak dapat memprogram foot switch.\n\n%@";
+"alert.programFailed" = "Tidak dapat memprogram sakelar kaki.\n\n%@";
 
 /* Generic OK button. */
 "alert.ok" = "OK";

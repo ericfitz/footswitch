@@ -92,7 +92,7 @@
 "capture.clickToSet" = "לחץ להגדרה";
 
 /* Shortcut capture field: prompt while recording a shortcut. */
-"capture.pressShortcut" = "הקש קיצור…";
+"capture.pressShortcut" = "הקש קיצור מקלדת…";
 
 /* Shortcut capture field: shown when an unsupported key is pressed. */
 "capture.unsupportedKey" = "מקש לא נתמך";

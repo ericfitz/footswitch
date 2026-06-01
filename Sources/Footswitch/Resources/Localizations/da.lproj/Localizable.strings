@@ -50,7 +50,7 @@
 "settings.col.application" = "Program";
 
 /* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Tastaturgenvej";
+"settings.col.shortcut" = "Genvej";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Ingen understøttet fodpedal fundet";

@@ -17,7 +17,7 @@
 "menu.noPresses" = "尚未踩踏";
 
 /* Action description: starts macOS dictation. Used inside menu.lastFire. */
-"action.dictation" = "語音輸入";
+"action.dictation" = "聽寫";
 
 /* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
 "action.none" = "無動作";
@@ -38,7 +38,7 @@
 "settings.header.rules" = "App 規則";
 
 /* Settings checkbox: enable dictation when no per-app rule matches. */
-"settings.dictationCheckbox" = "未符合任何 App 規則時啟動語音輸入";
+"settings.dictationCheckbox" = "未符合任何 App 規則時啟動聽寫";
 
 /* Settings hint text below the rules table. */
 "settings.rulesHint" = "在下列 App 中踩踏腳踏開關，即可傳送對應的快速鍵。其他 App 使用上方的預設動作。";

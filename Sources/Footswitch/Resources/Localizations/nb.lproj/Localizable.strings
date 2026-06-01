@@ -32,7 +32,7 @@
 "settings.header.device" = "Fotbryter";
 
 /* Settings section header for the default (no-rule-matched) action. */
-"settings.header.default" = "Standard handling";
+"settings.header.default" = "Standardhandling";
 
 /* Settings section header for the per-app rules list. */
 "settings.header.rules" = "App-regler";

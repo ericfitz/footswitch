@@ -1,5 +1,5 @@
 /* Menu item: open the About window. */
-"menu.about" = "Πληροφορίες Footswitch";
+"menu.about" = "Πληροφορίες για το Footswitch";
 
 /* Menu item: open the Settings window. Trailing ellipsis is conventional. */
 "menu.settings" = "Ρυθμίσεις…";
@@ -50,7 +50,7 @@
 "settings.col.application" = "Εφαρμογή";
 
 /* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Συντόμευση πληκτρολογίου";
+"settings.col.shortcut" = "Συντόμευση";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Δεν εντοπίστηκε υποστηριζόμενος διακόπτης ποδιού";
@@ -98,10 +98,10 @@
 "capture.unsupportedKey" = "Μη υποστηριζόμενο πλήκτρο";
 
 /* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
-"capture.addModifier" = "Προσθέστε τροποποιητή (⌘⌥⌃⇧)";
+"capture.addModifier" = "Προσθέστε πλήκτρο τροποποίησης (⌘⌥⌃⇧)";
 
 /* About window title. */
-"about.windowTitle" = "Πληροφορίες Footswitch";
+"about.windowTitle" = "Πληροφορίες για το Footswitch";
 
 /* About window one-line description of the app. */
 "about.description" = "Αντιστοιχίστε τον USB διακόπτη ποδιού σας σε συντομεύσεις πληκτρολογίου, ανά εφαρμογή.";

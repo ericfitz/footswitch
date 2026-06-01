@@ -14,7 +14,7 @@
 "menu.lastFire" = "Último: %1$@ → %2$@";
 
 /* Menu line shown before any pedal press has happened. */
-"menu.noPresses" = "Nenhuma ativação ainda";
+"menu.noPresses" = "Nenhum acionamento ainda";
 
 /* Action description: starts macOS dictation. Used inside menu.lastFire. */
 "action.dictation" = "ditado";
