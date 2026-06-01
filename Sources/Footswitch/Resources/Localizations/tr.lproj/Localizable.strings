@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "Footswitch Hakkında";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Ayarlar…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Footswitch'ten Çık";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Erişilebilirlik izni gerekiyor";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Son: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Henüz basılmadı";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "dikte";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "eylem yok";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "bilinmiyor";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Footswitch Ayarları";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Ayak pedalı";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Varsayılan eylem";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "Uygulama kuralları";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Uygulama kuralı eşleşmediğinde dikte başlat";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Aşağıdaki bir uygulamada pedala basarak kısayolunu gönderin. Diğer uygulamalar yukarıdaki varsayılan eylemi kullanır.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Pedali programla";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Uygulama";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Klavye kısayolu";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Desteklenen ayak pedalı algılanmadı";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Algılanan pedal: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Yapılandırma doğrulandı";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "Yapılandırmanın güncellenmesi gerekiyor";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Yapılandırma okunamıyor";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Ayak pedalı bilgisi";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Bağlı desteklenen ayak pedalı yok.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Ayak pedalı";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "Ayak pedalı %@ gönderecek şekilde programlandı.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Ayak pedalı programlanamadı.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "Tamam";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Bir uygulama seçin";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Ayarlamak için tıklayın";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Kısayola basın…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Desteklenmeyen tuş";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Değiştirici ekleyin (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "Footswitch Hakkında";
+
+/* About window one-line description of the app. */
+"about.description" = "USB ayak pedalınızı uygulamaya göre klavye kısayollarına eşleyin.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Sürüm %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "GitHub'da görüntüle";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Sorun bildir";
+
+/* About window link button: open the license. */
+"about.license" = "Lisans";

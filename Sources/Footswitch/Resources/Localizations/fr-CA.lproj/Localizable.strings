@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "À propos de Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Réglages…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Quitter Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Autorisation d'accessibilité requise";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Dernier : %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Aucune pression";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "dictée";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "aucune action";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "inconnu";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Réglages de Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Pédale";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Action par défaut";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "Règles par app";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Démarrer la dictée si aucune règle ne correspond";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Appuyez sur la pédale dans une app ci-dessous pour envoyer son raccourci. Les autres apps utilisent l'action par défaut.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Programmer la pédale";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Application";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Raccourci";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Aucune pédale compatible détectée";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Pédale détectée : %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Configuration vérifiée";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "La configuration doit être mise à jour";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Impossible de lire la configuration";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Informations sur la pédale";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Aucune pédale compatible n'est connectée.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Pédale";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "La pédale a été programmée pour envoyer %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Impossible de programmer la pédale.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "OK";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Choisir une application";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Cliquer pour définir";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Appuyez sur le raccourci…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Touche non prise en charge";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Ajoutez un modificateur (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "À propos de Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "Associez votre pédale USB à des raccourcis clavier, par app.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Version %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "Voir sur GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Signaler un problème";
+
+/* About window link button: open the license. */
+"about.license" = "Licence";

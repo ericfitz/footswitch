@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "O aplikacji Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Ustawienia…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Zakończ Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Wymagane uprawnienia dostępu";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Ostatnio: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Brak naciśnięć";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "dyktowanie";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "brak akcji";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "nieznana";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Ustawienia Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Przełącznik nożny";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Akcja domyślna";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "Reguły aplikacji";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Uruchom dyktowanie, gdy nie pasuje żadna reguła aplikacji";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Naciśnij pedał w aplikacji poniżej, aby wysłać jej skrót klawiszowy. Pozostałe aplikacje używają domyślnej akcji powyżej.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Zaprogramuj pedał";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Aplikacja";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Skrót klawiszowy";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Nie wykryto obsługiwanego przełącznika nożnego";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Wykryto pedał: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Konfiguracja zweryfikowana";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "Konfiguracja wymaga aktualizacji";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Nie można odczytać konfiguracji";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Informacje o przełączniku nożnym";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Nie podłączono obsługiwanego przełącznika nożnego.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Przełącznik nożny";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "Zaprogramowano przełącznik nożny do wysyłania %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Nie można zaprogramować przełącznika nożnego.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "OK";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Wybierz aplikację";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Kliknij, aby ustawić";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Naciśnij skrót…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Nieobsługiwany klawisz";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Dodaj modyfikator (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "O aplikacji Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "Mapuj USB przełącznik nożny na skróty klawiszowe dla każdej aplikacji.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Wersja %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "Zobacz na GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Zgłoś problem";
+
+/* About window link button: open the license. */
+"about.license" = "Licencja";

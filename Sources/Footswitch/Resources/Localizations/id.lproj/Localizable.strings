@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "Tentang Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Pengaturan…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Keluar dari Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Memerlukan izin Aksesibilitas";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Terakhir: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Belum ada tekanan";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "dikte";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "tidak ada tindakan";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "tidak diketahui";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Pengaturan Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Foot switch";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Tindakan default";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "Aturan aplikasi";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Mulai dikte jika tidak ada aturan aplikasi yang cocok";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Tekan pedal di aplikasi di bawah untuk mengirim pintasannya. Aplikasi lain menggunakan tindakan default di atas.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Program pedal";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Aplikasi";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Pintasan";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Tidak ada foot switch yang didukung terdeteksi";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Pedal terdeteksi: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Konfigurasi terverifikasi";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "Konfigurasi perlu diperbarui";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Tidak dapat membaca konfigurasi";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Informasi foot switch";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Tidak ada foot switch yang didukung yang terhubung.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Foot switch";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "Foot switch berhasil diprogram untuk mengirim %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Tidak dapat memprogram foot switch.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "OK";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Pilih aplikasi";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Klik untuk mengatur";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Tekan pintasan…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Tombol tidak didukung";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Tambahkan modifier (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "Tentang Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "Petakan foot switch USB ke pintasan keyboard, per aplikasi.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Versi %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "Lihat di GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Laporkan masalah";
+
+/* About window link button: open the license. */
+"about.license" = "Lisensi";

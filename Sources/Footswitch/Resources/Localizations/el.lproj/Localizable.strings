@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "Πληροφορίες Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Ρυθμίσεις…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Τερματισμός Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Απαιτείται άδεια Προσβασιμότητας";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Τελευταίο: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Δεν υπάρχουν ακόμη πατήματα";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "υπαγόρευση";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "καμία ενέργεια";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "άγνωστο";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Ρυθμίσεις Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Διακόπτης ποδιού";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Προεπιλεγμένη ενέργεια";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "Κανόνες εφαρμογής";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Εκκίνηση υπαγόρευσης όταν δεν ταιριάζει κανόνας εφαρμογής";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Πατήστε το πεντάλ σε μια εφαρμογή παρακάτω για αποστολή της συντόμευσής της. Οι άλλες εφαρμογές χρησιμοποιούν την προεπιλεγμένη ενέργεια παραπάνω.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Προγραμματισμός πεντάλ";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Εφαρμογή";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Συντόμευση πληκτρολογίου";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Δεν εντοπίστηκε υποστηριζόμενος διακόπτης ποδιού";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Εντοπίστηκε πεντάλ: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Επαληθευμένη διαμόρφωση";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "Η διαμόρφωση πρέπει να ενημερωθεί";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Δεν είναι δυνατή η ανάγνωση της διαμόρφωσης";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Πληροφορίες διακόπτη ποδιού";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Δεν είναι συνδεδεμένος υποστηριζόμενος διακόπτης ποδιού.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Διακόπτης ποδιού";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "Ο διακόπτης ποδιού προγραμματίστηκε να στέλνει %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Δεν ήταν δυνατός ο προγραμματισμός του διακόπτη ποδιού.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "OK";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Επιλογή εφαρμογής";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Κλικ για ορισμό";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Πατήστε συντόμευση…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Μη υποστηριζόμενο πλήκτρο";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Προσθέστε τροποποιητή (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "Πληροφορίες Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "Αντιστοιχίστε τον USB διακόπτη ποδιού σας σε συντομεύσεις πληκτρολογίου, ανά εφαρμογή.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Έκδοση %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "Προβολή στο GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Αναφορά προβλήματος";
+
+/* About window link button: open the license. */
+"about.license" = "Άδεια χρήσης";

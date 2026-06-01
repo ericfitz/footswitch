@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "เกี่ยวกับ Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "การตั้งค่า…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "ออกจาก Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ ต้องการสิทธิ์การช่วยการเข้าถึง";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "ล่าสุด: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "ยังไม่มีการกด";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "การบอกตามคำบอก";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "ไม่มีการดำเนินการ";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "ไม่ทราบ";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "การตั้งค่า Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "แป้นเหยียบ";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "การดำเนินการเริ่มต้น";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "กฎสำหรับแอป";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "เริ่มการบอกตามคำบอกเมื่อไม่มีกฎแอปที่ตรงกัน";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "กดแป้นเหยียบในแอปด้านล่างเพื่อส่งแป้นพิมพ์ลัด แอปอื่นใช้การดำเนินการเริ่มต้นด้านบน";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "ตั้งโปรแกรมแป้นเหยียบ";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "แอปพลิเคชัน";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "แป้นพิมพ์ลัด";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "ไม่พบแป้นเหยียบที่รองรับ";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "พบแป้นเหยียบ: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "ยืนยันการกำหนดค่าแล้ว";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "ต้องอัปเดตการกำหนดค่า";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "ไม่สามารถอ่านการกำหนดค่าได้";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "ข้อมูลแป้นเหยียบ";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "ไม่มีแป้นเหยียบที่รองรับเชื่อมต่ออยู่";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "แป้นเหยียบ";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "ตั้งโปรแกรมแป้นเหยียบให้ส่ง %@ แล้ว";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "ไม่สามารถตั้งโปรแกรมแป้นเหยียบได้\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "ตกลง";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "เลือกแอปพลิเคชัน";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "คลิกเพื่อตั้งค่า";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "กดแป้นพิมพ์ลัด…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "คีย์ที่ไม่รองรับ";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "เพิ่มตัวปรับแต่ง (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "เกี่ยวกับ Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "กำหนดแป้นเหยียบ USB ให้กับแป้นพิมพ์ลัด แยกตามแอป";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "เวอร์ชัน %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "ดูบน GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "รายงานปัญหา";
+
+/* About window link button: open the license. */
+"about.license" = "ใบอนุญาต";

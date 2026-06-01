@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "關於 Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "設定…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "退出 Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ 需要輔助功能權限";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "上次：%1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "未有踩踏記錄";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "聽寫";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "無動作";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "未知";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Footswitch 設定";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "腳踏開關";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "預設動作";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "App 規則";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "未符合任何 App 規則時啟動聽寫";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "在以下 App 中踩踏腳踏開關，即可傳送對應的快捷鍵。其他 App 使用上方的預設動作。";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "設定腳踏開關";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "應用程式";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "快捷鍵";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "未偵測到支援的腳踏開關";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "已偵測到腳踏開關：%@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "設定已確認";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "需要更新設定";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "無法讀取設定";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "腳踏開關資料";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "目前沒有連接支援的腳踏開關。";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "腳踏開關";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "已將腳踏開關設定為傳送 %@。";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "無法設定腳踏開關。\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "好";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "選擇應用程式";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "按一下以設定";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "請按下快捷鍵…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "不支援的按鍵";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "請加入修飾鍵 (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "關於 Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "為每個 App 將 USB 腳踏開關對應至鍵盤快捷鍵。";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "版本 %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "在 GitHub 上查看";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "回報問題";
+
+/* About window link button: open the license. */
+"about.license" = "授權條款";

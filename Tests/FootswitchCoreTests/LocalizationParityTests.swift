@@ -1,11 +1,11 @@
 import XCTest
 
-/// Verifies the four hand-managed Localizable.strings files stay structurally in
+/// Verifies the hand-managed Localizable.strings files stay structurally in
 /// sync: same keys everywhere, and the same number of positional placeholders
 /// (%N$@) per key. Reads the source .strings files directly — no .app bundle.
+/// Locales are discovered from disk so newly added .lproj folders are covered
+/// automatically; `en` is the authoritative reference.
 final class LocalizationParityTests: XCTestCase {
-    private static let locales = ["en", "ar", "zh-Hans", "de"]
-
     /// Repo root derived from this file's path: Tests/FootswitchCoreTests/<file>.
     private static func repoRoot() -> URL {
         URL(fileURLWithPath: #filePath)
@@ -14,9 +14,22 @@ final class LocalizationParityTests: XCTestCase {
             .deletingLastPathComponent()   // repo root
     }
 
+    private static var localizationsDir: URL {
+        repoRoot().appendingPathComponent("Sources/Footswitch/Resources/Localizations")
+    }
+
+    /// Every `<locale>.lproj` folder present on disk.
+    private static var locales: [String] {
+        let contents = (try? FileManager.default.contentsOfDirectory(
+            at: localizationsDir, includingPropertiesForKeys: nil)) ?? []
+        return contents
+            .filter { $0.pathExtension == "lproj" }
+            .map { $0.deletingPathExtension().lastPathComponent }
+            .sorted()
+    }
+
     private static func stringsURL(_ locale: String) -> URL {
-        repoRoot()
-            .appendingPathComponent("Sources/Footswitch/Resources/Localizations")
+        localizationsDir
             .appendingPathComponent("\(locale).lproj")
             .appendingPathComponent("Localizable.strings")
     }
@@ -47,6 +60,13 @@ final class LocalizationParityTests: XCTestCase {
         let bare = try! NSRegularExpression(pattern: "%@")
         let bareCount = bare.numberOfMatches(in: value, range: NSRange(location: 0, length: ns.length))
         return max(maxIndex, bareCount)
+    }
+
+    func testLocaleDiscoveryFoundFiles() {
+        // Guard against a broken path silently reducing coverage to zero.
+        XCTAssertTrue(Self.locales.contains("en"), "en.lproj not discovered")
+        XCTAssertGreaterThanOrEqual(Self.locales.count, 4,
+            "expected many localizations, found \(Self.locales.count): \(Self.locales)")
     }
 
     func testAllLocalesParse() throws {

@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "Giới thiệu về Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Cài đặt…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Thoát Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Cần quyền Trợ năng";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Lần cuối: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Chưa có lần nhấn nào";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "đọc chính tả";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "không có tác vụ";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "không xác định";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Cài đặt Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Bàn đạp chân";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Tác vụ mặc định";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "Quy tắc theo ứng dụng";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Bắt đầu đọc chính tả khi không có quy tắc ứng dụng nào khớp";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Nhấn bàn đạp trong ứng dụng bên dưới để gửi phím tắt của ứng dụng đó. Các ứng dụng khác sử dụng tác vụ mặc định ở trên.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Lập trình bàn đạp";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Ứng dụng";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Phím tắt";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Không phát hiện bàn đạp chân được hỗ trợ";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Đã phát hiện bàn đạp: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Đã xác minh cấu hình";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "Cần cập nhật cấu hình";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Không thể đọc cấu hình";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Thông tin bàn đạp chân";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Không có bàn đạp chân được hỗ trợ nào đang kết nối.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Bàn đạp chân";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "Đã lập trình bàn đạp chân để gửi %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Không thể lập trình bàn đạp chân.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "OK";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Chọn một ứng dụng";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Nhấp để đặt";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Nhấn phím tắt…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Phím không được hỗ trợ";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Thêm phím bổ trợ (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "Giới thiệu về Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "Ánh xạ bàn đạp chân USB của bạn tới các phím tắt bàn phím, theo từng ứng dụng.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Phiên bản %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "Xem trên GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Báo cáo sự cố";
+
+/* About window link button: open the license. */
+"about.license" = "Giấy phép";

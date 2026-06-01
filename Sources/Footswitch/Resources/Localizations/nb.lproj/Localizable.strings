@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "Om Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "Innstillinger…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Avslutt Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ Trenger tillatelse til tilgjengelighet";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "Sist: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "Ingen trykk ennå";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "diktering";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "ingen handling";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "ukjent";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Footswitch-innstillinger";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "Fotbryter";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "Standard handling";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "App-regler";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "Start diktering når ingen app-regel samsvarer";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "Trykk pedalen i en app nedenfor for å sende dens snarvei. Andre apper bruker standard handlingen ovenfor.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "Programmer pedal";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "Program";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "Tastatursnarvei";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "Ingen støttet fotbryter oppdaget";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "Oppdaget pedal: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "Bekreftet konfigurasjon";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "Konfigurasjonen må oppdateres";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "Kan ikke lese konfigurasjon";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "Informasjon om fotbryter";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "Ingen støttet fotbryter er tilkoblet.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "Fotbryter";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "Fotbryteren er programmert til å sende %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "Kunne ikke programmere fotbryteren.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "OK";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "Velg et program";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "Klikk for å angi";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "Trykk snarvei…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "Tasten støttes ikke";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "Legg til en modifikator (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "Om Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "Tilordne USB-fotbryteren din til tastatursnarveier, per app.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "Versjon %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "Vis på GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "Rapporter et problem";
+
+/* About window link button: open the license. */
+"about.license" = "Lisens";

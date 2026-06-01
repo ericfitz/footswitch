@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "אודות Footswitch";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "הגדרות…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "יציאה מ-Footswitch";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ נדרשת הרשאת נגישות";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "אחרון: %1$@ ← %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "אין לחיצות עדיין";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "הכתבה";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "ללא פעולה";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "לא ידוע";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "הגדרות Footswitch";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "דוושת רגל";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "פעולת ברירת מחדל";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "כללי אפליקציה";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "הפעל הכתבה כשאין כלל אפליקציה תואם";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "לחץ על הדוושה באפליקציה שלהלן כדי לשלוח את קיצור המקלדת שלה. אפליקציות אחרות משתמשות בפעולת ברירת המחדל שלמעלה.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "תכנת דוושה";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "אפליקציה";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "קיצור מקלדת";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "לא זוהתה דוושת רגל נתמכת";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "זוהתה דוושה: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "התצורה אומתה";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "יש לעדכן את התצורה";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "לא ניתן לקרוא את התצורה";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "מידע על דוושת הרגל";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "לא מחוברת דוושת רגל נתמכת.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "דוושת רגל";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "דוושת הרגל תוכנתה לשליחת %@.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "לא ניתן לתכנת את דוושת הרגל.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "אישור";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "בחר אפליקציה";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "לחץ להגדרה";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "הקש קיצור…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "מקש לא נתמך";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "הוסף מקש עזר (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "אודות Footswitch";
+
+/* About window one-line description of the app. */
+"about.description" = "מפה את דוושת הרגל USB לקיצורי מקלדת, לכל אפליקציה.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "גרסה %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "צפה ב-GitHub";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "דווח על בעיה";
+
+/* About window link button: open the license. */
+"about.license" = "רישיון";

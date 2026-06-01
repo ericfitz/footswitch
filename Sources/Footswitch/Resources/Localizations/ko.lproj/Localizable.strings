@@ -1,0 +1,122 @@
+/* Menu item: open the About window. */
+"menu.about" = "Footswitch 정보";
+
+/* Menu item: open the Settings window. Trailing ellipsis is conventional. */
+"menu.settings" = "설정…";
+
+/* Menu item: quit the application entirely. */
+"menu.quit" = "Footswitch 종료";
+
+/* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
+"menu.needsPermission" = "⚠️ 손쉬운 사용 권한 필요";
+
+/* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
+"menu.lastFire" = "마지막: %1$@ → %2$@";
+
+/* Menu line shown before any pedal press has happened. */
+"menu.noPresses" = "아직 누름 없음";
+
+/* Action description: starts macOS dictation. Used inside menu.lastFire. */
+"action.dictation" = "받아쓰기";
+
+/* Action description: pedal does nothing for this app. Used inside menu.lastFire. */
+"action.none" = "동작 없음";
+
+/* Placeholder for an unknown frontmost app name. Used inside menu.lastFire. */
+"app.unknown" = "알 수 없음";
+
+/* Title of the Settings window. */
+"settings.windowTitle" = "Footswitch 설정";
+
+/* Settings section header for the foot switch device. */
+"settings.header.device" = "풋 스위치";
+
+/* Settings section header for the default (no-rule-matched) action. */
+"settings.header.default" = "기본 동작";
+
+/* Settings section header for the per-app rules list. */
+"settings.header.rules" = "앱 규칙";
+
+/* Settings checkbox: enable dictation when no per-app rule matches. */
+"settings.dictationCheckbox" = "앱 규칙이 없을 때 받아쓰기 시작";
+
+/* Settings hint text below the rules table. */
+"settings.rulesHint" = "아래 앱에서 페달을 누르면 해당 단축키가 전송됩니다. 다른 앱은 위의 기본 동작을 사용합니다.";
+
+/* Button: program the foot switch hardware with the trigger key. */
+"settings.programButton" = "페달 프로그래밍";
+
+/* Rules table column header for the application. */
+"settings.col.application" = "응용 프로그램";
+
+/* Rules table column header for the keyboard shortcut. */
+"settings.col.shortcut" = "단축키";
+
+/* Device status: no supported foot switch is connected. */
+"device.none" = "지원되는 풋 스위치가 감지되지 않음";
+
+/* Device status: a pedal was detected. %@ = device name. */
+"device.detected" = "감지된 페달: %@";
+
+/* Device config status: hardware matches expected configuration. */
+"device.config.verified" = "구성 확인됨";
+
+/* Device config status: hardware configuration needs updating. */
+"device.config.mismatch" = "구성을 업데이트해야 함";
+
+/* Device config status: hardware configuration could not be read. */
+"device.config.unreadable" = "구성을 읽을 수 없음";
+
+/* Title of the device-info alert. */
+"alert.deviceInfo.title" = "풋 스위치 정보";
+
+/* Device-info alert body when no device is connected. */
+"alert.deviceInfo.none" = "연결된 풋 스위치가 없습니다.";
+
+/* Generic title for foot switch alerts. */
+"alert.footswitch.title" = "풋 스위치";
+
+/* Alert body after successfully programming the pedal. %@ = key name. */
+"alert.programmed" = "풋 스위치가 %@을(를) 전송하도록 프로그래밍되었습니다.";
+
+/* Alert body after a failed programming attempt. %@ = error detail. */
+"alert.programFailed" = "풋 스위치를 프로그래밍할 수 없습니다.\n\n%@";
+
+/* Generic OK button. */
+"alert.ok" = "확인";
+
+/* Title of the open panel used to pick an application for a rule. */
+"openPanel.title" = "응용 프로그램 선택";
+
+/* Shortcut capture field: prompt before a shortcut is set. */
+"capture.clickToSet" = "클릭하여 설정";
+
+/* Shortcut capture field: prompt while recording a shortcut. */
+"capture.pressShortcut" = "단축키를 누르십시오…";
+
+/* Shortcut capture field: shown when an unsupported key is pressed. */
+"capture.unsupportedKey" = "지원되지 않는 키";
+
+/* Shortcut capture field: shown when a modifier is required. Glyphs are command/option/control/shift. */
+"capture.addModifier" = "조합키를 추가하십시오 (⌘⌥⌃⇧)";
+
+/* About window title. */
+"about.windowTitle" = "Footswitch 정보";
+
+/* About window one-line description of the app. */
+"about.description" = "앱별로 USB 풋 스위치를 키보드 단축키에 매핑합니다.";
+
+/* About window version line. %1$@ = short version, %2$@ = git commit hash. */
+"about.version" = "버전 %1$@ (%2$@)";
+
+/* About window copyright line. */
+"about.copyright" = "© 2026 Eric Fitzgerald";
+
+/* About window link button: open the GitHub repository. */
+"about.viewOnGitHub" = "GitHub에서 보기";
+
+/* About window link button: open a prefilled new GitHub issue. */
+"about.reportProblem" = "문제 신고";
+
+/* About window link button: open the license. */
+"about.license" = "라이선스";
