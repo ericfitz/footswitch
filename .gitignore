@@ -16,3 +16,7 @@ scripts/build-dmg.sh
 # Local Claude Code tooling state and instructions (not part of the public source).
 .claude/
 CLAUDE.md
+
+# Cached localization-review artifacts (working material, kept out of /tmp;
+# outcomes live in the .strings files + docs/localization-review-backlog.md).
+.localization-reviews/
