@@ -98,9 +98,12 @@ final class SettingsViewController: NSViewController {
         dictationCheckbox.state = (defaultAction == .dictation) ? .on : .off
 
         let rulesHeader = makeHeader(L10n.settingsHeaderRules)
-        let hint = NSTextField(labelWithString: L10n.settingsRulesHint)
+        let hint = NSTextField(wrappingLabelWithString: L10n.settingsRulesHint)
         hint.font = .systemFont(ofSize: 11)
         hint.textColor = .secondaryLabelColor
+        // Wrap (don't widen the window) when the localized hint is long, e.g. German.
+        hint.maximumNumberOfLines = 2
+        hint.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         // Table inside a scroll view.
         configureTable()
@@ -140,6 +143,9 @@ final class SettingsViewController: NSViewController {
             stack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scroll.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
             scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 240),
+            // Bound the hint's width so a long localized string wraps to a second
+            // line instead of stretching the layout.
+            hint.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
         ])
     }
 

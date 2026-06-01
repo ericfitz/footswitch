@@ -17,7 +17,11 @@ final class AboutWindowController: NSWindowController {
         let content = AboutWindowController.makeContentView()
         window.contentView = content
         wireLinkTargets(in: content)
-        window.setContentSize(content.fittingSize)
+        // Size to fit content, but never narrower than a comfortable minimum so the
+        // link row has margins on every locale (wide titles, e.g. German, otherwise
+        // sit cramped against the window edges).
+        let fitting = content.fittingSize
+        window.setContentSize(NSSize(width: max(fitting.width, 380), height: fitting.height))
         window.center()
     }
 
@@ -76,7 +80,7 @@ final class AboutWindowController: NSWindowController {
             linkButton(L10n.aboutLicense, action: #selector(openLicense)),
         ])
         links.orientation = .horizontal
-        links.spacing = 16
+        links.spacing = 20
         links.alignment = .centerY
 
         let stack = NSStackView(views: [icon, name, version, desc, copyright, links])
