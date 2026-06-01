@@ -20,3 +20,7 @@ CLAUDE.md
 # Cached localization-review artifacts (working material, kept out of /tmp;
 # outcomes live in the .strings files + docs/localization-review-backlog.md).
 .localization-reviews/
+
+# Python virtualenvs created by uv for the helper scripts (the uv.lock IS tracked).
+.venv/
+scripts/.venv/

@@ -1,0 +1,14 @@
+[project]
+name = "footswitch-loc-review"
+version = "0.1.0"
+description = "Run Footswitch translation reviews against Grok (xAI) and Gemini (Google) directly via their OpenAI-compatible APIs."
+requires-python = ">=3.10"
+dependencies = [
+    "openai>=1.40.0",
+]
+
+[tool.uv]
+# Keep a self-contained lockfile next to this pyproject.
+
+[tool.footswitch-loc-review]
+# Documentation only — see review_locales.py for the actual model/endpoint config.
