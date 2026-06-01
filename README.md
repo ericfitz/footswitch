@@ -8,6 +8,17 @@ The app is a universal binary (Apple Silicon + Intel), runs as a menu bar
 (`LSUIElement`) app, and is localized into 30 languages — it follows your macOS
 language automatically.
 
+## Typical uses
+
+The app was designed for two use cases: to allow the pedal to enable dictation
+in apps that accept text input, and to allow the pedal to mute/unmute apps that
+use the microphone for voice communication.
+
+## Limitations
+
+The app currently does not currently support multi-pedal devices such as sheet music
+page turners, and does not currently support bluetooth pedals.
+
 ## Install
 
 Download `Footswitch.dmg` from the [latest release](https://github.com/ericfitz/footswitch/releases/latest),
@@ -19,27 +30,11 @@ source instead, see [Build & run](#build--run).
 
 ## How it works
 
-The pedal is programmed once to emit **F13** — a key with no physical key on Mac
+The app programs the pedal to emit **F13** — a key with no physical key on most Mac
 keyboards and no terminal escape sequence, so it never collides with normal
 typing or leaks visible characters. The app installs a global event tap that
 catches and swallows F13, looks at the frontmost application, and runs the action
 mapped to that app (falling back to a configurable default).
-
-## One-time hardware setup
-
-Program the pedal to emit F13 using the open-source `footswitch` CLI:
-
-```sh
-brew install footswitch        # rgerganov/footswitch
-sudo footswitch -k f13
-```
-
-Verify: run `sudo footswitch` (no args) to read back the current programming.
-Pressing the pedal in a text field should produce no visible character once the
-app is running and has permission (F13 has no glyph and is swallowed).
-
-> This is a **single-pedal** device, so address it with a bare `-k` (no `-1`/`-2`
-> index). Out of the box it ships emitting a lowercase `b`.
 
 ## macOS dictation setup
 
