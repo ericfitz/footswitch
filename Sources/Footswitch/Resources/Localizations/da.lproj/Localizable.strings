@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Konfiguration bekræftet";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Gemt — sluk og tænd pedalen for at anvende";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Konfiguration skal opdateres";
 

@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "התצורה אומתה";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "נשמר — כבה והדלק את הדוושה כדי להחיל";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "יש לעדכן את התצורה";
 

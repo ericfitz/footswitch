@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Configuração verificada";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Salvo — desligue e ligue o pedal para aplicar";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "A configuração precisa ser atualizada";
 

@@ -53,7 +53,10 @@ The FS17Pro works over Bluetooth or USB. Pair it over Bluetooth (or connect the
 USB-C cable), open **Settings…**, set `triggerKey` to `F16`, and click **Program** —
 the app writes the key over whichever transport the pedal is connected on. F16 is
 recommended (the app's general default elsewhere is F13, but PCsensor's ElfKey app
-cannot assign F13–F15, so the FS17Pro uses F16).
+cannot assign F13–F15, so the FS17Pro uses F16). Programming over Bluetooth stores
+the key but the FS17Pro only applies it after you power-cycle the pedal (turn it
+off and on) — the app reminds you when you click **Program**. (Programming over USB
+applies immediately.)
 
 **Important:** the FS17Pro stores its key configuration independently for USB and
 Bluetooth — the two slots do not share. Programming over one transport has no

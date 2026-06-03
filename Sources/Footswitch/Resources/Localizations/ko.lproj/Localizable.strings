@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "구성 확인됨";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "저장됨 — 적용하려면 풋 스위치의 전원을 껐다 켜세요";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "구성을 업데이트해야 함";
 

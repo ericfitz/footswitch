@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Đã xác minh cấu hình";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Đã lưu — tắt và bật lại bàn đạp để áp dụng";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Cần cập nhật cấu hình";
 

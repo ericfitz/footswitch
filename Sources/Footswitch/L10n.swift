@@ -44,6 +44,7 @@ enum L10n {
         String(format: t("device.detected", "Device status: detected. %@ name."), name)
     }
     static var deviceConfigVerified: String { t("device.config.verified", "Config status: verified.") }
+    static var deviceConfigStoredBluetooth: String { t("device.config.storedBluetooth", "Config status: stored over Bluetooth; power-cycle to apply.") }
     static var deviceConfigMismatch: String { t("device.config.mismatch", "Config status: must update.") }
     static var deviceConfigUnreadable: String { t("device.config.unreadable", "Config status: unreadable.") }
 

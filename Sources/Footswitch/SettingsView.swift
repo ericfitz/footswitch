@@ -220,8 +220,16 @@ final class SettingsViewController: NSViewController {
                 guard let self else { return }
                 switch result {
                 case .verified:
-                    self.configStatusLabel.attributedStringValue =
-                        self.statusLine("✓", L10n.deviceConfigVerified, .systemGreen)
+                    if transport == .bluetooth {
+                        // BLE writes the slot but the FS17Pro only loads it into its
+                        // live keymap on a physical power-cycle, so "verified" (slot
+                        // read-back) doesn't mean "live" yet. Say so, in amber.
+                        self.configStatusLabel.attributedStringValue =
+                            self.statusLine("⚠", L10n.deviceConfigStoredBluetooth, .systemYellow)
+                    } else {
+                        self.configStatusLabel.attributedStringValue =
+                            self.statusLine("✓", L10n.deviceConfigVerified, .systemGreen)
+                    }
                     self.programButton.isHidden = true
                 case .mismatch:
                     self.configStatusLabel.attributedStringValue =

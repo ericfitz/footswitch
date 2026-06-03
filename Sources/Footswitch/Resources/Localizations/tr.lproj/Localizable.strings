@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Yapılandırma doğrulandı";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Kaydedildi — uygulamak için pedalı kapatıp açın";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Yapılandırmanın güncellenmesi gerekiyor";
 

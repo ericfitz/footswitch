@@ -8,8 +8,8 @@ import FootswitchCore
 ///
 /// Threading invariant: must NOT be called on the internal `queue` (the delegate
 /// queue) — doing so would deadlock the blocking semaphore waits, and is asserted
-/// against. Calling on the main thread is currently safe (queue != main), but Task 7
-/// moves the call off-main anyway.
+/// against. Calling on the main thread is currently safe (queue != main), but
+/// callers invoke it off the main thread.
 ///
 /// GATT layout (reverse-engineered): vendor service FFF0, write characteristic
 /// FFF2, notify characteristic FFF1. Payloads come from `BLEProgramPayload`.

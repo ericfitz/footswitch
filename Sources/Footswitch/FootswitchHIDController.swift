@@ -216,8 +216,6 @@ enum FootswitchHIDController {
         case unsupportedKey
         case openFailed
         case writeFailed(IOReturn)
-        // reserved for non-programmable transports (see Task 6 BLE programmer)
-        case unsupportedProgram(SupportedDevice.Program)
 
         var description: String {
             switch self {
@@ -225,7 +223,6 @@ enum FootswitchHIDController {
             case .unsupportedKey: return "That key cannot be programmed onto the device."
             case .openFailed: return "Could not open the foot switch for writing."
             case .writeFailed(let r): return "Writing to the foot switch failed (IOReturn \(r))."
-            case .unsupportedProgram(let p): return "Programming the \(p.rawValue) variant is not implemented yet."
             }
         }
     }

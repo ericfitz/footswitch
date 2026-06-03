@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "配置已验证";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "已存储 — 请关闭并重新打开脚踏开关以应用";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "必须更新配置";
 
