@@ -53,9 +53,13 @@ The FS17Pro works over Bluetooth or USB. Pair it over Bluetooth (or connect the
 USB-C cable), open **Settings…**, set `triggerKey` to `F16`, and click **Program** —
 the app writes the key over whichever transport the pedal is connected on. F16 is
 recommended (the app's general default elsewhere is F13, but PCsensor's ElfKey app
-cannot assign F13–F15, so the FS17Pro uses F16); the app programs F16 directly over
-USB or Bluetooth. After programming over USB you can switch the pedal to Bluetooth
-for daily wireless use.
+cannot assign F13–F15, so the FS17Pro uses F16).
+
+**Important:** the FS17Pro stores its key configuration independently for USB and
+Bluetooth — the two slots do not share. Programming over one transport has no
+effect on the other. You must program the pedal in the same mode you intend to use
+it. If you use it both wired and wireless, connect in each mode and click **Program**
+each time (use the same trigger key both times so it behaves identically).
 
 The first time you program over Bluetooth, macOS asks for Bluetooth permission —
 allow it (the app needs Bluetooth only to configure the pedal).

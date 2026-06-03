@@ -134,3 +134,16 @@ implementation would:
 This is a transport adapter over the existing report builder — not a new protocol.
 Whether to build it now (BLE programming, no USB cable) or keep USB-only
 programming for the first release is a scope decision for the design.
+
+## Per-transport configuration (verified on-device)
+
+The FS17Pro stores its key configuration independently per transport: the USB slot
+and the Bluetooth slot are completely separate. A write on one transport is not
+visible when reading back on the other. This was verified 2026-06-03 by writing
+F18 over USB and F19 over BLE, then reading back across transports — USB read F18,
+BLE read its own pre-existing value (F13); neither transport saw the other's write.
+
+Implication: the app must program the pedal over the transport the user will
+actually use. If the user switches between wired and wireless, they must run
+**Program** once in each mode with the same trigger key set. This is device
+firmware behavior, not an app limitation.
