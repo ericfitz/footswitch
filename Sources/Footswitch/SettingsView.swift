@@ -194,7 +194,7 @@ final class SettingsViewController: NSViewController {
         infoButton.isHidden = false
         configRow.isHidden = false
 
-        let expected = KeyCombo(modifiers: [], key: baseConfig.triggerKey)
+        let expected = KeyCombo(modifiers: [], key: baseConfig.primaryTriggerKey.key)
         // Verification may talk to the device (USB read-back, or BLE GATT which
         // blocks for up to several seconds) — do it off the main thread, then
         // update the UI back on main.
@@ -260,8 +260,10 @@ final class SettingsViewController: NSViewController {
     }
 
     @objc private func programPedal() {
-        let combo = KeyCombo(modifiers: [], key: baseConfig.triggerKey)
-        let key = baseConfig.triggerKey
+        // Single-slot programming of the primary entry; its slot maps to the
+        // programmers' existing hardcoded pedalIndex (USB: slot-1=0, BLE: slot=1).
+        let combo = KeyCombo(modifiers: [], key: baseConfig.primaryTriggerKey.key)
+        let key = baseConfig.primaryTriggerKey.key
         programButton.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             let message: String
