@@ -195,22 +195,34 @@ final class SettingsViewController: NSViewController {
         configRow.isHidden = false
 
         let expected = KeyCombo(modifiers: [], key: baseConfig.triggerKey)
-        switch FootswitchHIDController.verifyConfiguration(expected: expected) {
-        case .verified:
-            configStatusLabel.attributedStringValue =
-                statusLine("✓", L10n.deviceConfigVerified, .systemGreen)
-            programButton.isHidden = true
-        case .mismatch:
-            configStatusLabel.attributedStringValue =
-                statusLine("⚠", L10n.deviceConfigMismatch, .systemYellow)
-            programButton.isHidden = false
-            programButton.isEnabled = true
-        case .unreadable:
-            configStatusLabel.attributedStringValue =
-                statusLine("✗", L10n.deviceConfigUnreadable, .systemRed)
-            programButton.isHidden = true
-        case .noDevice:
-            configRow.isHidden = true
+        // Verification may talk to the device (USB read-back, or BLE GATT which
+        // blocks for up to several seconds) — do it off the main thread, then
+        // update the UI back on main.
+        // Subtle, language-neutral "checking…" placeholder while verify runs
+        // off-main (BLE GATT can take several seconds). No new L10n string.
+        configStatusLabel.attributedStringValue = statusLine("…", "", .secondaryLabelColor)
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = FootswitchHIDController.verifyConfiguration(expected: expected)
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                switch result {
+                case .verified:
+                    self.configStatusLabel.attributedStringValue =
+                        self.statusLine("✓", L10n.deviceConfigVerified, .systemGreen)
+                    self.programButton.isHidden = true
+                case .mismatch:
+                    self.configStatusLabel.attributedStringValue =
+                        self.statusLine("⚠", L10n.deviceConfigMismatch, .systemYellow)
+                    self.programButton.isHidden = false
+                    self.programButton.isEnabled = true
+                case .unreadable:
+                    self.configStatusLabel.attributedStringValue =
+                        self.statusLine("✗", L10n.deviceConfigUnreadable, .systemRed)
+                    self.programButton.isHidden = true
+                case .noDevice:
+                    self.configRow.isHidden = true
+                }
+            }
         }
     }
 
@@ -226,33 +238,46 @@ final class SettingsViewController: NSViewController {
     }
 
     @objc private func showDeviceInfo() {
-        let info = FootswitchHIDController.deviceInfo() ?? L10n.alertDeviceInfoNone
-        let alert = NSAlert()
-        alert.messageText = L10n.alertDeviceInfoTitle
-        alert.informativeText = info
-        // Monospaced so the aligned key/value columns line up.
-        let field = NSTextField(labelWithString: info)
-        field.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
-        field.sizeToFit()
-        alert.accessoryView = field
-        alert.informativeText = ""
-        alert.addButton(withTitle: L10n.alertOK)
-        if let window = view.window {
-            alert.beginSheetModal(for: window, completionHandler: nil)
-        } else {
-            alert.runModal()
+        DispatchQueue.global(qos: .userInitiated).async {
+            let info = FootswitchHIDController.deviceInfo() ?? L10n.alertDeviceInfoNone
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                let alert = NSAlert()
+                alert.messageText = L10n.alertDeviceInfoTitle
+                let field = NSTextField(labelWithString: info)
+                field.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+                field.sizeToFit()
+                alert.accessoryView = field
+                alert.informativeText = ""
+                alert.addButton(withTitle: L10n.alertOK)
+                if let window = self.view.window {
+                    alert.beginSheetModal(for: window, completionHandler: nil)
+                } else {
+                    alert.runModal()
+                }
+            }
         }
     }
 
     @objc private func programPedal() {
         let combo = KeyCombo(modifiers: [], key: baseConfig.triggerKey)
-        do {
-            try FootswitchHIDController.program(combo: combo)
-            presentInfo(L10n.alertProgrammed(key: baseConfig.triggerKey))
-        } catch {
-            presentInfo(L10n.alertProgramFailed(error: "\(error)"))
+        let key = baseConfig.triggerKey
+        programButton.isEnabled = false
+        DispatchQueue.global(qos: .userInitiated).async {
+            let message: String
+            do {
+                try FootswitchHIDController.program(combo: combo)
+                message = L10n.alertProgrammed(key: key)
+            } catch {
+                message = L10n.alertProgramFailed(error: "\(error)")
+            }
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.programButton.isEnabled = true
+                self.presentInfo(message)
+                self.refreshDeviceStatus()
+            }
         }
-        refreshDeviceStatus()
     }
 
     private func presentInfo(_ text: String) {
