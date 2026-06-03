@@ -1,23 +1,22 @@
 import Foundation
 
 public struct Config: Codable, Equatable, Sendable {
-    /// Keys that trigger the pedal action, each paired with its logical slot. The
-    /// listener fires on any of these keys; `slot` tells the programmer which pedal
-    /// slot to write. A list (not one key) because the FS17Pro emits different keys
-    /// per transport and multi-button pedals send 1-3 distinct keys.
-    public var triggerKeys: [TriggerKey]
+    /// Trigger keys grouped by transport. The FS17Pro stores its key config
+    /// separately for USB vs Bluetooth; the listener watches the union of all
+    /// transports' keys, while programming targets only the connected transport.
+    public var triggers: Triggers
     public var dictationShortcut: KeyCombo
     public var debounceMs: Int
     public var defaultAction: DefaultAction
     public var rules: [Rule]
 
-    /// The primary trigger (first entry), used when programming the device and for
-    /// the Settings config-verify display. Falls back to F13 / slot 1 if empty.
-    public var primaryTriggerKey: TriggerKey { triggerKeys.first ?? TriggerKey(key: "F13", slot: 1) }
+    /// Every trigger key across all transports (de-duplicated by key) — for the
+    /// listener, which fires on any of them.
+    public var allTriggerKeys: [TriggerKey] { triggers.allKeys }
 
-    public init(triggerKeys: [TriggerKey], dictationShortcut: KeyCombo,
+    public init(triggers: Triggers, dictationShortcut: KeyCombo,
                 debounceMs: Int, defaultAction: DefaultAction, rules: [Rule]) {
-        self.triggerKeys = triggerKeys
+        self.triggers = triggers
         self.dictationShortcut = dictationShortcut
         self.debounceMs = debounceMs
         self.defaultAction = defaultAction
@@ -25,25 +24,33 @@ public struct Config: Codable, Equatable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case triggerKey, triggerKeys, dictationShortcut, debounceMs, defaultAction, rules
+        case triggerKey, triggerKeys, triggers, dictationShortcut, debounceMs, defaultAction, rules
     }
 
-    // Decoder accepts BOTH shapes for backward compatibility:
-    //  - new: "triggerKeys": [{"key":"F16","slot":1}, ...]
-    //  - legacy: "triggerKey": "F13"  -> migrates to [TriggerKey(key:"F13", slot:1)]
-    // triggerKeys wins if both present; defaults to [F13/slot1] if neither/empty.
+    // Decoder accepts THREE shapes for backward compatibility, newest first:
+    //  - new:     "triggers": { "usb": [TriggerKey], "bluetooth": [TriggerKey] }
+    //  - interim: "triggerKeys": [TriggerKey]   -> same list applied to BOTH transports
+    //  - legacy:  "triggerKey": "F13" (string)  -> [{F13,slot1}] applied to BOTH transports
+    //  - none:    default F13/slot1 on both transports
+    // Applying legacy/interim keys to BOTH transports preserves prior listener
+    // behavior (it watched those keys) and gives programming a sane per-transport
+    // default. An all-empty `triggers` map (e.g. hand-edited to []/[]) is treated
+    // as absent and falls through, so the listener never ends up watching nothing.
     //
-    // A custom decode is also needed so a pre-existing config whose defaultAction
-    // was an Action (e.g. {"type":"keyCombo",...}) doesn't fail to load — anything
-    // that isn't a valid DefaultAction migrates to .dictation.
+    // defaultAction also tolerates a legacy Action-shaped value, migrating to
+    // .dictation, as before.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        if let keys = try? c.decode([TriggerKey].self, forKey: .triggerKeys), !keys.isEmpty {
-            triggerKeys = keys
+        if let t = try? c.decode(Triggers.self, forKey: .triggers), !t.allKeys.isEmpty {
+            triggers = t
+        } else if let keys = try? c.decode([TriggerKey].self, forKey: .triggerKeys), !keys.isEmpty {
+            triggers = Triggers(usb: keys, bluetooth: keys)
         } else if let legacy = try? c.decode(String.self, forKey: .triggerKey) {
-            triggerKeys = [TriggerKey(key: legacy, slot: 1)]
+            let k = [TriggerKey(key: legacy, slot: 1)]
+            triggers = Triggers(usb: k, bluetooth: k)
         } else {
-            triggerKeys = [TriggerKey(key: "F13", slot: 1)]
+            let k = [TriggerKey(key: "F13", slot: 1)]
+            triggers = Triggers(usb: k, bluetooth: k)
         }
         dictationShortcut = try c.decode(KeyCombo.self, forKey: .dictationShortcut)
         debounceMs = try c.decode(Int.self, forKey: .debounceMs)
@@ -51,11 +58,10 @@ public struct Config: Codable, Equatable, Sendable {
         rules = try c.decode([Rule].self, forKey: .rules)
     }
 
-    // Encode the new `triggerKeys` form only (the legacy `triggerKey` is read-only,
-    // for migrating old files).
+    // Encode the new `triggers` form only (legacy keys are read-only, for migration).
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
-        try c.encode(triggerKeys, forKey: .triggerKeys)
+        try c.encode(triggers, forKey: .triggers)
         try c.encode(dictationShortcut, forKey: .dictationShortcut)
         try c.encode(debounceMs, forKey: .debounceMs)
         try c.encode(defaultAction, forKey: .defaultAction)
@@ -63,7 +69,9 @@ public struct Config: Codable, Equatable, Sendable {
     }
 
     public static let `default` = Config(
-        triggerKeys: [TriggerKey(key: "F13", slot: 1)],
+        triggers: Triggers(
+            usb: [TriggerKey(key: "F13", slot: 1)],
+            bluetooth: [TriggerKey(key: "F13", slot: 1)]),
         dictationShortcut: KeyCombo(modifiers: [.control, .option, .command], key: "D"),
         debounceMs: 250,
         defaultAction: .dictation,

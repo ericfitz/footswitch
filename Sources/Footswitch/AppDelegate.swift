@@ -27,7 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         listener = PedalListener(
-            triggerKeys: config.triggerKeys,
+            triggerKeys: config.allTriggerKeys,
             debounceMs: config.debounceMs,
             onFire: { [weak self] _ in
                 MainActor.assumeIsolated { self?.handlePress() }

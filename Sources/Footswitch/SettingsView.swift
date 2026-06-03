@@ -181,6 +181,16 @@ final class SettingsViewController: NSViewController {
 
     // MARK: Actions
 
+    /// The transport of the currently-detected device, or nil if none. `.footswitch`
+    /// family means USB; `.footswitchBLE` means Bluetooth.
+    private func currentTransport() -> Transport? {
+        switch FootswitchHIDController.detect()?.device.program {
+        case .footswitch: return .usb
+        case .footswitchBLE: return .bluetooth
+        default: return nil
+        }
+    }
+
     private func refreshDeviceStatus() {
         guard let detected = FootswitchHIDController.detect() else {
             // No device: row 1 says so, info button + row 2 hidden entirely.
@@ -194,7 +204,10 @@ final class SettingsViewController: NSViewController {
         infoButton.isHidden = false
         configRow.isHidden = false
 
-        let expected = KeyCombo(modifiers: [], key: baseConfig.primaryTriggerKey.key)
+        // Verify against the key for the transport this device is connected on —
+        // the FS17Pro stores USB and Bluetooth configs independently.
+        let transport: Transport = detected.device.program == .footswitchBLE ? .bluetooth : .usb
+        let expected = KeyCombo(modifiers: [], key: baseConfig.triggers.primary(for: transport).key)
         // Verification may talk to the device (USB read-back, or BLE GATT which
         // blocks for up to several seconds) — do it off the main thread, then
         // update the UI back on main.
@@ -260,10 +273,15 @@ final class SettingsViewController: NSViewController {
     }
 
     @objc private func programPedal() {
-        // Single-slot programming of the primary entry; its slot maps to the
-        // programmers' existing hardcoded pedalIndex (USB: slot-1=0, BLE: slot=1).
-        let combo = KeyCombo(modifiers: [], key: baseConfig.primaryTriggerKey.key)
-        let key = baseConfig.primaryTriggerKey.key
+        // Program the key for the transport the device is currently connected on —
+        // the FS17Pro stores USB and Bluetooth configs independently, so we must
+        // write the correct transport's key (not a single global key).
+        // Silent no-op if no device: intentional — the Program button is only shown
+        // when a programmable device was detected (i.e. on .mismatch).
+        guard let transport = currentTransport() else { return }
+        let primary = baseConfig.triggers.primary(for: transport)
+        let combo = KeyCombo(modifiers: [], key: primary.key)
+        let key = primary.key
         programButton.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             let message: String
