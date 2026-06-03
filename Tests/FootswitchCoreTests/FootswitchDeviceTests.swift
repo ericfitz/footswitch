@@ -97,4 +97,16 @@ final class FootswitchDeviceTests: XCTestCase {
         let r: [UInt8] = [0x08, 0x02, 0x00, 0x00, 0x01, 0, 0, 0] // type 2 = mouse
         XCTAssertEqual(FootswitchProgram.parseKeyResponse(r), .other)
     }
+
+    func testMatchesFS17ProUSB() {
+        let d = SupportedDevices.match(vendorID: 0x3553, productID: 0xc100)
+        XCTAssertEqual(d?.program, .footswitch)
+        XCTAssertEqual(d?.name, "PCsensor FS17Pro")
+    }
+
+    func testMatchesFS17ProBLE() {
+        let d = SupportedDevices.match(vendorID: 0x245A, productID: 0x8276)
+        XCTAssertEqual(d?.program, .footswitchBLE)
+        XCTAssertEqual(d?.name, "PCsensor FS17Pro")
+    }
 }
