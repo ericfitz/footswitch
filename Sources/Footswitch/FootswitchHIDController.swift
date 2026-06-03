@@ -42,22 +42,49 @@ enum FootswitchHIDController {
     }
 
     /// Returns a programmer for the best-matching connected device, or nil if none.
-    /// Prefers a USB-programmable `.footswitch` device, then BLE `.footswitchBLE`.
+    /// Derives the selected device from `orderedMatches().first`, the same value
+    /// `detect()` returns, so the label and the action always target one device.
     static func programmer() -> PedalProgrammer? {
-        let all = matches()
-        if let usb = all.first(where: { $0.device.program == .footswitch }) {
-            let ifaces = all.filter { $0.device.program == .footswitch }.map { $0.hidDevice }
-            return USBPedalProgrammer(detected: usb, interfaces: ifaces)
+        let ordered = orderedMatches()
+        guard let first = ordered.first else { return nil }
+        switch first.device.program {
+        case .footswitch:
+            // Gather every `.footswitch`-family interface of the device (one carries
+            // the config endpoint); selection itself is keyed off `first`.
+            let ifaces = ordered.filter { $0.device.program == .footswitch }.map { $0.hidDevice }
+            return USBPedalProgrammer(detected: first, interfaces: ifaces)
+        case .footswitchBLE:
+            return BLEPedalProgrammer(deviceName: first.device.name)
+        default:
+            return nil
         }
-        if let ble = all.first(where: { $0.device.program == .footswitchBLE }) {
-            return BLEPedalProgrammer(deviceName: ble.device.name)
-        }
-        return nil
     }
 
     /// Returns the first connected device that matches the supported table, or nil.
+    /// Uses `orderedMatches()` so the result is deterministic and agrees with the
+    /// device `programmer()` targets.
     static func detect() -> Detected? {
-        matches().first
+        orderedMatches().first
+    }
+
+    /// `matches()` results in a deterministic, preference-ordered list:
+    /// USB-programmable `.footswitch` first, then `.footswitchBLE`, then others.
+    /// Makes `detect()` (the label) and `programmer()` (the action) agree on which
+    /// device they refer to, regardless of HID Set iteration order.
+    private static func orderedMatches() -> [Detected] {
+        func rank(_ p: SupportedDevice.Program) -> Int {
+            switch p {
+            case .footswitch: return 0
+            case .footswitchBLE: return 1
+            default: return 2
+            }
+        }
+        return matches().sorted { a, b in
+            let (ra, rb) = (rank(a.device.program), rank(b.device.program))
+            if ra != rb { return ra < rb }
+            if a.device.vendorID != b.device.vendorID { return a.device.vendorID < b.device.vendorID }
+            return a.device.productID < b.device.productID
+        }
     }
 
     /// All connected HID interfaces matching the supported table. These devices
@@ -77,9 +104,6 @@ enum FootswitchHIDController {
             return Detected(device: match, hidDevice: hidDevice)
         }
     }
-
-    /// Detection result for display: the matched device name, or nil if none found.
-    static func detectName() -> String? { detect()?.device.name }
 
     /// Reads pedal 1's stored config and compares it to `expected`. Used to drive
     /// the settings "configuration" row.
