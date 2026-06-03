@@ -2,8 +2,7 @@ import Foundation
 import FootswitchCore
 
 /// Result of reading and verifying a connected pedal's stored configuration.
-/// Mirrors the prior `FootswitchHIDController.Verification` so the Settings UI is
-/// unchanged.
+/// Supersedes the former USB-only verification enum; the Settings UI is unchanged.
 enum PedalVerification {
     case noDevice
     case verified      // stored key matches expected
