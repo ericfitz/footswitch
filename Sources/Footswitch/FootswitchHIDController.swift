@@ -49,10 +49,9 @@ enum FootswitchHIDController {
             let ifaces = all.filter { $0.device.program == .footswitch }.map { $0.hidDevice }
             return USBPedalProgrammer(detected: usb, interfaces: ifaces)
         }
-        // TODO(Task 6): BLE programmer
-        // if let ble = all.first(where: { $0.device.program == .footswitchBLE }) {
-        //     return BLEPedalProgrammer(deviceName: ble.device.name)
-        // }
+        if let ble = all.first(where: { $0.device.program == .footswitchBLE }) {
+            return BLEPedalProgrammer(deviceName: ble.device.name)
+        }
         return nil
     }
 
