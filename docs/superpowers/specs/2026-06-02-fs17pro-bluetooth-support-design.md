@@ -69,22 +69,22 @@ device, two connection modes:
 
 **Treat the FS17Pro as one device with two table entries, reuse the existing
 `.footswitch` programming path for the USB identity, and add a lightweight
-`.wireless` family for the BLE identity so the UI is honest about where it can be
+`.bluetooth` family for the BLE identity so the UI is honest about where it can be
 programmed.**
 
 ### 1. Device table — `Sources/FootswitchCore/FootswitchDevice.swift`
 
-Add a `.wireless` case to `Program` and two table entries:
+Add a `.bluetooth` case to `Program` and two table entries:
 
 ```swift
 public enum Program: String, Sendable {
-    case footswitch, scythe, scythe2, footswitch1p, wireless
+    case footswitch, scythe, scythe2, footswitch1p, bluetooth
 }
 ...
 // USB wired mode: programmable via the existing .footswitch protocol.
 SupportedDevice(vendorID: 0x3553, productID: 0xc100, program: .footswitch, name: "PCsensor FS17Pro"),
 // Bluetooth-LE mode: recognized for status display; configured over USB.
-SupportedDevice(vendorID: 0x245A, productID: 0x8276, program: .wireless,   name: "PCsensor FS17Pro"),
+SupportedDevice(vendorID: 0x245A, productID: 0x8276, program: .bluetooth,  name: "PCsensor FS17Pro"),
 ```
 
 Rationale for two entries rather than one: the IDs genuinely differ per mode, and
@@ -101,7 +101,7 @@ BLE FS17Pro — this can show the wrong device or pair a "FS17Pro detected" labe
 with a Program button that acts on a different pedal.
 
 Change `detect()` (and the status logic) to **prefer a `.footswitch`-family match**
-(programmable, has a readable config) over a `.wireless`-only match, falling back
+(programmable, has a readable config) over a `.bluetooth`-only match, falling back
 to any match. This:
 - shows the programmable device when one is present (correct target for the
   Program button),
@@ -119,11 +119,11 @@ Behavior by what's connected:
 - **A `.footswitch` device present** (existing pedals, or FS17Pro over USB):
   unchanged — "✓ detected", run `verifyConfiguration`, show **Program** button on
   mismatch.
-- **Only a `.wireless` device present** (FS17Pro over BLE): show the existing
+- **Only a `.bluetooth` device present** (FS17Pro over BLE): show the existing
   "✓ {name} detected" line (**reusing `device.detected` — no new localized
   string**), and **hide the config row + Program button** (you program it over
   USB). Concretely, `refreshDeviceStatus` checks `detected.device.program ==
-  .wireless` and hides the config row the same way the `.noDevice` branch already
+  .bluetooth` and hides the config row the same way the `.noDevice` branch already
   does — before calling `verifyConfiguration`, which is only meaningful for
   `.footswitch` devices. (`Verification` gains no new case.)
 
@@ -132,7 +132,7 @@ No new user-facing strings ⇒ no 30-locale translation pass required.
 ### 4. `deviceInfo()` — `FootswitchHIDController`
 
 Already prints USB identity + recognized model + "Protocol: {family}". For a
-`.wireless` device, print identity and `Protocol: wireless`, and **skip the config
+`.bluetooth` device, print identity and `Protocol: bluetooth`, and **skip the config
 read** (no endpoint) — show a short "Configured over USB" note instead of "Could
 not read configuration", so the info sheet isn't misleading over BLE.
 
@@ -175,7 +175,7 @@ USB mode:   FS17Pro(0x3553:0xC100) ──IOKit HID──▶ FootswitchHIDControl
               Settings: detected ✓, verify, [Program] writes triggerKey (F16)
 
 BLE mode:   FS17Pro(0x245A:0x8276) ──IOKit HID──▶ FootswitchHIDController
-              .wireless family ──▶ detected ✓, no Program button
+              .bluetooth family ──▶ detected ✓, no Program button
             Pressing pedal ──macOS key event(F16)──▶ PedalListener tap
               keyCode == triggerKey(F16) ──▶ debounce ──▶ resolve action ──▶ dispatch
               (listener unchanged; hardware-agnostic)
@@ -185,13 +185,18 @@ BLE mode:   FS17Pro(0x245A:0x8276) ──IOKit HID──▶ FootswitchHIDControl
 
 - **Unit (FootswitchCore):**
   - `SupportedDevices.match(0x3553,0xC100)` → `.footswitch`, name "PCsensor FS17Pro".
-  - `SupportedDevices.match(0x245A,0x8276)` → `.wireless`, name "PCsensor FS17Pro".
+  - `SupportedDevices.match(0x245A,0x8276)` → `.bluetooth`, name "PCsensor FS17Pro".
   - `FootswitchProgram.keyReports(pedalIndex:0, combo: F16)` produces the expected
     header/data bytes (usage `0x6b`).
   - `parseKeyResponse([0x04,0x01,0x00,0x6b,…])` → `.key(F16)` (round-trip).
 - **Manual / on-device (implementation verification):**
-  - USB mode: Settings shows "✓ PCsensor FS17Pro", **Program** sets F16, read-back
-    verifies.
+  - USB mode: Settings shows "✓ PCsensor FS17Pro", **Program** sets the trigger
+    key, read-back verifies. **Test multiple distinct values** — e.g. program F17,
+    read back F17; then program F16, read back F16. The device ships from this
+    user already set to F16 (via ElfKey), so a single F16 write-then-read could
+    pass without the app's write actually taking effect; changing the value at
+    least twice proves the write path mutates the device. End on **F16** (the
+    documented default).
   - BLE mode: Settings shows "✓ PCsensor FS17Pro", **no** Program button, info
     sheet shows "Configured over USB" (no false "unreadable").
   - With `triggerKey=F16` and the pedal programmed to F16, pressing it over
