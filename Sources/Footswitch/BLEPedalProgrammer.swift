@@ -164,7 +164,12 @@ extension BLEPedalProgrammer: CBCentralManagerDelegate, CBPeripheralDelegate {
         guard c.state == .poweredOn else {
             setupError = BLEError.poweredOff; readySemaphore.signal(); return
         }
-        let connected = c.retrieveConnectedPeripherals(withServices: [hidServiceUUID])
+        // Look the peripheral up by its vendor config service (FFF0). macOS does
+        // NOT surface the standard HID service (1812) to third-party CoreBluetooth
+        // apps — the system consumes HID — so retrieving by 1812 returns nothing.
+        // Querying by FFF0 (verified on-device) returns the FS17Pro. The HID UUID
+        // is kept as a fallback in case a firmware variant exposes it.
+        let connected = c.retrieveConnectedPeripherals(withServices: [serviceUUID, hidServiceUUID])
         guard let p = connected.first(where: { ($0.name ?? "").lowercased().contains("fs17") })
                 ?? connected.first else {
             setupError = BLEError.notFound; readySemaphore.signal(); return
