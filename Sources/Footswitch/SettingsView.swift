@@ -287,7 +287,9 @@ final class SettingsViewController: NSViewController {
             let message: String
             do {
                 try FootswitchHIDController.program(combo: combo)
-                message = L10n.alertProgrammed(key: key)
+                message = transport == .bluetooth
+                    ? L10n.alertProgrammedBluetooth(key: key)
+                    : L10n.alertProgrammed(key: key)
             } catch {
                 message = L10n.alertProgramFailed(error: "\(error)")
             }

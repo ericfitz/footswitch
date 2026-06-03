@@ -79,6 +79,9 @@
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Đã lập trình bàn đạp chân để gửi %@.";
 
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Đã lập trình bàn đạp chân để gửi %@. Tắt và bật lại bàn đạp để thay đổi có hiệu lực.";
+
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Không thể lập trình bàn đạp chân.\n\n%@";
 

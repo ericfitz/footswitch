@@ -79,6 +79,9 @@
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "De voetschakelaar is geprogrammeerd om %@ te verzenden.";
 
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "De voetschakelaar is geprogrammeerd om %@ te verzenden. Schakel de pedaal uit en weer in om de wijziging door te voeren.";
+
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "De voetschakelaar kon niet worden geprogrammeerd.\n\n%@";
 

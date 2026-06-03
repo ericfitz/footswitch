@@ -79,6 +79,9 @@
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "דוושת הרגל תוכנתה לשליחת %@.";
 
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "דוושת הרגל תוכנתה לשליחת %@. כבה והדלק את הדוושה כדי שהשינוי ייכנס לתוקף.";
+
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "לא ניתן לתכנת את דוושת הרגל.\n\n%@";
 

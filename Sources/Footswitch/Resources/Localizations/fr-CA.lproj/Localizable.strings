@@ -79,6 +79,9 @@
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "La pédale a été programmée pour envoyer %@.";
 
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "La pédale a été programmée pour envoyer %@. Éteignez puis rallumez la pédale pour que la modification prenne effet.";
+
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Impossible de programmer la pédale.\n\n%@";
 

@@ -79,6 +79,9 @@
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Zaprogramowano przełącznik nożny do wysyłania %@.";
 
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Zaprogramowano przełącznik nożny do wysyłania %@. Wyłącz i włącz pedał, aby zmiana zaczęła obowiązywać.";
+
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Nie można zaprogramować przełącznika nożnego.\n\n%@";
 

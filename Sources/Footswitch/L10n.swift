@@ -55,6 +55,11 @@ enum L10n {
     static func alertProgrammed(key: String) -> String {
         String(format: t("alert.programmed", "Alert: programmed. %@ key."), key)
     }
+    /// %@ = key name. Shown after programming over Bluetooth: the key is stored but
+    /// the FS17Pro only applies it after a physical power-cycle.
+    static func alertProgrammedBluetooth(key: String) -> String {
+        String(format: t("alert.programmed.bluetooth", "Alert: programmed over Bluetooth; power-cycle to apply. %@ key."), key)
+    }
     /// %@ = error detail.
     static func alertProgramFailed(error: String) -> String {
         String(format: t("alert.programFailed", "Alert: programming failed. %@ error."), error)
