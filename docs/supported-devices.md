@@ -26,3 +26,14 @@ The PCsensor **FS17Pro** is a single logical device that enumerates differently
 per mode: `3553:c100` over USB wired mode and `245a:8276` over Bluetooth LE.
 The app programs it over whichever transport it's connected on. Use trigger key
 **F16** (ElfKey, PCsensor's own config tool, cannot assign F13–F15).
+
+## Multi-pedal devices
+
+Pedal count is **detected at runtime**, not recorded in this table: multi- and
+single-pedal PCsensor units typically share the same VID/PID and `footswitch`
+family (the pedal count is a hardware SKU difference), so a static column would
+misreport it. On a connected `footswitch`-family USB device the app probes each
+pedal slot (1–3) for a readable stored config and programs each present pedal
+independently — slot _i_ maps to the device's 0-based `pedalIndex` _i−1_. Default
+trigger keys are F13 / F14 / F15 for pedals 1 / 2 / 3. Bluetooth (FS17Pro) remains
+single-pedal.
