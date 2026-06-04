@@ -24,3 +24,6 @@ CLAUDE.md
 # Python virtualenvs created by uv for the helper scripts (the uv.lock IS tracked).
 .venv/
 scripts/.venv/
+
+# Local git worktrees (subagent-driven development)
+.worktrees/
