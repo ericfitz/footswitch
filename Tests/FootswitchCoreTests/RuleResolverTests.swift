@@ -45,4 +45,31 @@ final class RuleResolverTests: XCTestCase {
         XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", config: config),
                        .keyCombo(KeyCombo(modifiers: [.command], key: "A")))
     }
+
+    func testSlotAwareResolvesPerSlotAction() {
+        let r = Rule(match: "com.x.app", appName: "X", slots: SlotActions(bySlot: [
+            1: .keyCombo(KeyCombo(modifiers: [.command], key: "A")),
+            2: .keyCombo(KeyCombo(modifiers: [.command], key: "B")),
+        ]))
+        let config = makeConfig(rules: [r], def: .dictation)
+        XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", slot: 1, config: config),
+                       .keyCombo(KeyCombo(modifiers: [.command], key: "A")))
+        XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", slot: 2, config: config),
+                       .keyCombo(KeyCombo(modifiers: [.command], key: "B")))
+    }
+
+    func testSlotWithNoActionFallsBackToGlobalDefault() {
+        let r = Rule(match: "com.x.app", appName: "X",
+                     slots: SlotActions(bySlot: [1: .keyCombo(KeyCombo(modifiers: [.command], key: "A"))]))
+        let config = makeConfig(rules: [r], def: .dictation)
+        XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", slot: 2, config: config), .dictation)
+    }
+
+    func testWrapperUsesSlot1() {
+        let r = Rule(match: "com.x.app", appName: "X",
+                     slots: SlotActions(bySlot: [1: .keyCombo(KeyCombo(modifiers: [.command], key: "A"))]))
+        let config = makeConfig(rules: [r])
+        XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", config: config),
+                       .keyCombo(KeyCombo(modifiers: [.command], key: "A")))
+    }
 }

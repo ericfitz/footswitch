@@ -25,7 +25,8 @@ final class ConfigCodingTests: XCTestCase {
         XCTAssertEqual(config.defaultAction, .dictation)
         XCTAssertEqual(config.rules.count, 1)
         XCTAssertEqual(config.rules[0].match, "com.microsoft.VSCode")
-        XCTAssertEqual(config.rules[0].action, .keyCombo(KeyCombo(modifiers: [.command], key: "D")))
+        XCTAssertEqual(config.rules[0].slots.action(forSlot: 1),
+                       .keyCombo(KeyCombo(modifiers: [.command], key: "D")))
     }
 
     func testRoundTrips() throws {
