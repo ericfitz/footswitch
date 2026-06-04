@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "แป้นเหยียบ";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "ทั่วไป";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "เปิด Footswitch เมื่อเข้าสู่ระบบ";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "macOS อาจกำหนดให้คุณอนุญาต Footswitch ใน การตั้งค่าระบบ › ทั่วไป › รายการเข้าสู่ระบบ";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "การดำเนินการเริ่มต้น";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "ตกลง";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "เปิดเมื่อเข้าสู่ระบบ";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "ไม่สามารถเปลี่ยนการตั้งค่าการเปิดเมื่อเข้าสู่ระบบได้\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "เลือกแอปพลิเคชัน";

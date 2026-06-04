@@ -43,6 +43,9 @@ enum L10n {
     static var settingsHeaderDevice: String { t("settings.header.device", "Settings header: device.") }
     static var settingsHeaderDefault: String { t("settings.header.default", "Settings header: default action.") }
     static var settingsHeaderRules: String { t("settings.header.rules", "Settings header: app rules.") }
+    static var settingsHeaderGeneral: String { t("settings.header.general", "Settings header: general app options.") }
+    static var settingsLaunchAtLoginCheckbox: String { t("settings.launchAtLoginCheckbox", "Settings checkbox: launch the app automatically at login.") }
+    static var settingsLaunchAtLoginApprovalHint: String { t("settings.launchAtLoginApprovalHint", "Settings hint: macOS requires the user to approve the login item in System Settings.") }
     static var settingsDictationCheckbox: String { t("settings.dictationCheckbox", "Settings checkbox: dictation fallback.") }
     static var settingsRulesHint: String { t("settings.rulesHint", "Settings hint below rules table.") }
     static var settingsProgramButton: String { t("settings.programButton", "Button: program the pedal.") }
@@ -89,6 +92,11 @@ enum L10n {
         String(format: t("alert.programFailed", "Alert: programming failed. %@ error."), error)
     }
     static var alertOK: String { t("alert.ok", "Generic OK button.") }
+    static var alertLaunchAtLoginTitle: String { t("alert.launchAtLogin.title", "Alert title when toggling launch-at-login fails.") }
+    /// %@ = error detail.
+    static func alertLaunchAtLoginFailed(error: String) -> String {
+        String(format: t("alert.launchAtLogin.failed", "Alert: launch-at-login change failed. %@ error."), error)
+    }
 
     // Open panel
     static var openPanelTitle: String { t("openPanel.title", "Open panel title for choosing an app.") }

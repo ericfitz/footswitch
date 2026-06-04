@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "Nožní pedál";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "Obecné";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "Spouštět Footswitch při přihlášení";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "macOS může vyžadovat schválení aplikace Footswitch v Nastavení systému › Obecné › Položky přihlášení.";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "Výchozí akce";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "OK";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "Spouštění při přihlášení";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "Nastavení spouštění při přihlášení se nepodařilo změnit.\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "Vyberte aplikaci";

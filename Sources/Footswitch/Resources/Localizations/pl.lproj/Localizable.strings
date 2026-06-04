@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "Przełącznik nożny";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "Ogólne";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "Uruchamiaj Footswitch przy logowaniu";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "System macOS może wymagać zatwierdzenia aplikacji Footswitch w Ustawieniach systemowych › Ogólne › Elementy logowania.";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "Akcja domyślna";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "OK";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "Uruchamianie przy logowaniu";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "Nie udało się zmienić ustawienia uruchamiania przy logowaniu.\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "Wybierz aplikację";

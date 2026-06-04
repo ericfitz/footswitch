@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "Sakelar kaki";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "Umum";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "Luncurkan Footswitch saat masuk";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "macOS mungkin meminta Anda menyetujui Footswitch di Pengaturan Sistem › Umum › Item Masuk.";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "Tindakan default";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "OK";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "Luncurkan saat masuk";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "Tidak dapat mengubah pengaturan peluncuran saat masuk.\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "Pilih aplikasi";

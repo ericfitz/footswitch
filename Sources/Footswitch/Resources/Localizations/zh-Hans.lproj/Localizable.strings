@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "脚踏开关";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "通用";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "登录时启动 Footswitch";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "macOS 可能要求你在“系统设置 › 通用 › 登录项”中批准 Footswitch。";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "默认操作";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "好";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "登录时启动";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "无法更改登录时启动的设置。\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "选取应用程序";

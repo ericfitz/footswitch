@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "풋 스위치";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "일반";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "로그인 시 Footswitch 실행";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "macOS에서 시스템 설정 › 일반 › 로그인 항목에서 Footswitch를 승인해야 할 수 있습니다.";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "기본 동작";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "확인";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "로그인 시 실행";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "로그인 시 실행 설정을 변경할 수 없습니다.\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "응용 프로그램 선택";

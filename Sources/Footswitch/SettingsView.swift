@@ -32,6 +32,8 @@ final class SettingsViewController: NSViewController {
 
     private let tableView = NSTableView()
     private let addRemove = NSSegmentedControl()
+    private var launchAtLoginCheckbox: NSButton!
+    private var launchAtLoginHint: NSTextField!
     private var dictationCheckbox: NSButton!
     private var deviceStatusLabel: NSTextField!
     private var infoButton: NSButton!
@@ -118,6 +120,19 @@ final class SettingsViewController: NSViewController {
         deviceSection.spacing = 4
         refreshDeviceStatus()
 
+        // General app options: launch at login (OS-owned state, not in Config).
+        let generalHeader = makeHeader(L10n.settingsHeaderGeneral)
+        launchAtLoginCheckbox = NSButton(checkboxWithTitle: L10n.settingsLaunchAtLoginCheckbox,
+                                         target: self, action: #selector(launchAtLoginChanged))
+        launchAtLoginCheckbox.state = LoginItem.isEnabled ? .on : .off
+        launchAtLoginHint = NSTextField(wrappingLabelWithString: L10n.settingsLaunchAtLoginApprovalHint)
+        launchAtLoginHint.font = .systemFont(ofSize: 11)
+        launchAtLoginHint.textColor = .secondaryLabelColor
+        launchAtLoginHint.maximumNumberOfLines = 2
+        launchAtLoginHint.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        // Only shown when macOS is waiting on the user to approve the login item.
+        launchAtLoginHint.isHidden = !LoginItem.requiresApproval
+
         let defaultHeader = makeHeader(L10n.settingsHeaderDefault)
         dictationCheckbox = NSButton(checkboxWithTitle: L10n.settingsDictationCheckbox,
                                      target: self, action: #selector(dictationCheckboxChanged))
@@ -153,6 +168,7 @@ final class SettingsViewController: NSViewController {
         updateRemoveEnabled()
 
         let stack = NSStackView(views: [deviceHeader, deviceSection, makeSpacer(8),
+                                        generalHeader, launchAtLoginCheckbox, launchAtLoginHint, makeSpacer(8),
                                         defaultHeader, dictationCheckbox, makeSpacer(8),
                                         rulesHeader, hint, scroll, addRemove])
         stack.orientation = .vertical
@@ -172,6 +188,7 @@ final class SettingsViewController: NSViewController {
             // Bound the hint's width so a long localized string wraps to a second
             // line instead of stretching the layout.
             hint.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
+            launchAtLoginHint.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
         ])
     }
 
@@ -413,6 +430,30 @@ final class SettingsViewController: NSViewController {
             alert.beginSheetModal(for: window, completionHandler: nil)
         } else {
             alert.runModal()
+        }
+    }
+
+    @objc private func launchAtLoginChanged() {
+        let wantEnabled = (launchAtLoginCheckbox.state == .on)
+        do {
+            let actual = try LoginItem.setEnabled(wantEnabled)
+            // Reconcile the checkbox with what actually took effect (e.g. macOS may
+            // defer a registration to user approval, leaving it not-yet-enabled).
+            launchAtLoginCheckbox.state = actual ? .on : .off
+            launchAtLoginHint.isHidden = !LoginItem.requiresApproval
+        } catch {
+            // Revert the checkbox to the real state and tell the user why.
+            launchAtLoginCheckbox.state = LoginItem.isEnabled ? .on : .off
+            launchAtLoginHint.isHidden = !LoginItem.requiresApproval
+            let alert = NSAlert()
+            alert.messageText = L10n.alertLaunchAtLoginTitle
+            alert.informativeText = L10n.alertLaunchAtLoginFailed(error: "\(error)")
+            alert.addButton(withTitle: L10n.alertOK)
+            if let window = view.window {
+                alert.beginSheetModal(for: window, completionHandler: nil)
+            } else {
+                alert.runModal()
+            }
         }
     }
 

@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "Fotpedal";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "Allmänt";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "Starta Footswitch vid inloggning";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "macOS kan kräva att du godkänner Footswitch i Systeminställningar › Allmänt › Inloggningsobjekt.";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "Standardåtgärd";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "OK";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "Starta vid inloggning";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "Det gick inte att ändra inställningen för att starta vid inloggning.\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "Välj ett program";

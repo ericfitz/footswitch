@@ -31,6 +31,15 @@
 /* Settings section header for the foot switch device. */
 "settings.header.device" = "Pedal";
 
+/* Settings section header for general app options. */
+"settings.header.general" = "Geral";
+
+/* Settings checkbox: launch the app automatically when the user logs in. */
+"settings.launchAtLoginCheckbox" = "Abrir o Footswitch ao iniciar sessão";
+
+/* Settings hint shown when macOS requires the user to approve the login item in System Settings before it takes effect. */
+"settings.launchAtLoginApprovalHint" = "O macOS pode exigir que aprove o Footswitch em Definições do Sistema › Geral › Itens de Início de Sessão.";
+
 /* Settings section header for the default (no-rule-matched) action. */
 "settings.header.default" = "Ação predefinida";
 
@@ -90,6 +99,12 @@
 
 /* Generic OK button. */
 "alert.ok" = "OK";
+
+/* Alert title shown when enabling or disabling launch-at-login fails. */
+"alert.launchAtLogin.title" = "Abrir ao iniciar sessão";
+
+/* Alert body when toggling launch-at-login fails. %@ = error detail. */
+"alert.launchAtLogin.failed" = "Não foi possível alterar a definição de abrir ao iniciar sessão.\n\n%@";
 
 /* Title of the open panel used to pick an application for a rule. */
 "openPanel.title" = "Escolher uma aplicação";
