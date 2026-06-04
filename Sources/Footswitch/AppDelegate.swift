@@ -29,6 +29,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             PermissionsManager.requestTrust()
         }
 
+        // Install a provisional single-slot (primary key) listener synchronously so
+        // presses are caught immediately — backgrounded slot detection (~1.5s worst
+        // case) would otherwise leave a startup gap where presses pass through. The
+        // backgrounded probe then rebuilds with the full clamped key set.
+        installListener(triggerKeys: Array(config.allTriggerKeys.prefix(1)))
         buildListener()
 
         // Live hot-plug: when USB HID devices change, re-detect the pedal count
@@ -44,25 +49,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// on the main thread.
     private func buildListener() {
         let allKeys = config.allTriggerKeys
-        let debounceMs = config.debounceMs
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let slotCount = FootswitchHIDController.detectedSlotCount()
             let clamped = allKeys.filter { $0.slot <= slotCount }
             let keys = clamped.isEmpty ? Array(allKeys.prefix(1)) : clamped
-            DispatchQueue.main.async {
-                guard let self else { return }
-                // Tear down the previous tap before replacing it, or the old
-                // listener keeps swallowing its keys (leak on hot-plug / save).
-                self.listener?.stop()
-                self.listener = PedalListener(
-                    triggerKeys: keys,
-                    debounceMs: debounceMs,
-                    onFire: { [weak self] slot in
-                        MainActor.assumeIsolated { self?.handlePress(slot: slot) }
-                    })
-                _ = self.listener.start()
-            }
+            DispatchQueue.main.async { self?.installListener(triggerKeys: keys) }
         }
+    }
+
+    /// Installs a fresh event-tap listener for `triggerKeys`, tearing down the
+    /// previous one first (or the old tap keeps swallowing its keys — a leak on
+    /// hot-plug / save / the provisional→detected handoff). Main-thread only.
+    private func installListener(triggerKeys: [TriggerKey]) {
+        listener?.stop()
+        listener = PedalListener(
+            triggerKeys: triggerKeys,
+            debounceMs: config.debounceMs,
+            onFire: { [weak self] slot in
+                MainActor.assumeIsolated { self?.handlePress(slot: slot) }
+            })
+        _ = listener.start()
     }
 
     private func handlePress(slot: Int) {

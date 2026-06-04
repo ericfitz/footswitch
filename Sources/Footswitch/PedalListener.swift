@@ -21,7 +21,7 @@ final class PedalListener {
         for tk in triggerKeys {
             guard let code = Keymap.keyCode(for: tk.key) else { continue }
             // First writer wins per keycode (de-dup): a duplicate key can't map to
-            // two slots, so the lower slot (earlier in the list) keeps it.
+            // two slots, so the first one in the list (USB before Bluetooth) keeps it.
             if map[code] == nil { map[code] = tk.slot }
         }
         if map.isEmpty { map[0x69] = 1 }   // F13 / slot 1 fallback
