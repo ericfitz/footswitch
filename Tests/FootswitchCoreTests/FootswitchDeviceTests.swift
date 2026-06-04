@@ -109,4 +109,23 @@ final class FootswitchDeviceTests: XCTestCase {
         XCTAssertEqual(d?.program, .footswitchBLE)
         XCTAssertEqual(d?.name, "PCsensor FS17Pro")
     }
+
+    func testSlotNamespace() {
+        XCTAssertEqual(Slot.maxCount, 3)
+        XCTAssertEqual(Array(Slot.validRange), [1, 2, 3])
+        XCTAssertTrue(Slot.isValid(1))
+        XCTAssertTrue(Slot.isValid(3))
+        XCTAssertFalse(Slot.isValid(0))
+        XCTAssertFalse(Slot.isValid(4))
+    }
+
+    func testKeyReportsEncodePedalIndexInByte3() {
+        // slot i (1-based) -> pedalIndex i-1 -> device byte i.
+        for slot in Slot.validRange {
+            let reports = FootswitchProgram.keyReports(
+                pedalIndex: slot - 1, combo: KeyCombo(modifiers: [], key: "F13"))
+            XCTAssertEqual(reports?.header[3], UInt8(slot))
+            XCTAssertEqual(FootswitchProgram.queryReport(pedalIndex: slot - 1)[3], UInt8(slot))
+        }
+    }
 }
