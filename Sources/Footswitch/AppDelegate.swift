@@ -27,9 +27,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         listener = PedalListener(
-            triggerKey: config.triggerKey,
+            triggerKeys: config.allTriggerKeys,
             debounceMs: config.debounceMs,
-            onFire: { [weak self] in
+            onFire: { [weak self] _ in
                 MainActor.assumeIsolated { self?.handlePress() }
             })
         _ = listener.start()
@@ -67,6 +67,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
             dictationShortcut: config.dictationShortcut)
-        // triggerKey/debounce changes take effect on next launch (documented).
+        // triggerKeys/debounce changes take effect on next launch (documented).
     }
 }

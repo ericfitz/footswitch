@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Конфигурация проверена";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Сохранено — выключите и включите педаль для применения";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Необходимо обновить конфигурацию";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Педаль настроена на отправку %@.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Педаль настроена на отправку %@. Выключите и включите педаль, чтобы изменение вступило в силу.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Не удалось настроить педаль.\n\n%@";

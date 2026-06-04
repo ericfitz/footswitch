@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "구성 확인됨";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "저장됨 — 적용하려면 풋 스위치의 전원을 껐다 켜세요";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "구성을 업데이트해야 함";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "풋 스위치가 %@을(를) 전송하도록 프로그래밍되었습니다.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "풋 스위치가 %@을(를) 전송하도록 프로그래밍되었습니다. 변경 사항을 적용하려면 풋 스위치의 전원을 껐다 켜세요.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "풋 스위치를 프로그래밍할 수 없습니다.\n\n%@";

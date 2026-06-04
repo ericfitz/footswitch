@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Επαληθευμένη διαμόρφωση";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Αποθηκεύτηκε — απενεργοποιήστε και ενεργοποιήστε τον διακόπτη για εφαρμογή";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Η διαμόρφωση πρέπει να ενημερωθεί";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Ο διακόπτης ποδιού προγραμματίστηκε να στέλνει %@.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Ο διακόπτης ποδιού προγραμματίστηκε να στέλνει %@. Απενεργοποιήστε και ενεργοποιήστε ξανά τον διακόπτη για να εφαρμοστεί η αλλαγή.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Δεν ήταν δυνατός ο προγραμματισμός του διακόπτη ποδιού.\n\n%@";

@@ -44,6 +44,7 @@ enum L10n {
         String(format: t("device.detected", "Device status: detected. %@ name."), name)
     }
     static var deviceConfigVerified: String { t("device.config.verified", "Config status: verified.") }
+    static var deviceConfigStoredBluetooth: String { t("device.config.storedBluetooth", "Config status: stored over Bluetooth; power-cycle to apply.") }
     static var deviceConfigMismatch: String { t("device.config.mismatch", "Config status: must update.") }
     static var deviceConfigUnreadable: String { t("device.config.unreadable", "Config status: unreadable.") }
 
@@ -54,6 +55,11 @@ enum L10n {
     /// %@ = key name.
     static func alertProgrammed(key: String) -> String {
         String(format: t("alert.programmed", "Alert: programmed. %@ key."), key)
+    }
+    /// %@ = key name. Shown after programming over Bluetooth: the key is stored but
+    /// the FS17Pro only applies it after a physical power-cycle.
+    static func alertProgrammedBluetooth(key: String) -> String {
+        String(format: t("alert.programmed.bluetooth", "Alert: programmed over Bluetooth; power-cycle to apply. %@ key."), key)
     }
     /// %@ = error detail.
     static func alertProgramFailed(error: String) -> String {

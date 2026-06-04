@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Konfiguration überprüft";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Gespeichert – Fußschalter aus- und einschalten, um zu übernehmen";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Konfiguration muss aktualisiert werden";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Der Fußschalter wurde so programmiert, dass er %@ sendet.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Der Fußschalter wurde so programmiert, dass er %@ sendet. Schalte den Fußschalter aus und wieder ein, damit die Änderung wirksam wird.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Der Fußschalter konnte nicht programmiert werden.\n\n%@";

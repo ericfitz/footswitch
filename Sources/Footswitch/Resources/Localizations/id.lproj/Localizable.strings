@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Konfigurasi terverifikasi";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Tersimpan — matikan dan nyalakan kembali sakelar kaki untuk menerapkan";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Konfigurasi perlu diperbarui";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Sakelar kaki berhasil diprogram untuk mengirim %@.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Sakelar kaki berhasil diprogram untuk mengirim %@. Matikan dan nyalakan kembali sakelar kaki agar perubahan diterapkan.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Tidak dapat memprogram sakelar kaki.\n\n%@";

@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Verified configuration";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Stored — power-cycle the pedal to apply";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Configuration must be updated";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Programmed the foot switch to send %@.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Programmed the foot switch to send %@. Power-cycle the pedal (turn it off and on) for the change to take effect.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Could not program the foot switch.\n\n%@";

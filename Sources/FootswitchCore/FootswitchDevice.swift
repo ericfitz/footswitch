@@ -1,11 +1,12 @@
 import Foundation
 
-/// A USB foot switch model this app recognizes, identified by USB vendor/product
+/// A foot switch model this app recognizes, identified by USB vendor/product
 /// ID. `program` is the protocol family (the original `footswitch` CLI uses
-/// different report layouts per family); only `.footswitch` is implemented for
-/// programming today — others are detected but not yet programmable.
+/// different report layouts per family). `.footswitch` (USB HID) and
+/// `.footswitchBLE` (Bluetooth GATT) are the programmable families; the others
+/// are detected but not yet programmable.
 public struct SupportedDevice: Equatable, Sendable {
-    public enum Program: String, Sendable { case footswitch, scythe, scythe2, footswitch1p }
+    public enum Program: String, Sendable { case footswitch, scythe, scythe2, footswitch1p, footswitchBLE }
     public let vendorID: Int
     public let productID: Int
     public let program: Program
@@ -27,6 +28,8 @@ public enum SupportedDevices {
         SupportedDevice(vendorID: 0x413d, productID: 0x2107, program: .footswitch,   name: "FootSwitch"),
         SupportedDevice(vendorID: 0x1a86, productID: 0xe026, program: .footswitch,   name: "FootSwitch"),
         SupportedDevice(vendorID: 0x3553, productID: 0xb001, program: .footswitch,   name: "PCsensor FootSwitch"),
+        SupportedDevice(vendorID: 0x3553, productID: 0xc100, program: .footswitch,   name: "PCsensor FS17Pro"),
+        SupportedDevice(vendorID: 0x245A, productID: 0x8276, program: .footswitchBLE, name: "PCsensor FS17Pro"),
         SupportedDevice(vendorID: 0x0426, productID: 0x3011, program: .scythe,       name: "Scythe FootSwitch"),
         SupportedDevice(vendorID: 0x055a, productID: 0x0998, program: .scythe2,      name: "Scythe FootSwitch II"),
         SupportedDevice(vendorID: 0x5131, productID: 0x2019, program: .footswitch1p, name: "FootSwitch 1P"),

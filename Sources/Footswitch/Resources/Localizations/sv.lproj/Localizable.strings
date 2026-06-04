@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "Konfigurationen verifierad";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "Sparat – stäng av och slå på pedalen för att tillämpa";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "Konfigurationen måste uppdateras";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "Fotpedalen har programmerats att skicka %@.";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "Fotpedalen har programmerats att skicka %@. Stäng av och slå på pedalen för att ändringen ska träda i kraft.";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "Det gick inte att programmera fotpedalen.\n\n%@";

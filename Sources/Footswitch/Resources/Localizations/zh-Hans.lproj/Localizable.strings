@@ -61,6 +61,9 @@
 /* Device config status: hardware matches expected configuration. */
 "device.config.verified" = "配置已验证";
 
+/* Device config status: stored over Bluetooth; needs a power-cycle to apply. */
+"device.config.storedBluetooth" = "已存储 — 请关闭并重新打开脚踏开关以应用";
+
 /* Device config status: hardware configuration needs updating. */
 "device.config.mismatch" = "必须更新配置";
 
@@ -78,6 +81,9 @@
 
 /* Alert body after successfully programming the pedal. %@ = key name. */
 "alert.programmed" = "已将脚踏开关编程为发送 %@。";
+
+/* Alert body after programming over Bluetooth; the key is stored but the FS17Pro applies it only after a physical power-cycle. %@ = key name. */
+"alert.programmed.bluetooth" = "已将脚踏开关编程为发送 %@。请关闭并重新打开脚踏开关以使更改生效。";
 
 /* Alert body after a failed programming attempt. %@ = error detail. */
 "alert.programFailed" = "无法对脚踏开关编程。\n\n%@";

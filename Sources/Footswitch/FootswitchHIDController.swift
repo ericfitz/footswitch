@@ -14,9 +14,77 @@ enum FootswitchHIDController {
         let hidDevice: IOHIDDevice
     }
 
+    /// A `PedalProgrammer` bound to one matched USB HID device and its sibling
+    /// interfaces (one carries the config endpoint). Wraps the existing IOKit logic.
+    struct USBPedalProgrammer: PedalProgrammer {
+        let detected: FootswitchHIDController.Detected
+        /// All `.footswitch`-family interfaces of the same device (one answers config).
+        let interfaces: [IOHIDDevice]
+
+        var deviceName: String { detected.device.name }
+
+        func readStoredConfig() -> FootswitchProgram.StoredConfig? {
+            for dev in interfaces {
+                if let stored = FootswitchHIDController.readStoredConfig(dev, pedalIndex: 0) {
+                    return stored
+                }
+            }
+            return nil
+        }
+
+        func program(combo: KeyCombo) throws {
+            try FootswitchHIDController.programUSB(interfaces: interfaces, combo: combo)
+        }
+
+        func info() -> String {
+            FootswitchHIDController.usbInfo(detected: detected, interfaces: interfaces)
+        }
+    }
+
+    /// Returns a programmer for the best-matching connected device, or nil if none.
+    /// Derives the selected device from `orderedMatches().first`, the same value
+    /// `detect()` returns, so the label and the action always target one device.
+    static func programmer() -> PedalProgrammer? {
+        let ordered = orderedMatches()
+        guard let first = ordered.first else { return nil }
+        switch first.device.program {
+        case .footswitch:
+            // Gather every `.footswitch`-family interface of the device (one carries
+            // the config endpoint); selection itself is keyed off `first`.
+            let ifaces = ordered.filter { $0.device.program == .footswitch }.map { $0.hidDevice }
+            return USBPedalProgrammer(detected: first, interfaces: ifaces)
+        case .footswitchBLE:
+            return BLEPedalProgrammer(deviceName: first.device.name)
+        default:
+            return nil
+        }
+    }
+
     /// Returns the first connected device that matches the supported table, or nil.
+    /// Uses `orderedMatches()` so the result is deterministic and agrees with the
+    /// device `programmer()` targets.
     static func detect() -> Detected? {
-        matches().first
+        orderedMatches().first
+    }
+
+    /// `matches()` results in a deterministic, preference-ordered list:
+    /// USB-programmable `.footswitch` first, then `.footswitchBLE`, then others.
+    /// Makes `detect()` (the label) and `programmer()` (the action) agree on which
+    /// device they refer to, regardless of HID Set iteration order.
+    private static func orderedMatches() -> [Detected] {
+        func rank(_ p: SupportedDevice.Program) -> Int {
+            switch p {
+            case .footswitch: return 0
+            case .footswitchBLE: return 1
+            default: return 2
+            }
+        }
+        return matches().sorted { a, b in
+            let (ra, rb) = (rank(a.device.program), rank(b.device.program))
+            if ra != rb { return ra < rb }
+            if a.device.vendorID != b.device.vendorID { return a.device.vendorID < b.device.vendorID }
+            return a.device.productID < b.device.productID
+        }
     }
 
     /// All connected HID interfaces matching the supported table. These devices
@@ -37,42 +105,21 @@ enum FootswitchHIDController {
         }
     }
 
-    /// Detection result for display: the matched device name, or nil if none found.
-    static func detectName() -> String? { detect()?.device.name }
-
-    /// Result of reading and verifying the connected pedal's stored configuration.
-    enum Verification {
-        case noDevice
-        case verified                       // stored key matches expected
-        case mismatch                       // read OK but configured differently
-        case unreadable                     // device present but config read failed
-    }
-
     /// Reads pedal 1's stored config and compares it to `expected`. Used to drive
     /// the settings "configuration" row.
-    static func verifyConfiguration(expected: KeyCombo) -> Verification {
-        let candidates = matches()
-        guard !candidates.isEmpty else { return .noDevice }
-        guard candidates.contains(where: { $0.device.program == .footswitch }) else { return .unreadable }
-
-        // Only one of the device's HID interfaces answers the query; try each.
-        for detected in candidates where detected.device.program == .footswitch {
-            guard let stored = readStoredConfig(detected.hidDevice, pedalIndex: 0) else { continue }
-            switch stored {
-            case .key(let combo):
-                return combo == expected ? .verified : .mismatch
-            case .unconfigured, .other:
-                return .mismatch
-            }
-        }
-        return .unreadable   // no interface returned a config
+    static func verifyConfiguration(expected: KeyCombo) -> PedalVerification {
+        guard let p = programmer() else { return .noDevice }
+        return p.verify(expected: expected)
     }
 
     /// A human-readable, read-only report of the connected device: USB identity,
     /// the matched model/protocol, and the pedal's currently-programmed key.
     /// Returns nil if no supported device is connected.
-    static func deviceInfo() -> String? {
-        guard let detected = detect() else { return nil }
+    static func deviceInfo() -> String? { programmer()?.info() }
+
+    /// Builds the USB device-info report. Identity comes from `detected.hidDevice`;
+    /// the stored configuration is read from `interfaces`.
+    static func usbInfo(detected: Detected, interfaces: [IOHIDDevice]) -> String {
         let dev = detected.hidDevice
         var lines: [String] = []
 
@@ -99,8 +146,8 @@ enum FootswitchHIDController {
         lines.append("")
         lines.append("Programmed configuration")
         if detected.device.program == .footswitch,
-           let stored = matches().filter({ $0.device.program == .footswitch })
-               .lazy.compactMap({ readStoredConfig($0.hidDevice, pedalIndex: 0) }).first {
+           let stored = interfaces
+               .lazy.compactMap({ readStoredConfig($0, pedalIndex: 0) }).first {
             switch stored {
             case .key(let combo):
                 lines.append("  Emits: \(KeyComboFormatter.display(combo))")
@@ -124,7 +171,7 @@ enum FootswitchHIDController {
         var report: [UInt8]?
     }
 
-    private static func readStoredConfig(_ dev: IOHIDDevice, pedalIndex: Int)
+    fileprivate static func readStoredConfig(_ dev: IOHIDDevice, pedalIndex: Int)
         -> FootswitchProgram.StoredConfig? {
         guard IOHIDDeviceOpen(dev, IOOptionBits(kIOHIDOptionsTypeNone)) == kIOReturnSuccess else {
             return nil
@@ -169,7 +216,6 @@ enum FootswitchHIDController {
         case unsupportedKey
         case openFailed
         case writeFailed(IOReturn)
-        case unsupportedProgram(SupportedDevice.Program)
 
         var description: String {
             switch self {
@@ -177,29 +223,28 @@ enum FootswitchHIDController {
             case .unsupportedKey: return "That key cannot be programmed onto the device."
             case .openFailed: return "Could not open the foot switch for writing."
             case .writeFailed(let r): return "Writing to the foot switch failed (IOReturn \(r))."
-            case .unsupportedProgram(let p): return "Programming the \(p.rawValue) variant is not implemented yet."
             }
         }
     }
 
-    /// Programs the connected single-pedal device to emit `combo` on press.
-    /// Mirrors footswitch.c: write the start report, then the pedal-1 header and
-    /// data reports. Only the `.footswitch` family is implemented. The device
-    /// exposes multiple HID interfaces; we try each and confirm via read-back.
+    /// Programs the connected single-pedal device to emit `combo` on press,
+    /// delegating to the selected programmer (USB-preferring).
     static func program(combo: KeyCombo) throws {
-        let candidates = matches()
-        guard !candidates.isEmpty else { throw ProgramError.noDevice }
-        let programmable = candidates.filter { $0.device.program == .footswitch }
-        guard !programmable.isEmpty else {
-            throw ProgramError.unsupportedProgram(candidates[0].device.program)
-        }
+        guard let p = programmer() else { throw ProgramError.noDevice }
+        try p.program(combo: combo)
+    }
+
+    /// Programs the passed-in USB HID `interfaces` to emit `combo` on press.
+    /// Mirrors footswitch.c: write the start report, then the pedal-1 header and
+    /// data reports. The device exposes multiple HID interfaces; we try each and
+    /// confirm via read-back.
+    static func programUSB(interfaces: [IOHIDDevice], combo: KeyCombo) throws {
+        guard !interfaces.isEmpty else { throw ProgramError.noDevice }
         guard let reports = FootswitchProgram.keyReports(pedalIndex: 0, combo: combo) else {
             throw ProgramError.unsupportedKey
         }
-
         var lastWrite: IOReturn = kIOReturnSuccess
-        for detected in programmable {
-            let dev = detected.hidDevice
+        for dev in interfaces {
             guard IOHIDDeviceOpen(dev, IOOptionBits(kIOHIDOptionsTypeNone)) == kIOReturnSuccess else { continue }
             do {
                 try setReport(dev, FootswitchProgram.start)
@@ -214,15 +259,11 @@ enum FootswitchHIDController {
                 continue
             }
             IOHIDDeviceClose(dev, IOOptionBits(kIOHIDOptionsTypeNone))
-
-            // Confirm the write took on some interface.
-            if case .key(let stored)? = programmable.lazy
-                .compactMap({ readStoredConfig($0.hidDevice, pedalIndex: 0) })
-                .first, stored == combo {
+            if case .key(let stored)? = interfaces.lazy
+                .compactMap({ readStoredConfig($0, pedalIndex: 0) }).first, stored == combo {
                 return
             }
         }
-        // Writes were posted but couldn't be confirmed; treat a clean post as success.
         if lastWrite == kIOReturnSuccess { return }
         throw ProgramError.writeFailed(lastWrite)
     }

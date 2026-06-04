@@ -16,8 +16,8 @@ use the microphone for voice communication.
 
 ## Limitations
 
-The app currently does not currently support multi-pedal devices such as sheet music
-page turners, and does not currently support bluetooth pedals.
+The app currently does not support multi-pedal devices such as sheet music
+page turners.
 
 ## Install
 
@@ -46,6 +46,26 @@ keyboard shortcut. Set it up once:
    (Control-Option-Command-D). Avoid the "double-tap" presets — they can't be
    synthesized reliably.
 3. Make sure the app's `dictationShortcut` matches (the default is ⌃⌥⌘D).
+
+## PCsensor FS17Pro (wireless)
+
+The FS17Pro works over Bluetooth or USB. Pair it over Bluetooth (or connect the
+USB-C cable), open **Settings…**, set `triggerKey` to `F16`, and click **Program** —
+the app writes the key over whichever transport the pedal is connected on. F16 is
+recommended (the app's general default elsewhere is F13, but PCsensor's ElfKey app
+cannot assign F13–F15, so the FS17Pro uses F16). Programming over Bluetooth stores
+the key but the FS17Pro only applies it after you power-cycle the pedal (turn it
+off and on) — the app reminds you when you click **Program**. (Programming over USB
+applies immediately.)
+
+**Important:** the FS17Pro stores its key configuration independently for USB and
+Bluetooth — the two slots do not share. Programming over one transport has no
+effect on the other. You must program the pedal in the same mode you intend to use
+it. If you use it both wired and wireless, connect in each mode and click **Program**
+each time (use the same trigger key both times so it behaves identically).
+
+The first time you program over Bluetooth, macOS asks for Bluetooth permission —
+allow it (the app needs Bluetooth only to configure the pedal).
 
 ## Build & run
 
