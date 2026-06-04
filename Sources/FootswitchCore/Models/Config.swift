@@ -70,7 +70,11 @@ public struct Config: Codable, Equatable, Sendable {
 
     public static let `default` = Config(
         triggers: Triggers(
-            usb: [TriggerKey(key: "F13", slot: 1)],
+            usb: [
+                TriggerKey(key: "F13", slot: 1),
+                TriggerKey(key: "F14", slot: 2),
+                TriggerKey(key: "F15", slot: 3),
+            ],
             bluetooth: [TriggerKey(key: "F13", slot: 1)]),
         dictationShortcut: KeyCombo(modifiers: [.control, .option, .command], key: "D"),
         debounceMs: 250,

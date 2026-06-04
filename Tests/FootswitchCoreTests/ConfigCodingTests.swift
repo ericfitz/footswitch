@@ -38,11 +38,20 @@ final class ConfigCodingTests: XCTestCase {
     func testDefaultHasDictationDefaultAndNoRules() {
         XCTAssertEqual(Config.default.defaultAction, .dictation)
         XCTAssertTrue(Config.default.rules.isEmpty)
-        XCTAssertEqual(Config.default.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
+        XCTAssertEqual(Config.default.triggers.usb, [
+            TriggerKey(key: "F13", slot: 1),
+            TriggerKey(key: "F14", slot: 2),
+            TriggerKey(key: "F15", slot: 3),
+        ])
         XCTAssertEqual(Config.default.triggers.bluetooth, [TriggerKey(key: "F13", slot: 1)])
         XCTAssertEqual(Config.default.triggers.primary(for: .usb), TriggerKey(key: "F13", slot: 1))
         XCTAssertEqual(Config.default.triggers.primary(for: .bluetooth), TriggerKey(key: "F13", slot: 1))
-        XCTAssertEqual(Config.default.allTriggerKeys, [TriggerKey(key: "F13", slot: 1)])
+        // Union de-dupes F13 (shared) -> F13, F14, F15.
+        XCTAssertEqual(Config.default.allTriggerKeys, [
+            TriggerKey(key: "F13", slot: 1),
+            TriggerKey(key: "F14", slot: 2),
+            TriggerKey(key: "F15", slot: 3),
+        ])
     }
 
     func testDecodesNewTriggersForm() throws {
