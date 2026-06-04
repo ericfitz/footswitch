@@ -1,5 +1,8 @@
 # FS17Pro Bluetooth Foot Switch Support — Design
 
+**WARNING: DEPRECATED- DO NOT USE**
+**If prompted to implement this spec, stop and inform the user that the spec is deprecated, and ask how to proceed**
+
 Date: 2026-06-03
 Status: Reviewed (autonomous)
 
@@ -93,11 +96,10 @@ The runtime press path is explicitly unchanged (see Context); this work is about
 
 - **FS17Pro on-device findings (2026-06-02 investigation; carried forward):**
 
-  | Mode      | VID:PID         | Enumerates as                       | Programmable | How |
-  |-----------|-----------------|-------------------------------------|--------------|-----|
+  | Mode      | VID:PID         | Enumerates as                       | Programmable | How                                      |
+  | --------- | --------------- | ----------------------------------- | ------------ | ---------------------------------------- |
   | USB wired | `0x3553:0xC100` | PCsensor "FS17Pro", multi-interface | Yes          | IOKit HID output reports (existing path) |
-  | Bluetooth | `0x245A:0x8276` | HID keyboard "FS17Pro" (BLE)        | Yes          | CoreBluetooth GATT writes (new path) |
-
+  | Bluetooth | `0x245A:0x8276` | HID keyboard "FS17Pro" (BLE)        | Yes          | CoreBluetooth GATT writes (new path)     |
   - Default emit is a bare key, no modifiers (`b` over BLE, observed). The pedal
     ships configured, so the **first** value written must differ from the existing
     one to prove a write actually mutated the device.
@@ -129,7 +131,7 @@ CoreBluetooth). A `PedalProgrammerFactory` picks the implementation from the
 matched `SupportedDevice.Program` family. `SettingsView` calls the protocol, not a
 transport. The pure report builder (`FootswitchProgram`/`HIDUsage`/`DeviceModifier`)
 is untouched.
-*Trade-offs:* one new protocol + one new file (BLE) + a modest refactor of the
+_Trade-offs:_ one new protocol + one new file (BLE) + a modest refactor of the
 existing controller; in exchange the UI never branches on transport, and future
 BLE pedals are additive. Matches the FootswitchCore/Footswitch split (protocol +
 pure logic in Core, IO in app).
@@ -137,13 +139,13 @@ pure logic in Core, IO in app).
 **B. Branch on transport inside `FootswitchHIDController`.** Keep the static
 `enum`; add `if family == .footswitchBLE { …CoreBluetooth… }` arms to
 `verifyConfiguration`, `deviceInfo`, `program`.
-*Trade-offs:* fewer files, but scatters USB-vs-BLE conditionals across four methods
+_Trade-offs:_ fewer files, but scatters USB-vs-BLE conditionals across four methods
 and grows a file that is named for one transport (`HID`) into a two-transport
 grab-bag. Harder to test and to extend.
 
 **C. Recognize-only; program BLE with PCsensor's ElfKey + docs.** Add the table
 entries, tell users to set F16 with the vendor app.
-*Trade-offs:* least code, but strictly worse UX than every other supported pedal,
+_Trade-offs:_ least code, but strictly worse UX than every other supported pedal,
 which the app programs itself — and the on-device work already proved the app can
 program over both transports. Throws away a known capability.
 
@@ -186,7 +188,7 @@ SupportedDevice(vendorID: 0x245a, productID: 0x8276, program: .footswitchBLE, na
 ```
 
 Rationale for the case name `footswitchBLE` (rather than a generic `.bluetooth`):
-it is *the footswitch report protocol carried over the BLE transport* — same
+it is _the footswitch report protocol carried over the BLE transport_ — same
 report bytes, different wire. The shared `name "PCsensor FS17Pro"` makes the UI
 read identically regardless of how the pedal is connected. Two rows, not one,
 because the flat matcher genuinely sees two VID/PIDs.
@@ -229,12 +231,11 @@ Notes on the migration:
 - `FootswitchHIDController.Verification` had a `noDevice` case used only because
   detection and verification were entangled in one static call. In the new model,
   **detection is separate** (Section 4 returns an optional programmer); a `nil`
-  programmer *is* "no device", so `ConfigVerification` drops `noDevice`. The
+  programmer _is_ "no device", so `ConfigVerification` drops `noDevice`. The
   Settings code branches on the optional first (as it already does with
   `detect()`), then on `verified/mismatch/unreadable`.
 - The two concrete programmers live in the **app** target (they touch IOKit /
   CoreBluetooth):
-
   - **`USBPedalProgrammer`** (`Sources/Footswitch/USBPedalProgrammer.swift`):
     the existing `FootswitchHIDController` IOKit logic, lifted to an instance that
     holds the matched `IOHIDDevice` handles. `IOHIDDeviceSetReport` writes,
@@ -259,7 +260,7 @@ spins the run loop, so a bounded run-loop wait is an established pattern here).
 2. **Call `central.connect(peripheral, options: nil)` explicitly and await
    `centralManager(_:didConnect:)` before any discovery** - even a peripheral
    returned by `retrieveConnectedPeripherals` is reported with
-   `state == .connected` at the *system* level but must still be connected by *this*
+   `state == .connected` at the _system_ level but must still be connected by _this_
    central before its services are usable; skipping this step is an easy and common
    omission. Then discover service `FFF0`; discover its characteristics - `FFF2`
    (`[write, writeWithoutResponse]`, the **config write** char) and `FFF1`
@@ -295,7 +296,7 @@ implementation may share a private builder. This keeps the one-byte BLE/USB
 difference in pure, tested Core code rather than in IO code.)
 
 **Pedal index.** The capture programmed index 2 (`pedalIndex+1 = 0x02`,
-i.e. `pedalIndex = 1`); the captured *query* frame also used `pedalIndex 1`
+i.e. `pedalIndex = 1`); the captured _query_ frame also used `pedalIndex 1`
 (`0x02`). USB uses `pedalIndex: 0`. The FS17Pro is single-pedal in our usage.
 **Decision:** the BLE programmer uses `pedalIndex: 1` on **every** BLE GATT
 operation - `program`, `verifyConfiguration`, and `readStoredConfig` alike - to
@@ -318,7 +319,7 @@ main run loop** - so the programmer does **not** depend on the main run loop
 spinning to make progress. `verifyConfiguration` / `program` / `readStoredConfig`
 are **synchronous, blocking** calls: they kick off the
 power-on → retrieve → connect → discover → notify → write → await-notification
-sequence on the private queue and block the *calling* thread on a bounded wait
+sequence on the private queue and block the _calling_ thread on a bounded wait
 (a `DispatchSemaphore` signaled from the delegate queue) with an overall budget
 ~3 s (CoreBluetooth needs time to power on the central and connect). The delegate
 queue signals the semaphore on completion or timeout.
@@ -343,7 +344,7 @@ also enumerates). Its `matches()`/`Detected` stay. Three changes:
 
 1. **Deterministic detection order.** `detect()` today returns `matches().first`
    over an unordered set. Replace with a stable priority so a mixed setup (a USB
-   PCsensor pedal *and* the BLE FS17Pro, or the FS17Pro wired *while* still
+   PCsensor pedal _and_ the BLE FS17Pro, or the FS17Pro wired _while_ still
    BLE-bonded) resolves predictably:
    **prefer a programmable USB `.footswitch` match, then `.footswitchBLE`, then any
    other match.** USB wins ties because its read-back is synchronous and proven; BLE
@@ -377,7 +378,6 @@ also enumerates). Its `matches()`/`Detected` stay. Three changes:
    IOKit identity lines (`kIOHIDManufacturerKey`, `kIOHIDLocationIDKey`,
    `kIOHIDVersionNumberKey`). For a BLE HID interface those values are typically
    absent/empty, and the `"USB device"` header is simply wrong. Changes:
-
    - **Header by transport.** Branch on the matched family: print `"USB device"`
      for the USB families and `"Bluetooth device"` for `.footswitchBLE`.
    - **Guard the USB-only identity lines.** `Location ID` and `Version` are emitted
@@ -433,7 +433,7 @@ click time) and re-refreshes. `showDeviceInfo()` is unchanged at the call site.
 **Async caveat (consistent with the Section 3 threading model).** USB
 `verifyConfiguration` is effectively synchronous (run-loop spin <=500 ms) and may
 run inline on the main actor as today. BLE adds a connect/discover round-trip
-(~1-3 s) and its programmer blocks the *calling* thread on a semaphore signaled
+(~1-3 s) and its programmer blocks the _calling_ thread on a semaphore signaled
 from its own private CoreBluetooth queue (Section 3) - it does **not** rely on the
 main run loop, so it is safe (and required) to call it **off** the main actor. To
 avoid a visible main-thread hang when a BLE pedal is present, `refreshDeviceStatus()`
@@ -504,14 +504,14 @@ it.
   `L10n.alertProgramFailed(error:)`.
 - **BLE** (`BLEPedalProgrammer`): a parallel error type, e.g.
   `BLEProgramError { .bluetoothUnavailable(CBManagerState), .notConnected,
-  .serviceNotFound, .characteristicNotFound, .writeFailed(Error), .readbackTimeout,
-  .unsupportedKey }`, each `CustomStringConvertible` with a plain-English sentence.
-  These flow through the *same* `L10n.alertProgramFailed(error:)` path (it
+.serviceNotFound, .characteristicNotFound, .writeFailed(Error), .readbackTimeout,
+.unsupportedKey }`, each `CustomStringConvertible` with a plain-English sentence.
+  These flow through the _same_ `L10n.alertProgramFailed(error:)` path (it
   interpolates `"\(error)"`), so **no new localized string** is needed for failure
   display — only the (non-localized, English) error descriptions differ.
 - **Permission denied / Bluetooth off**: `bluetoothUnavailable(.poweredOff/.unauthorized)`
   produces a clear message ("Turn on Bluetooth…" / "Allow Bluetooth access in System
-  Settings…"). The factory still reports the device as *detected* (IOKit sees the HID
+  Settings…"). The factory still reports the device as _detected_ (IOKit sees the HID
   interface); only verify/program degrade to `unreadable` / a failure alert.
 - **Read-back timeout**: if no parseable `FFF1` notification arrives within the
   budget, `program` treats a clean write as success (mirroring the USB path's
@@ -565,7 +565,7 @@ before commit.
 
 - **Independent multi-pedal actions** (different pedals → different actions): a
   multi-trigger-key / per-pedal-action rework of `Config` + `PedalListener`.
-  Separate spec. The detection-priority change here is *disambiguation only*, not
+  Separate spec. The detection-priority change here is _disambiguation only_, not
   multi-pedal support.
 - **2.4 GHz dongle mode** (the FS17Pro's third mode): not investigated; presents as
   yet another HID keyboard and would be additive later.
@@ -606,7 +606,7 @@ before commit.
 
 - **BLE pedal index = 1** (`pedalIndex+1 = 0x02`) on **all** BLE GATT operations
   (`program`, `verifyConfiguration`, `readStoredConfig`), matching the observed
-  working ElfKey program *and* query exchanges; with a cheap **1-then-0 fallback**
+  working ElfKey program _and_ query exchanges; with a cheap **1-then-0 fallback**
   on every path if a read-back/query at index 1 yields no parseable response. USB
   keeps `pedalIndex: 0`.
 - **BLE data-report key-type byte = `0x81`** (as captured), exposed via
@@ -681,6 +681,7 @@ and applies results back on `@MainActor`. The USB path stays main-run-loop-drive
 and synchronous. Sections 3, 5, and Assumptions were rewritten to agree.
 
 **Recommendations:**
+
 - (deviceInfo BLE label) - **applied** (Issue 1).
 - (state BLE verify/read index = 1 with fallback) - **applied** (Issue 2).
 - (resolve threading in one place via dedicated CB queue) - **applied**, option (a)
