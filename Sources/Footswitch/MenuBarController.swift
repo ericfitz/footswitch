@@ -17,8 +17,10 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         rebuildMenu(trusted: PermissionsManager.isTrusted())
     }
 
-    func setLastFire(app: String?, action: ResolvedAction) {
-        lastFireText = L10n.menuLastFire(app: app ?? L10n.appUnknown, action: describe(action))
+    func setLastFire(app: String?, slot: Int, action: ResolvedAction) {
+        let appName = app ?? L10n.appUnknown
+        lastFireText = L10n.menuLastFireSlot(
+            app: appName, slot: L10n.deviceSlotLabel(slot), action: describe(action))
         rebuildMenu(trusted: PermissionsManager.isTrusted())
     }
 

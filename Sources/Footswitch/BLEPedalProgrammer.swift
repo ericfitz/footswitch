@@ -59,14 +59,14 @@ final class BLEPedalProgrammer: NSObject, PedalProgrammer {
 
     // MARK: PedalProgrammer
 
-    func readStoredConfig() -> FootswitchProgram.StoredConfig? {
+    func readStoredConfig(slot: Int) -> FootswitchProgram.StoredConfig? {
         do {
             try ensureReady()
             return try queryReadBack()
         } catch { return nil }
     }
 
-    func program(combo: KeyCombo) throws {
+    func program(combo: KeyCombo, slot: Int) throws {
         guard let data = BLEProgramPayload.data(combo: combo) else { throw BLEError.writeFailed }
         try ensureReady()
         try writeValue(BLEProgramPayload.header(pedalIndex: pedalIndex))

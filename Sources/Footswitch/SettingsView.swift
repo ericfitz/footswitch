@@ -40,6 +40,13 @@ final class SettingsViewController: NSViewController {
     private var configRow: NSStackView!
     private var deviceSection: NSStackView!
 
+    /// Cached detected pedal count for this Settings window's lifetime, so column
+    /// rebuilds / reloadData don't re-probe. Starts at 1 (safe single-slot layout).
+    private var detectedSlotCount = 1
+
+    /// Dynamically-created config rows for slots 2..N (slot 1 reuses `configRow`).
+    private var extraSlotRows: [NSStackView] = []
+
     init(config: Config, onSave: @escaping (Config) -> Void) {
         self.baseConfig = config
         self.rules = config.rules
@@ -59,6 +66,25 @@ final class SettingsViewController: NSViewController {
         super.viewDidLoad()
         buildUI()
         tableView.reloadData()
+        detectSlotsAndRebuild()
+    }
+
+    /// Probes the pedal count off-main (expensive), then on main updates the cache,
+    /// rebuilds the shortcut columns, the per-slot config rows, and reloads.
+    private func detectSlotsAndRebuild() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let count = FootswitchHIDController.detectedSlotCount()
+            DispatchQueue.main.async {
+                guard let self, count != self.detectedSlotCount else {
+                    self?.refreshDeviceStatus()
+                    return
+                }
+                self.detectedSlotCount = count
+                self.rebuildShortcutColumns()
+                self.tableView.reloadData()
+                self.refreshDeviceStatus()
+            }
+        }
     }
 
     // MARK: UI construction
@@ -173,10 +199,29 @@ final class SettingsViewController: NSViewController {
         appCol.width = 320
         tableView.addTableColumn(appCol)
 
-        let keyCol = NSTableColumn(identifier: .init("shortcut"))
-        keyCol.title = L10n.settingsColShortcut
-        keyCol.width = 180
-        tableView.addTableColumn(keyCol)
+        rebuildShortcutColumns()
+    }
+
+    /// Rebuilds the shortcut column(s): one per detected slot. Identifier encodes
+    /// the 1-based slot as "shortcut.<slot>". When count==1 the single column keeps
+    /// the legacy "Shortcut" title for an unchanged single-pedal look.
+    private func rebuildShortcutColumns() {
+        for col in tableView.tableColumns where col.identifier.rawValue.hasPrefix("shortcut") {
+            tableView.removeTableColumn(col)
+        }
+        if detectedSlotCount <= 1 {
+            let col = NSTableColumn(identifier: .init("shortcut.1"))
+            col.title = L10n.settingsColShortcut
+            col.width = 180
+            tableView.addTableColumn(col)
+        } else {
+            for slot in 1...detectedSlotCount {
+                let col = NSTableColumn(identifier: .init("shortcut.\(slot)"))
+                col.title = L10n.settingsColPedalShortcut(slot)
+                col.width = 140
+                tableView.addTableColumn(col)
+            }
+        }
     }
 
     // MARK: Actions
@@ -193,58 +238,102 @@ final class SettingsViewController: NSViewController {
 
     private func refreshDeviceStatus() {
         guard let detected = FootswitchHIDController.detect() else {
-            // No device: row 1 says so, info button + row 2 hidden entirely.
             deviceStatusLabel.attributedStringValue = statusLine("⊘", L10n.deviceNone, .secondaryLabelColor)
             infoButton.isHidden = true
             configRow.isHidden = true
+            clearExtraSlotRows()
             return
         }
-        deviceStatusLabel.attributedStringValue =
-            statusLine("✓", L10n.deviceDetected(name: detected.device.name), .systemGreen)
+        let isUSB = detected.device.program == .footswitch
+        let multi = isUSB && detectedSlotCount > 1
+        deviceStatusLabel.attributedStringValue = statusLine(
+            "✓",
+            multi ? L10n.deviceDetectedSlots(name: detected.device.name, count: detectedSlotCount)
+                  : L10n.deviceDetected(name: detected.device.name),
+            .systemGreen)
         infoButton.isHidden = false
         configRow.isHidden = false
 
-        // Verify against the key for the transport this device is connected on —
-        // the FS17Pro stores USB and Bluetooth configs independently.
         let transport: Transport = detected.device.program == .footswitchBLE ? .bluetooth : .usb
-        let expected = KeyCombo(modifiers: [], key: baseConfig.triggers.primary(for: transport).key)
-        // Verification may talk to the device (USB read-back, or BLE GATT which
-        // blocks for up to several seconds) — do it off the main thread, then
-        // update the UI back on main.
-        // Subtle, language-neutral "checking…" placeholder while verify runs
-        // off-main (BLE GATT can take several seconds). No new L10n string.
-        configStatusLabel.attributedStringValue = statusLine("…", "", .secondaryLabelColor)
+        if multi {
+            verifyAndRenderRow(slot: 1, transport: transport,
+                               label: configStatusLabel, button: programButton)
+            renderExtraSlotRows(transport: transport)
+        } else {
+            clearExtraSlotRows()
+            verifyAndRenderRow(slot: 1, transport: transport,
+                               label: configStatusLabel, button: programButton)
+        }
+    }
+
+    /// Verifies one slot off-main and renders status + program button for its row.
+    private func verifyAndRenderRow(slot: Int, transport: Transport,
+                                    label: NSTextField, button: NSButton) {
+        let expected = KeyCombo(modifiers: [], key: keyForSlot(slot, transport: transport))
+        label.attributedStringValue = statusLine("…", "", .secondaryLabelColor)
         DispatchQueue.global(qos: .userInitiated).async {
-            let result = FootswitchHIDController.verifyConfiguration(expected: expected)
+            let result = FootswitchHIDController.verifyConfiguration(expected: expected, slot: slot)
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 switch result {
                 case .verified:
                     if transport == .bluetooth {
-                        // BLE writes the slot but the FS17Pro only loads it into its
-                        // live keymap on a physical power-cycle, so "verified" (slot
-                        // read-back) doesn't mean "live" yet. Say so, in amber.
-                        self.configStatusLabel.attributedStringValue =
+                        label.attributedStringValue =
                             self.statusLine("⚠", L10n.deviceConfigStoredBluetooth, .systemYellow)
                     } else {
-                        self.configStatusLabel.attributedStringValue =
+                        label.attributedStringValue =
                             self.statusLine("✓", L10n.deviceConfigVerified, .systemGreen)
                     }
-                    self.programButton.isHidden = true
+                    button.isHidden = true
                 case .mismatch:
-                    self.configStatusLabel.attributedStringValue =
+                    label.attributedStringValue =
                         self.statusLine("⚠", L10n.deviceConfigMismatch, .systemYellow)
-                    self.programButton.isHidden = false
-                    self.programButton.isEnabled = true
+                    button.isHidden = false
+                    button.isEnabled = true
                 case .unreadable:
-                    self.configStatusLabel.attributedStringValue =
+                    label.attributedStringValue =
                         self.statusLine("✗", L10n.deviceConfigUnreadable, .systemRed)
-                    self.programButton.isHidden = true
+                    button.isHidden = true
                 case .noDevice:
-                    self.configRow.isHidden = true
+                    button.isHidden = true
                 }
             }
         }
+    }
+
+    /// The configured trigger key for a slot on a transport (fallback to primary).
+    private func keyForSlot(_ slot: Int, transport: Transport) -> String {
+        baseConfig.triggers.keys(for: transport).first { $0.slot == slot }?.key
+            ?? baseConfig.triggers.primary(for: transport).key
+    }
+
+    private func renderExtraSlotRows(transport: Transport) {
+        clearExtraSlotRows()
+        guard detectedSlotCount > 1 else { return }
+        for slot in 2...detectedSlotCount {
+            let status = NSTextField(labelWithString: "")
+            status.font = .systemFont(ofSize: 12)
+            let button = NSButton(title: L10n.settingsProgramButton,
+                                  target: self, action: #selector(programSlotButton(_:)))
+            button.bezelStyle = .rounded
+            button.tag = slot
+            let prefix = NSTextField(labelWithString: L10n.deviceSlotLabel(slot) + ":")
+            prefix.font = .systemFont(ofSize: 12)
+            let row = NSStackView(views: [prefix, status, button])
+            row.orientation = .horizontal
+            row.spacing = 8
+            deviceSection.addArrangedSubview(row)
+            extraSlotRows.append(row)
+            verifyAndRenderRow(slot: slot, transport: transport, label: status, button: button)
+        }
+    }
+
+    private func clearExtraSlotRows() {
+        for row in extraSlotRows {
+            deviceSection.removeArrangedSubview(row)
+            row.removeFromSuperview()
+        }
+        extraSlotRows.removeAll()
     }
 
     // A status line with a colored symbol prefix and default-color text.
@@ -280,21 +369,26 @@ final class SettingsViewController: NSViewController {
         }
     }
 
-    @objc private func programPedal() {
+    @objc private func programPedal() { programSlot(1, button: programButton) }
+
+    @objc private func programSlotButton(_ sender: NSButton) {
+        programSlot(sender.tag, button: sender)
+    }
+
+    private func programSlot(_ slot: Int, button: NSButton) {
         // Program the key for the transport the device is currently connected on —
         // the FS17Pro stores USB and Bluetooth configs independently, so we must
         // write the correct transport's key (not a single global key).
         // Silent no-op if no device: intentional — the Program button is only shown
         // when a programmable device was detected (i.e. on .mismatch).
         guard let transport = currentTransport() else { return }
-        let primary = baseConfig.triggers.primary(for: transport)
-        let combo = KeyCombo(modifiers: [], key: primary.key)
-        let key = primary.key
-        programButton.isEnabled = false
+        let key = keyForSlot(slot, transport: transport)
+        let combo = KeyCombo(modifiers: [], key: key)
+        button.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             let message: String
             do {
-                try FootswitchHIDController.program(combo: combo)
+                try FootswitchHIDController.program(combo: combo, slot: slot)
                 message = transport == .bluetooth
                     ? L10n.alertProgrammedBluetooth(key: key)
                     : L10n.alertProgrammed(key: key)
@@ -303,7 +397,7 @@ final class SettingsViewController: NSViewController {
             }
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                self.programButton.isEnabled = true
+                button.isEnabled = true
                 self.presentInfo(message)
                 self.refreshDeviceStatus()
             }
@@ -357,10 +451,8 @@ final class SettingsViewController: NSViewController {
 
         // Pre-fill a known app's suggested shortcut; otherwise start blank.
         let suggested = KnownAppDefaults.suggestedShortcut(forBundleID: bundleID)
-        let action: Action = suggested.map { .keyCombo($0) }
-            ?? .keyCombo(KeyCombo(modifiers: [], key: ""))
-
-        rules.append(Rule(match: bundleID, appName: appName, action: action))
+        let slots = SlotActions(bySlot: suggested.map { [1: Action.keyCombo($0)] } ?? [:])
+        rules.append(Rule(match: bundleID, appName: appName, slots: slots))
         let row = rules.count - 1
         tableView.reloadData()
         tableView.selectRowIndexes([row], byExtendingSelection: false)
@@ -383,9 +475,15 @@ final class SettingsViewController: NSViewController {
     }
 
     // Called by a row's capture view when the user records a new shortcut.
-    fileprivate func updateShortcut(row: Int, combo: KeyCombo) {
+    fileprivate func updateShortcut(row: Int, slot: Int, combo: KeyCombo) {
         guard rules.indices.contains(row) else { return }
-        rules[row].action = .keyCombo(combo)
+        rules[row].slots.bySlot[slot] = .keyCombo(combo)
+        save()
+    }
+
+    fileprivate func clearShortcut(row: Int, slot: Int) {
+        guard rules.indices.contains(row) else { return }
+        rules[row].slots.bySlot[slot] = nil
         save()
     }
 
@@ -426,13 +524,17 @@ extension SettingsViewController: NSTableViewDataSource, NSTableViewDelegate {
             ])
             return cell
 
-        case "shortcut":
+        case let id? where id.hasPrefix("shortcut."):
+            let slot = Int(id.dropFirst("shortcut.".count)) ?? 1
             let capture = ShortcutCaptureView()
-            if case .keyCombo(let combo) = rule.action, !combo.key.isEmpty {
+            if case .keyCombo(let combo)? = rule.slots.action(forSlot: slot), !combo.key.isEmpty {
                 capture.combo = combo
             }
             capture.onCapture = { [weak self] combo in
-                self?.updateShortcut(row: row, combo: combo)
+                self?.updateShortcut(row: row, slot: slot, combo: combo)
+            }
+            capture.onClear = { [weak self] in
+                self?.clearShortcut(row: row, slot: slot)
             }
             return capture
 
@@ -461,6 +563,7 @@ extension SettingsViewController: NSTableViewDataSource, NSTableViewDelegate {
 final class ShortcutCaptureView: NSView {
     var combo: KeyCombo? { didSet { render() } }
     var onCapture: ((KeyCombo) -> Void)?
+    var onClear: (() -> Void)?
 
     private var recording = false { didSet { render() } }
     private let label = NSTextField(labelWithString: "")
@@ -534,6 +637,15 @@ final class ShortcutCaptureView: NSView {
         if event.keyCode == 0x35 { // Escape
             stopRecording()
             render()
+            return nil
+        }
+
+        // Delete/Backspace clears the shortcut (standard macOS convention).
+        if event.type == .keyDown, event.keyCode == 0x33 { // Delete
+            combo = nil
+            stopRecording()
+            render()
+            onClear?()
             return nil
         }
 

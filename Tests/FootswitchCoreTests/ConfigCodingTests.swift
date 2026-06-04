@@ -25,7 +25,8 @@ final class ConfigCodingTests: XCTestCase {
         XCTAssertEqual(config.defaultAction, .dictation)
         XCTAssertEqual(config.rules.count, 1)
         XCTAssertEqual(config.rules[0].match, "com.microsoft.VSCode")
-        XCTAssertEqual(config.rules[0].action, .keyCombo(KeyCombo(modifiers: [.command], key: "D")))
+        XCTAssertEqual(config.rules[0].slots.action(forSlot: 1),
+                       .keyCombo(KeyCombo(modifiers: [.command], key: "D")))
     }
 
     func testRoundTrips() throws {
@@ -37,11 +38,20 @@ final class ConfigCodingTests: XCTestCase {
     func testDefaultHasDictationDefaultAndNoRules() {
         XCTAssertEqual(Config.default.defaultAction, .dictation)
         XCTAssertTrue(Config.default.rules.isEmpty)
-        XCTAssertEqual(Config.default.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
+        XCTAssertEqual(Config.default.triggers.usb, [
+            TriggerKey(key: "F13", slot: 1),
+            TriggerKey(key: "F14", slot: 2),
+            TriggerKey(key: "F15", slot: 3),
+        ])
         XCTAssertEqual(Config.default.triggers.bluetooth, [TriggerKey(key: "F13", slot: 1)])
         XCTAssertEqual(Config.default.triggers.primary(for: .usb), TriggerKey(key: "F13", slot: 1))
         XCTAssertEqual(Config.default.triggers.primary(for: .bluetooth), TriggerKey(key: "F13", slot: 1))
-        XCTAssertEqual(Config.default.allTriggerKeys, [TriggerKey(key: "F13", slot: 1)])
+        // Union de-dupes F13 (shared) -> F13, F14, F15.
+        XCTAssertEqual(Config.default.allTriggerKeys, [
+            TriggerKey(key: "F13", slot: 1),
+            TriggerKey(key: "F14", slot: 2),
+            TriggerKey(key: "F15", slot: 3),
+        ])
     }
 
     func testDecodesNewTriggersForm() throws {

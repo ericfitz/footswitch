@@ -154,3 +154,11 @@ public enum FootswitchProgram {
         return (header, data)
     }
 }
+
+/// Logical pedal/button slots. 1-based to match `TriggerKey.slot` ("1 = first
+/// button"). Convert to the wire's 0-based `pedalIndex` with `slot - 1`.
+public enum Slot {
+    public static let maxCount = 3
+    public static let validRange = 1...maxCount
+    public static func isValid(_ slot: Int) -> Bool { validRange.contains(slot) }
+}

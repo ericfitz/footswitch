@@ -1,8 +1,9 @@
 # Footswitch
 
-Context-aware macOS menu bar app for a single-pedal iKKEGOL / PCsensor USB foot
-switch. Press the pedal to run an action chosen by the frontmost app: a key
-combo for apps you've configured, or macOS dictation as the default action.
+Context-aware macOS menu bar app for iKKEGOL / PCsensor USB foot switches,
+single- or multi-pedal. Press a pedal to run an action chosen by the frontmost
+app: a key combo for apps you've configured, or macOS dictation as the default
+action.
 
 The app is a universal binary (Apple Silicon + Intel), runs as a menu bar
 (`LSUIElement`) app, and is localized into 30 languages — it follows your macOS
@@ -14,10 +15,14 @@ The app was designed for two use cases: to allow the pedal to enable dictation
 in apps that accept text input, and to allow the pedal to mute/unmute apps that
 use the microphone for voice communication.
 
-## Limitations
+## Multi-pedal switches
 
-The app currently does not support multi-pedal devices such as sheet music
-page turners.
+Multi-pedal USB foot switches (e.g. 3-pedal PCsensor / iKKEGOL page-turners) are
+supported. The app detects how many pedals your device has and lets you program
+each pedal a distinct key (default **F13 / F14 / F15** for pedals 1 / 2 / 3) and
+assign per-app actions per pedal in Settings. Single-pedal devices behave exactly
+as before. Plugging in a multi-pedal unit while the app is running is detected
+live — no relaunch needed.
 
 ## Install
 
@@ -30,11 +35,15 @@ source instead, see [Build & run](#build--run).
 
 ## How it works
 
-The app programs the pedal to emit **F13** — a key with no physical key on most Mac
-keyboards and no terminal escape sequence, so it never collides with normal
-typing or leaks visible characters. The app installs a global event tap that
-catches and swallows F13, looks at the frontmost application, and runs the action
-mapped to that app (falling back to a configurable default).
+The app programs each pedal to emit a function key — **F13** for a single pedal, and
+**F14 / F15** for the 2nd / 3rd pedals on multi-pedal units. These keys have no
+physical key on most Mac keyboards and no terminal escape sequence, so they never
+collide with normal typing or leak visible characters. The app installs a global
+event tap that catches and swallows those keys, identifies which pedal fired,
+looks at the frontmost application, and runs the action mapped to that app and
+pedal (falling back to a configurable default). The tap only catches keys for
+pedals your connected device actually has, so unused function keys pass through
+normally.
 
 ## macOS dictation setup
 

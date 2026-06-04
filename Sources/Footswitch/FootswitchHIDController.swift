@@ -23,17 +23,17 @@ enum FootswitchHIDController {
 
         var deviceName: String { detected.device.name }
 
-        func readStoredConfig() -> FootswitchProgram.StoredConfig? {
+        func readStoredConfig(slot: Int) -> FootswitchProgram.StoredConfig? {
             for dev in interfaces {
-                if let stored = FootswitchHIDController.readStoredConfig(dev, pedalIndex: 0) {
+                if let stored = FootswitchHIDController.readStoredConfig(dev, pedalIndex: slot - 1) {
                     return stored
                 }
             }
             return nil
         }
 
-        func program(combo: KeyCombo) throws {
-            try FootswitchHIDController.programUSB(interfaces: interfaces, combo: combo)
+        func program(combo: KeyCombo, slot: Int) throws {
+            try FootswitchHIDController.programUSB(interfaces: interfaces, combo: combo, slot: slot)
         }
 
         func info() -> String {
@@ -105,11 +105,31 @@ enum FootswitchHIDController {
         }
     }
 
-    /// Reads pedal 1's stored config and compares it to `expected`. Used to drive
-    /// the settings "configuration" row.
-    static func verifyConfiguration(expected: KeyCombo) -> PedalVerification {
+    /// Reads slot `slot` (1-based) and compares it to `expected`.
+    static func verifyConfiguration(expected: KeyCombo, slot: Int = 1) -> PedalVerification {
         guard let p = programmer() else { return .noDevice }
-        return p.verify(expected: expected)
+        return p.verify(expected: expected, slot: slot)
+    }
+
+    /// Probes how many pedals the connected USB device can report a config for.
+    /// A slot is "present" if its query returns a parseable StoredConfig. Count =
+    /// highest present slot, clamped to 1...Slot.maxCount. BLE / no device -> 1.
+    /// EXPENSIVE: each slot read spins the run loop up to ~500ms (~1.5s for three).
+    /// MUST be called off the main thread.
+    static func detectedSlotCount() -> Int {
+        guard let first = orderedMatches().first, first.device.program == .footswitch else {
+            return 1
+        }
+        let interfaces = orderedMatches()
+            .filter { $0.device.program == .footswitch }.map { $0.hidDevice }
+        var highest = 1
+        for slot in Slot.validRange {
+            let present = interfaces.contains { dev in
+                readStoredConfig(dev, pedalIndex: slot - 1) != nil
+            }
+            if present { highest = slot }
+        }
+        return min(max(highest, 1), Slot.maxCount)
     }
 
     /// A human-readable, read-only report of the connected device: USB identity,
@@ -227,20 +247,19 @@ enum FootswitchHIDController {
         }
     }
 
-    /// Programs the connected single-pedal device to emit `combo` on press,
-    /// delegating to the selected programmer (USB-preferring).
-    static func program(combo: KeyCombo) throws {
+    /// Programs slot `slot` (1-based) of the connected device to emit `combo`.
+    static func program(combo: KeyCombo, slot: Int = 1) throws {
         guard let p = programmer() else { throw ProgramError.noDevice }
-        try p.program(combo: combo)
+        try p.program(combo: combo, slot: slot)
     }
 
     /// Programs the passed-in USB HID `interfaces` to emit `combo` on press.
     /// Mirrors footswitch.c: write the start report, then the pedal-1 header and
     /// data reports. The device exposes multiple HID interfaces; we try each and
     /// confirm via read-back.
-    static func programUSB(interfaces: [IOHIDDevice], combo: KeyCombo) throws {
+    static func programUSB(interfaces: [IOHIDDevice], combo: KeyCombo, slot: Int = 1) throws {
         guard !interfaces.isEmpty else { throw ProgramError.noDevice }
-        guard let reports = FootswitchProgram.keyReports(pedalIndex: 0, combo: combo) else {
+        guard let reports = FootswitchProgram.keyReports(pedalIndex: slot - 1, combo: combo) else {
             throw ProgramError.unsupportedKey
         }
         var lastWrite: IOReturn = kIOReturnSuccess
@@ -260,7 +279,7 @@ enum FootswitchHIDController {
             }
             IOHIDDeviceClose(dev, IOOptionBits(kIOHIDOptionsTypeNone))
             if case .key(let stored)? = interfaces.lazy
-                .compactMap({ readStoredConfig($0, pedalIndex: 0) }).first, stored == combo {
+                .compactMap({ readStoredConfig($0, pedalIndex: slot - 1) }).first, stored == combo {
                 return
             }
         }

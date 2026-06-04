@@ -126,3 +126,15 @@
 
 /* About window link button: open the license. */
 "about.license" = "ライセンス";
+
+/* Menu line for the most recent press identifying the pedal. %1$@ app, %2$@ pedal, %3$@ action. */
+"menu.lastFireSlot" = "前回: %1$@ — %2$@ → %3$@";
+
+/* Label for one pedal slot. %@ is the pedal number. */
+"device.slotLabel" = "ペダル %@";
+
+/* Device status with pedal count. %1$@ name, %2$@ count. */
+"device.detectedSlots" = "%1$@ (%2$@ 個のペダル)";
+
+/* Rules column header for one pedal's shortcut. %@ is the pedal number. */
+"settings.col.pedalShortcut" = "ペダル %@";

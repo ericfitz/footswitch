@@ -16,21 +16,26 @@ enum PedalVerification {
 protocol PedalProgrammer {
     /// Human-readable model name of the device this programmer targets.
     var deviceName: String { get }
-    /// Reads pedal 1's stored config; nil if it could not be read.
-    func readStoredConfig() -> FootswitchProgram.StoredConfig?
-    /// Programs the device to emit `combo` on press. Throws on failure.
-    func program(combo: KeyCombo) throws
+    /// Reads slot `slot`'s (1-based) stored config; nil if it could not be read.
+    func readStoredConfig(slot: Int) -> FootswitchProgram.StoredConfig?
+    /// Programs slot `slot` (1-based) to emit `combo` on press. Throws on failure.
+    func program(combo: KeyCombo, slot: Int) throws
     /// A human-readable, read-only info report (USB identity / model / stored key).
     func info() -> String
 }
 
 extension PedalProgrammer {
-    /// Default verification: read the stored config and compare to `expected`.
-    func verify(expected: KeyCombo) -> PedalVerification {
-        guard let stored = readStoredConfig() else { return .unreadable }
+    /// Default verification for `slot` (1-based): read its stored config, compare.
+    func verify(expected: KeyCombo, slot: Int) -> PedalVerification {
+        guard let stored = readStoredConfig(slot: slot) else { return .unreadable }
         switch stored {
         case .key(let combo): return combo == expected ? .verified : .mismatch
         case .unconfigured, .other: return .mismatch
         }
     }
+
+    // Slot-1 conveniences so single-pedal callsites stay unchanged.
+    func readStoredConfig() -> FootswitchProgram.StoredConfig? { readStoredConfig(slot: 1) }
+    func program(combo: KeyCombo) throws { try program(combo: combo, slot: 1) }
+    func verify(expected: KeyCombo) -> PedalVerification { verify(expected: expected, slot: 1) }
 }
