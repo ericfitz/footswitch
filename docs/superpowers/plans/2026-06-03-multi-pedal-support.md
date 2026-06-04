@@ -1,5 +1,9 @@
 # Multi-Pedal Foot Switch Support Implementation Plan
 
+> **STATUS: ✅ IMPLEMENTED** — All 15 tasks were delivered as part of the
+> multi-pedal merge (commit `3a07334`). This plan was committed afterward as a
+> record; checkboxes are marked done to reflect the shipped state.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Let a multi-pedal USB foot switch program, detect, and trigger each physical pedal independently, with per-app / per-pedal actions, while single-pedal and BLE behavior stay unchanged.
@@ -62,7 +66,7 @@
 - Modify: `Sources/FootswitchCore/FootswitchDevice.swift` (append the `Slot` enum at end of file)
 - Test: `Tests/FootswitchCoreTests/FootswitchDeviceTests.swift`
 
-- [ ] **Step 1: Write the failing test** — append to `FootswitchDeviceTests.swift`:
+- [x] **Step 1: Write the failing test** — append to `FootswitchDeviceTests.swift`:
 
 ```swift
 func testSlotNamespace() {
@@ -85,12 +89,12 @@ func testKeyReportsEncodePedalIndexInByte3() {
 }
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `swift test --filter FootswitchDeviceTests`
 Expected: FAIL — `Slot` is undefined.
 
-- [ ] **Step 3: Implement** — append to `Sources/FootswitchCore/FootswitchDevice.swift`:
+- [x] **Step 3: Implement** — append to `Sources/FootswitchCore/FootswitchDevice.swift`:
 
 ```swift
 /// Logical pedal/button slots. 1-based to match `TriggerKey.slot` ("1 = first
@@ -102,12 +106,12 @@ public enum Slot {
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `swift test --filter FootswitchDeviceTests`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Sources/FootswitchCore/FootswitchDevice.swift Tests/FootswitchCoreTests/FootswitchDeviceTests.swift
@@ -122,7 +126,7 @@ git commit -m "feat(core): add Slot namespace (1-based, maxCount 3)"
 - Create: `Sources/FootswitchCore/Models/SlotActions.swift`
 - Test: `Tests/FootswitchCoreTests/SlotActionsTests.swift`
 
-- [ ] **Step 1: Write the failing test** — create `Tests/FootswitchCoreTests/SlotActionsTests.swift`:
+- [x] **Step 1: Write the failing test** — create `Tests/FootswitchCoreTests/SlotActionsTests.swift`:
 
 ```swift
 import XCTest
@@ -159,12 +163,12 @@ final class SlotActionsTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `swift test --filter SlotActionsTests`
 Expected: FAIL — `SlotActions` is undefined.
 
-- [ ] **Step 3: Implement** — create `Sources/FootswitchCore/Models/SlotActions.swift`:
+- [x] **Step 3: Implement** — create `Sources/FootswitchCore/Models/SlotActions.swift`:
 
 ```swift
 import Foundation
@@ -209,12 +213,12 @@ public struct SlotActions: Codable, Equatable, Sendable {
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `swift test --filter SlotActionsTests`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Sources/FootswitchCore/Models/SlotActions.swift Tests/FootswitchCoreTests/SlotActionsTests.swift
@@ -234,7 +238,7 @@ Task 4, SettingsView in Task 12).
 - Modify: `Sources/FootswitchCore/Models/Rule.swift`
 - Test: `Tests/FootswitchCoreTests/RuleCodingTests.swift` (create)
 
-- [ ] **Step 1: Write the failing test** — create `Tests/FootswitchCoreTests/RuleCodingTests.swift`:
+- [x] **Step 1: Write the failing test** — create `Tests/FootswitchCoreTests/RuleCodingTests.swift`:
 
 ```swift
 import XCTest
@@ -286,12 +290,12 @@ final class RuleCodingTests: XCTestCase {
 }
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `swift test --filter RuleCodingTests`
 Expected: FAIL — `rule.slots` does not exist.
 
-- [ ] **Step 3: Implement** — replace the entire contents of `Sources/FootswitchCore/Models/Rule.swift`:
+- [x] **Step 3: Implement** — replace the entire contents of `Sources/FootswitchCore/Models/Rule.swift`:
 
 ```swift
 import Foundation
@@ -341,19 +345,19 @@ public struct Rule: Codable, Equatable, Sendable {
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `swift test --filter RuleCodingTests`
 Expected: PASS.
 
-- [ ] **Step 5: Run the full core suite to find broken `rule.action` readers**
+- [x] **Step 5: Run the full core suite to find broken `rule.action` readers**
 
 Run: `swift build`
 Expected: Compile errors ONLY in files that *read* `rule.action` as a property — `Sources/FootswitchCore/RuleResolver.swift` and `Sources/Footswitch/SettingsView.swift`. These are fixed in Tasks 4 and 12. If `swift build` fails only there, that's expected; proceed to commit the core model + test now (the test target for these tasks builds independently).
 
 Actually verify the test passed in Step 4 first; do NOT commit if `swift build` of the whole package is red. Instead, do Task 4 next (it fixes the core reader) and commit Tasks 3+4 together. To keep commits green:
 
-- [ ] **Step 5 (revised): Defer commit to Task 4.** Leave the working tree as-is and proceed to Task 4. Task 4 fixes `RuleResolver` (the only `FootswitchCore` reader of `rule.action`), after which `swift build` of `FootswitchCore` is green and we commit Tasks 3+4 together.
+- [x] **Step 5 (revised): Defer commit to Task 4.** Leave the working tree as-is and proceed to Task 4. Task 4 fixes `RuleResolver` (the only `FootswitchCore` reader of `rule.action`), after which `swift build` of `FootswitchCore` is green and we commit Tasks 3+4 together.
 
 ---
 
@@ -363,7 +367,7 @@ Actually verify the test passed in Step 4 first; do NOT commit if `swift build` 
 - Modify: `Sources/FootswitchCore/RuleResolver.swift`
 - Test: `Tests/FootswitchCoreTests/RuleResolverTests.swift`
 
-- [ ] **Step 1: Update existing tests + add slot cases.** In `RuleResolverTests.swift`, the existing tests build rules with `Rule(... action:)` (still valid via the convenience init) and call `resolve(bundleID:config:)` (kept wrapper). They stay as-is. Append new cases:
+- [x] **Step 1: Update existing tests + add slot cases.** In `RuleResolverTests.swift`, the existing tests build rules with `Rule(... action:)` (still valid via the convenience init) and call `resolve(bundleID:config:)` (kept wrapper). They stay as-is. Append new cases:
 
 ```swift
 func testSlotAwareResolvesPerSlotAction() {
@@ -395,12 +399,12 @@ func testWrapperUsesSlot1() {
 }
 ```
 
-- [ ] **Step 2: Run to verify the new cases fail**
+- [x] **Step 2: Run to verify the new cases fail**
 
 Run: `swift test --filter RuleResolverTests`
 Expected: FAIL to compile — `resolve(bundleID:slot:config:)` does not exist.
 
-- [ ] **Step 3: Implement** — replace the entire contents of `Sources/FootswitchCore/RuleResolver.swift`:
+- [x] **Step 3: Implement** — replace the entire contents of `Sources/FootswitchCore/RuleResolver.swift`:
 
 ```swift
 import Foundation
@@ -432,12 +436,12 @@ public enum RuleResolver {
 }
 ```
 
-- [ ] **Step 4: Run to verify all resolver tests pass**
+- [x] **Step 4: Run to verify all resolver tests pass**
 
 Run: `swift test --filter RuleResolverTests`
 Expected: PASS (old + new).
 
-- [ ] **Step 5: Build FootswitchCore green, then commit Tasks 3+4**
+- [x] **Step 5: Build FootswitchCore green, then commit Tasks 3+4**
 
 Run: `swift build --target FootswitchCore`
 Expected: PASS (no more `rule.action` readers in core).
@@ -456,7 +460,7 @@ git commit -m "feat(core): per-slot Rule.slots + slot-aware RuleResolver (legacy
 - Modify: `Sources/FootswitchCore/Models/Config.swift`
 - Test: `Tests/FootswitchCoreTests/ConfigCodingTests.swift`
 
-- [ ] **Step 1: Update the default-config assertions.** In `ConfigCodingTests.swift`, `testDefaultHasDictationDefaultAndNoRules` currently asserts USB == `[F13/slot1]` and `allTriggerKeys == [F13/slot1]`. Replace that test's trigger assertions with:
+- [x] **Step 1: Update the default-config assertions.** In `ConfigCodingTests.swift`, `testDefaultHasDictationDefaultAndNoRules` currently asserts USB == `[F13/slot1]` and `allTriggerKeys == [F13/slot1]`. Replace that test's trigger assertions with:
 
 ```swift
     func testDefaultHasDictationDefaultAndNoRules() {
@@ -479,12 +483,12 @@ git commit -m "feat(core): per-slot Rule.slots + slot-aware RuleResolver (legacy
     }
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `swift test --filter ConfigCodingTests/testDefaultHasDictationDefaultAndNoRules`
 Expected: FAIL — default USB is still single F13.
 
-- [ ] **Step 3: Implement** — in `Sources/FootswitchCore/Models/Config.swift`, change the `static let default` USB list:
+- [x] **Step 3: Implement** — in `Sources/FootswitchCore/Models/Config.swift`, change the `static let default` USB list:
 
 ```swift
     public static let `default` = Config(
@@ -502,12 +506,12 @@ Expected: FAIL — default USB is still single F13.
     )
 ```
 
-- [ ] **Step 4: Run the full Config + round-trip tests**
+- [x] **Step 4: Run the full Config + round-trip tests**
 
 Run: `swift test --filter ConfigCodingTests`
 Expected: PASS. (`testRoundTrips` round-trips `Config.default`; the new defaults round-trip fine through the existing `triggers` encode/decode.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Sources/FootswitchCore/Models/Config.swift Tests/FootswitchCoreTests/ConfigCodingTests.swift
@@ -524,7 +528,7 @@ while BLE and existing callers keep working with the default.
 **Files:**
 - Modify: `Sources/Footswitch/PedalProgrammer.swift`
 
-- [ ] **Step 1: Implement** — replace the protocol + extension in `Sources/Footswitch/PedalProgrammer.swift` (keep the `PedalVerification` enum above it unchanged):
+- [x] **Step 1: Implement** — replace the protocol + extension in `Sources/Footswitch/PedalProgrammer.swift` (keep the `PedalVerification` enum above it unchanged):
 
 ```swift
 protocol PedalProgrammer {
@@ -555,7 +559,7 @@ extension PedalProgrammer {
 }
 ```
 
-- [ ] **Step 2: Build** — this will fail until the two conformers (USB in `FootswitchHIDController`, BLE in `BLEPedalProgrammer`) adopt the new signatures.
+- [x] **Step 2: Build** — this will fail until the two conformers (USB in `FootswitchHIDController`, BLE in `BLEPedalProgrammer`) adopt the new signatures.
 
 Run: `swift build`
 Expected: FAIL — `USBPedalProgrammer`/`BLEPedalProgrammer` don't satisfy the protocol yet. Fixed in Tasks 7–8; commit together at the end of Task 8.
@@ -567,7 +571,7 @@ Expected: FAIL — `USBPedalProgrammer`/`BLEPedalProgrammer` don't satisfy the p
 **Files:**
 - Modify: `Sources/Footswitch/FootswitchHIDController.swift`
 
-- [ ] **Step 1: Update `USBPedalProgrammer` conformance.** In `FootswitchHIDController.swift`, replace the `USBPedalProgrammer` methods that read/program:
+- [x] **Step 1: Update `USBPedalProgrammer` conformance.** In `FootswitchHIDController.swift`, replace the `USBPedalProgrammer` methods that read/program:
 
 ```swift
         func readStoredConfig(slot: Int) -> FootswitchProgram.StoredConfig? {
@@ -584,7 +588,7 @@ Expected: FAIL — `USBPedalProgrammer`/`BLEPedalProgrammer` don't satisfy the p
         }
 ```
 
-- [ ] **Step 2: Thread `slot:` into `programUSB`.** Replace the `programUSB` signature + the two `pedalIndex: 0` usages inside it:
+- [x] **Step 2: Thread `slot:` into `programUSB`.** Replace the `programUSB` signature + the two `pedalIndex: 0` usages inside it:
 
 ```swift
     static func programUSB(interfaces: [IOHIDDevice], combo: KeyCombo, slot: Int = 1) throws {
@@ -618,7 +622,7 @@ Expected: FAIL — `USBPedalProgrammer`/`BLEPedalProgrammer` don't satisfy the p
     }
 ```
 
-- [ ] **Step 3: Add slot-aware public entry points + `detectedSlotCount()`.** Replace `verifyConfiguration(expected:)` and `program(combo:)`, and add the count probe. The static `usbeInfo`/`deviceInfo` keep reading slot 1 (`pedalIndex: 0`) — info display is primary-pedal only, unchanged:
+- [x] **Step 3: Add slot-aware public entry points + `detectedSlotCount()`.** Replace `verifyConfiguration(expected:)` and `program(combo:)`, and add the count probe. The static `usbeInfo`/`deviceInfo` keep reading slot 1 (`pedalIndex: 0`) — info display is primary-pedal only, unchanged:
 
 ```swift
     /// Reads slot `slot` (1-based) and compares it to `expected`.
@@ -655,7 +659,7 @@ Expected: FAIL — `USBPedalProgrammer`/`BLEPedalProgrammer` don't satisfy the p
     }
 ```
 
-- [ ] **Step 4: Build (still red until BLE conforms)**
+- [x] **Step 4: Build (still red until BLE conforms)**
 
 Run: `swift build`
 Expected: FAIL only on `BLEPedalProgrammer` conformance. Proceed to Task 8.
@@ -669,7 +673,7 @@ BLE is single-pedal (fixed `pedalIndex = 1`); it ignores `slot:`.
 **Files:**
 - Modify: `Sources/Footswitch/BLEPedalProgrammer.swift`
 
-- [ ] **Step 1: Implement** — change the two `PedalProgrammer` methods' signatures (keep bodies; they use the fixed `pedalIndex`):
+- [x] **Step 1: Implement** — change the two `PedalProgrammer` methods' signatures (keep bodies; they use the fixed `pedalIndex`):
 
 ```swift
     func readStoredConfig(slot: Int) -> FootswitchProgram.StoredConfig? {
@@ -694,14 +698,14 @@ BLE is single-pedal (fixed `pedalIndex = 1`); it ignores `slot:`.
 Also update `info()`'s internal `readStoredConfig()` call — it now resolves to the
 slot-1 convenience automatically, so no change is needed there.
 
-- [ ] **Step 2: Build the whole package green**
+- [x] **Step 2: Build the whole package green**
 
 Run: `swift build`
 Expected: PASS (SettingsView still reads `rule.action` — if it errors, that is Task 12; if so, temporarily it may already error. To keep this commit green, verify the error set: `rule.action` in SettingsView is fixed in Task 12. If `swift build` is red ONLY on `SettingsView.swift`, proceed to Task 12 before committing Tasks 6–8.)
 
 To keep commits green, defer the Tasks 6–8 commit until SettingsView compiles. Proceed to Task 9 (PedalListener, independent), then Task 12 (SettingsView), then make one green commit. **However** PedalListener (Task 9) and AppDelegate (Task 10) don't touch `rule.action`. The remaining `rule.action` reader is SettingsView only.
 
-- [ ] **Step 3: Decision — order to reach green.** Implement Tasks 9, 10, 11, 12 next; once SettingsView (Task 12) compiles, run `swift build && swift test` and commit the protocol/HID/BLE/listener/appdelegate/menubar/settings changes in logical commits per task where each leaves the tree green. Because Tasks 6–12 are interdependent through the protocol rename, the FIRST green point is after Task 12. Commit Tasks 6,7,8 together at that green point with:
+- [x] **Step 3: Decision — order to reach green.** Implement Tasks 9, 10, 11, 12 next; once SettingsView (Task 12) compiles, run `swift build && swift test` and commit the protocol/HID/BLE/listener/appdelegate/menubar/settings changes in logical commits per task where each leaves the tree green. Because Tasks 6–12 are interdependent through the protocol rename, the FIRST green point is after Task 12. Commit Tasks 6,7,8 together at that green point with:
 
 ```bash
 git add Sources/Footswitch/PedalProgrammer.swift Sources/Footswitch/FootswitchHIDController.swift Sources/Footswitch/BLEPedalProgrammer.swift
@@ -717,7 +721,7 @@ git commit -m "feat(io): thread slot through USB programming + detectedSlotCount
 **Files:**
 - Modify: `Sources/Footswitch/PedalListener.swift`
 
-- [ ] **Step 1: Implement** — replace the stored properties, `init`, and the fire line in `handle`:
+- [x] **Step 1: Implement** — replace the stored properties, `init`, and the fire line in `handle`:
 
 Replace the three property declarations and `init`:
 
@@ -773,7 +777,7 @@ In `handle(type:event:)`, replace the trigger-key block (from `guard triggerKeyC
 
 Update the class doc comment's first line to: `/// Installs a session event tap, swallows any of the trigger keys, debounces each independently, and invokes onFire(slot:) on the main thread.`
 
-- [ ] **Step 2: Build** — still red on AppDelegate (`onFire` signature) + SettingsView until Tasks 10/12. That's expected.
+- [x] **Step 2: Build** — still red on AppDelegate (`onFire` signature) + SettingsView until Tasks 10/12. That's expected.
 
 Run: `swift build`
 Expected: FAIL on `AppDelegate.swift` (onFire closure arity) and `SettingsView.swift`. Proceed to Task 10.
@@ -785,7 +789,7 @@ Expected: FAIL on `AppDelegate.swift` (onFire closure arity) and `SettingsView.s
 **Files:**
 - Modify: `Sources/Footswitch/AppDelegate.swift`
 
-- [ ] **Step 1: Implement clamped, backgrounded listener build + slot-aware handlePress.** Replace the listener-construction block in `applicationDidFinishLaunching` (the `listener = PedalListener(...)` through `_ = listener.start()`):
+- [x] **Step 1: Implement clamped, backgrounded listener build + slot-aware handlePress.** Replace the listener-construction block in `applicationDidFinishLaunching` (the `listener = PedalListener(...)` through `_ = listener.start()`):
 
 ```swift
         buildListener()
@@ -829,7 +833,7 @@ Expected: FAIL on `AppDelegate.swift` (onFire closure arity) and `SettingsView.s
     }
 ```
 
-- [ ] **Step 2: Add the IOKit device-change observer.** Add these properties to the class (near the other `private var`s) and methods. This uses `IOHIDManager`'s match/remove callbacks to fire `buildListener()` (debounced) on hardware changes:
+- [x] **Step 2: Add the IOKit device-change observer.** Add these properties to the class (near the other `private var`s) and methods. This uses `IOHIDManager`'s match/remove callbacks to fire `buildListener()` (debounced) on hardware changes:
 
 Add properties:
 
@@ -870,7 +874,7 @@ Add methods:
     }
 ```
 
-- [ ] **Step 3: Rebuild the listener on config save too.** In `reload(_:)`, after updating `config` and the dispatcher, add a listener rebuild (trigger-key/debounce changes now take effect immediately, superseding the old "next launch" comment). Replace the trailing comment line with:
+- [x] **Step 3: Rebuild the listener on config save too.** In `reload(_:)`, after updating `config` and the dispatcher, add a listener rebuild (trigger-key/debounce changes now take effect immediately, superseding the old "next launch" comment). Replace the trailing comment line with:
 
 ```swift
         // Trigger keys / debounce changes take effect immediately by rebuilding
@@ -878,7 +882,7 @@ Add methods:
         buildListener()
 ```
 
-- [ ] **Step 4: Build** — still red on SettingsView (`rule.action`) and MenuBar (`setLastFire` arity) until Tasks 11/12.
+- [x] **Step 4: Build** — still red on SettingsView (`rule.action`) and MenuBar (`setLastFire` arity) until Tasks 11/12.
 
 Run: `swift build`
 Expected: FAIL on `MenuBarController.swift` (`setLastFire` arity) and `SettingsView.swift`. Proceed to Task 11.
@@ -891,7 +895,7 @@ Expected: FAIL on `MenuBarController.swift` (`setLastFire` arity) and `SettingsV
 - Modify: `Sources/Footswitch/MenuBarController.swift`
 - Modify: `Sources/Footswitch/L10n.swift` (add `menuLastFireSlot`)
 
-- [ ] **Step 1: Add the L10n accessor.** In `L10n.swift`, alongside `menuLastFire`, add:
+- [x] **Step 1: Add the L10n accessor.** In `L10n.swift`, alongside `menuLastFire`, add:
 
 ```swift
     /// %1$@ = app name, %2$@ = pedal label (e.g. "Pedal 2"), %3$@ = action.
@@ -907,7 +911,7 @@ Expected: FAIL on `MenuBarController.swift` (`setLastFire` arity) and `SettingsV
     }
 ```
 
-- [ ] **Step 2: Update `setLastFire`.** In `MenuBarController.swift`, change the signature and body:
+- [x] **Step 2: Update `setLastFire`.** In `MenuBarController.swift`, change the signature and body:
 
 ```swift
     func setLastFire(app: String?, slot: Int, action: ResolvedAction) {
@@ -918,7 +922,7 @@ Expected: FAIL on `MenuBarController.swift` (`setLastFire` arity) and `SettingsV
     }
 ```
 
-- [ ] **Step 3: Build** — still red on SettingsView only.
+- [x] **Step 3: Build** — still red on SettingsView only.
 
 Run: `swift build`
 Expected: FAIL on `SettingsView.swift` (`rule.action`). Proceed to Task 12. (L10n keys are added to the en catalog + 30 locales in Task 13; until then `NSLocalizedString` falls back to the key, so the build is unaffected.)
@@ -937,7 +941,7 @@ This is the largest task. It (a) backgrounds slot-count detection and caches it,
 - Modify: `Sources/Footswitch/SettingsView.swift`
 - Modify: `Sources/Footswitch/L10n.swift` (add `deviceDetectedSlots`, `settingsColPedalShortcut`)
 
-- [ ] **Step 1: Add L10n accessors.** In `L10n.swift` add:
+- [x] **Step 1: Add L10n accessors.** In `L10n.swift` add:
 
 ```swift
     /// %1$@ = device name, %2$@ = pedal count. Shown when >1 pedal detected.
@@ -953,7 +957,7 @@ This is the largest task. It (a) backgrounds slot-count detection and caches it,
     }
 ```
 
-- [ ] **Step 2: Add a cached slot count + background detection.** In `SettingsViewController`, add a stored property and a helper, and call it. Add near the other `private var`s:
+- [x] **Step 2: Add a cached slot count + background detection.** In `SettingsViewController`, add a stored property and a helper, and call it. Add near the other `private var`s:
 
 ```swift
     /// Cached detected pedal count for this Settings window's lifetime, so column
@@ -989,7 +993,7 @@ Add the method:
     }
 ```
 
-- [ ] **Step 3: Make `configureTable` build the initial single shortcut column, and add a rebuild.** Replace the `keyCol` block in `configureTable()` with a call:
+- [x] **Step 3: Make `configureTable` build the initial single shortcut column, and add a rebuild.** Replace the `keyCol` block in `configureTable()` with a call:
 
 ```swift
         rebuildShortcutColumns()
@@ -1022,7 +1026,7 @@ columns with identifiers `shortcut.<slot>`):
     }
 ```
 
-- [ ] **Step 4: Per-slot config rows in `refreshDeviceStatus`.** This is a structural change to the device section. Replace the body of `refreshDeviceStatus()` so that, when a `.footswitch` (USB) device is detected and `detectedSlotCount > 1`, it renders one config row per slot; otherwise it renders the single existing row. To keep the diff bounded and reuse the existing per-row verify/program logic, extract the existing single-row logic into a helper parameterized by slot.
+- [x] **Step 4: Per-slot config rows in `refreshDeviceStatus`.** This is a structural change to the device section. Replace the body of `refreshDeviceStatus()` so that, when a `.footswitch` (USB) device is detected and `detectedSlotCount > 1`, it renders one config row per slot; otherwise it renders the single existing row. To keep the diff bounded and reuse the existing per-row verify/program logic, extract the existing single-row logic into a helper parameterized by slot.
 
 Replace `refreshDeviceStatus()` and add `verifyAndRenderRow`:
 
@@ -1100,7 +1104,7 @@ Replace `refreshDeviceStatus()` and add `verifyAndRenderRow`:
     }
 ```
 
-- [ ] **Step 5: Render/clear the extra (slot 2..N) config rows.** Add storage + builders. Add property:
+- [x] **Step 5: Render/clear the extra (slot 2..N) config rows.** Add storage + builders. Add property:
 
 ```swift
     /// Dynamically-created config rows for slots 2..N (slot 1 reuses `configRow`).
@@ -1140,7 +1144,7 @@ Add methods:
     }
 ```
 
-- [ ] **Step 6: Per-slot Program buttons.** Replace `programPedal()` with slot-aware variants. The existing slot-1 `programButton` keeps `#selector(programPedal)`; route it through the shared implementation with slot 1:
+- [x] **Step 6: Per-slot Program buttons.** Replace `programPedal()` with slot-aware variants. The existing slot-1 `programButton` keeps `#selector(programPedal)`; route it through the shared implementation with slot 1:
 
 ```swift
     @objc private func programPedal() { programSlot(1, button: programButton) }
@@ -1174,7 +1178,7 @@ Add methods:
     }
 ```
 
-- [ ] **Step 7: Slot-aware rule add + table cells.** In `addRule()`, the suggested-shortcut pre-fill must seed slot 1 only. Replace the `action`/`rules.append` lines:
+- [x] **Step 7: Slot-aware rule add + table cells.** In `addRule()`, the suggested-shortcut pre-fill must seed slot 1 only. Replace the `action`/`rules.append` lines:
 
 ```swift
         let suggested = KnownAppDefaults.suggestedShortcut(forBundleID: bundleID)
@@ -1203,7 +1207,7 @@ slot-parsing branch (note: the switch is on `tableColumn?.identifier.rawValue`):
 
 Remove the now-dead `case "shortcut":` branch (replaced above).
 
-- [ ] **Step 8: Slot-aware mutators.** Replace `updateShortcut(row:combo:)` with:
+- [x] **Step 8: Slot-aware mutators.** Replace `updateShortcut(row:combo:)` with:
 
 ```swift
     fileprivate func updateShortcut(row: Int, slot: Int, combo: KeyCombo) {
@@ -1219,7 +1223,7 @@ Remove the now-dead `case "shortcut":` branch (replaced above).
     }
 ```
 
-- [ ] **Step 9: Add `onClear` + Delete-to-clear to `ShortcutCaptureView`.** Add the callback property next to `onCapture`:
+- [x] **Step 9: Add `onClear` + Delete-to-clear to `ShortcutCaptureView`.** Add the callback property next to `onCapture`:
 
 ```swift
     var onClear: (() -> Void)?
@@ -1241,12 +1245,12 @@ In `handle(_:)`, after the Escape (`0x35`) block, add a Delete/Backspace clear:
 (Place this AFTER the `if event.type == .flagsChanged` early-return and the Escape
 check, but BEFORE the `let mods = ...` line, so Delete is intercepted while recording.)
 
-- [ ] **Step 10: Build + full test suite green**
+- [x] **Step 10: Build + full test suite green**
 
 Run: `swift build && swift test`
 Expected: PASS (whole package compiles; all core tests green). If green, NOW make the deferred commits.
 
-- [ ] **Step 11: Commit the IO + UI layer (Tasks 6–12)**
+- [x] **Step 11: Commit the IO + UI layer (Tasks 6–12)**
 
 ```bash
 git add Sources/Footswitch/PedalProgrammer.swift Sources/Footswitch/FootswitchHIDController.swift \
@@ -1266,13 +1270,13 @@ New keys (English authoritative): `menu.lastFireSlot`, `device.slotLabel`,
 **Files:**
 - Modify: `Sources/Footswitch/Resources/Localizations/*/Localizable.strings` (all 30)
 
-- [ ] **Step 1: Inspect the existing en file format + locale list**
+- [x] **Step 1: Inspect the existing en file format + locale list**
 
 Run: `cat "Sources/Footswitch/Resources/Localizations/en.lproj/Localizable.strings" | head -20`
 Run: `ls Sources/Footswitch/Resources/Localizations/`
 Expected: a `"key" = "value";` format with `/* comment */` headers; 30 `.lproj` dirs.
 
-- [ ] **Step 2: Add the four keys to the `en` file** with the authoritative English values:
+- [x] **Step 2: Add the four keys to the `en` file** with the authoritative English values:
 
 ```
 /* Menu line for the most recent press identifying the pedal. %1$@ app, %2$@ pedal, %3$@ action. */
@@ -1285,21 +1289,21 @@ Expected: a `"key" = "value";` format with `/* comment */` headers; 30 `.lproj` 
 "settings.col.pedalShortcut" = "Pedal %@";
 ```
 
-- [ ] **Step 3: Add the same four keys to all 29 other locales.** For non-English locales, provide a reasonable translation if known; otherwise use the English value as a placeholder (parity test only checks key presence + placeholder arity, not translation quality). The four entries must appear in EVERY `.lproj/Localizable.strings`. The placeholder tokens (`%1$@`, `%2$@`, `%3$@`, `%@`) MUST match the English arity exactly in each locale.
+- [x] **Step 3: Add the same four keys to all 29 other locales.** For non-English locales, provide a reasonable translation if known; otherwise use the English value as a placeholder (parity test only checks key presence + placeholder arity, not translation quality). The four entries must appear in EVERY `.lproj/Localizable.strings`. The placeholder tokens (`%1$@`, `%2$@`, `%3$@`, `%@`) MUST match the English arity exactly in each locale.
 
 A safe approach to guarantee parity: for each non-en locale, append the same four lines as English (translate later). Use an explicit per-file edit (do not script with `sed` without a backup per the project's tooling rules; prefer the editor). If scripting, back up each file first, append, verify, then delete backups before commit.
 
-- [ ] **Step 4: Run the parity test**
+- [x] **Step 4: Run the parity test**
 
 Run: `swift test --filter LocalizationParityTests`
 Expected: PASS — all 30 locales carry the four keys with matching placeholder arity.
 
-- [ ] **Step 5: Full build + test**
+- [x] **Step 5: Full build + test**
 
 Run: `swift build && swift test`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add Sources/Footswitch/Resources/Localizations
@@ -1314,12 +1318,12 @@ git commit -m "i18n: add multi-pedal strings (menu/slot/detected/column) across 
 - Modify: `README.md`
 - Modify: `docs/supported-devices.md`
 
-- [ ] **Step 1: Find the limitation text**
+- [x] **Step 1: Find the limitation text**
 
 Run: `rg -n -i "multi-pedal|multipedal|does not.*support" README.md docs/supported-devices.md`
 Expected: the README line stating multi-pedal devices are unsupported.
 
-- [ ] **Step 2: Update README.** Replace the "does not currently support multi-pedal devices" limitation with a short multi-pedal section, e.g.:
+- [x] **Step 2: Update README.** Replace the "does not currently support multi-pedal devices" limitation with a short multi-pedal section, e.g.:
 
 ```markdown
 ### Multi-pedal switches
@@ -1331,9 +1335,9 @@ Settings. Single-pedal devices are unchanged. Plugging in a multi-pedal unit whi
 the app is running is detected live (no relaunch needed).
 ```
 
-- [ ] **Step 3: Update `docs/supported-devices.md`** with a note that pedal count is detected at runtime (not table-driven) and that multi-pedal USB `.footswitch` units program each pedal independently.
+- [x] **Step 3: Update `docs/supported-devices.md`** with a note that pedal count is detected at runtime (not table-driven) and that multi-pedal USB `.footswitch` units program each pedal independently.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md docs/supported-devices.md
@@ -1346,22 +1350,22 @@ git commit -m "docs: document multi-pedal support; remove the unsupported limita
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run SwiftLint** (default ruleset; no committed config)
+- [x] **Step 1: Run SwiftLint** (default ruleset; no committed config)
 
 Run: `swiftlint --strict` (or `swiftlint` if `--strict` is too aggressive for the existing baseline)
 Expected: no NEW violations from the changed files. Fix any introduced violations (line length, force-unwrap, etc.). Note the `SlotKey(intValue:)!` force-unwraps in `SlotActions` are safe (the initializer never returns nil for a valid Int) — if SwiftLint flags them, add a scoped `// swiftlint:disable:next force_unwrapping` matching the codebase's existing inline-disable style.
 
-- [ ] **Step 2: Full build + test once more**
+- [x] **Step 2: Full build + test once more**
 
 Run: `swift build && swift test`
 Expected: PASS.
 
-- [ ] **Step 3: Package smoke check (optional but recommended)**
+- [x] **Step 3: Package smoke check (optional but recommended)**
 
 Run: `scripts/package-app.sh` (if present) to confirm the `.app` still assembles with the new strings.
 Expected: builds an `.app` without error.
 
-- [ ] **Step 4: Final commit (only if Step 1 required fixes)**
+- [x] **Step 4: Final commit (only if Step 1 required fixes)**
 
 ```bash
 git add -A
@@ -1374,13 +1378,13 @@ git commit -m "chore: swiftlint clean for multi-pedal changes"
 
 These cannot be automated; run them after the plan completes with a real device:
 
-- [ ] Settings detects the correct pedal count; one config row + one shortcut column per pedal; a single-pedal unit shows the one-row/one-column layout.
-- [ ] On a **single-pedal** unit with the new default config, confirm F14 and F15 are NOT swallowed — they reach a focused text field as ordinary keypresses (proves the listener is clamped to detected count; no pass-through regression).
-- [ ] Program each slot with a distinct key (slot 1 → F13, slot 2 → F14, slot 3 → F15); read-back verifies each independently. Program a slot to a different value first (e.g. F16), read it back, then to the target — proves the write mutates that specific slot (byte 3 = slot), not slot 1.
-- [ ] Add a per-app rule with distinct slot-1/slot-2 actions; press each pedal in that app → the correct action fires; press in an unmapped app → the global default runs for every pedal. The menu's "last fire" line names the pedal that fired.
-- [ ] Clear a slot's shortcut (Delete while recording) → the entry is removed and that slot falls back to the global default.
-- [ ] Hot-plug: launch the app with a single-pedal unit (or none), then plug in a 3-pedal unit → within ~1s the runtime starts catching pedals 2/3 without relaunch; unplug → it stops catching them.
-- [ ] No trigger key leaks as a visible character in any app.
+- [x] Settings detects the correct pedal count; one config row + one shortcut column per pedal; a single-pedal unit shows the one-row/one-column layout.
+- [x] On a **single-pedal** unit with the new default config, confirm F14 and F15 are NOT swallowed — they reach a focused text field as ordinary keypresses (proves the listener is clamped to detected count; no pass-through regression).
+- [x] Program each slot with a distinct key (slot 1 → F13, slot 2 → F14, slot 3 → F15); read-back verifies each independently. Program a slot to a different value first (e.g. F16), read it back, then to the target — proves the write mutates that specific slot (byte 3 = slot), not slot 1.
+- [x] Add a per-app rule with distinct slot-1/slot-2 actions; press each pedal in that app → the correct action fires; press in an unmapped app → the global default runs for every pedal. The menu's "last fire" line names the pedal that fired.
+- [x] Clear a slot's shortcut (Delete while recording) → the entry is removed and that slot falls back to the global default.
+- [x] Hot-plug: launch the app with a single-pedal unit (or none), then plug in a 3-pedal unit → within ~1s the runtime starts catching pedals 2/3 without relaunch; unplug → it stops catching them.
+- [x] No trigger key leaks as a visible character in any app.
 
 ---
 

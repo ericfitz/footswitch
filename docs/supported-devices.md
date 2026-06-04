@@ -27,6 +27,14 @@ per mode: `3553:c100` over USB wired mode and `245a:8276` over Bluetooth LE.
 The app programs it over whichever transport it's connected on. Use trigger key
 **F16** (ElfKey, PCsensor's own config tool, cannot assign F13–F15).
 
+> **Bluetooth caveat:** a key programmed over Bluetooth is written to the device's
+> config slot (read-back confirms) but the pedal keeps emitting the old key until
+> it is **physically power-cycled** — a host-side Bluetooth disconnect does not
+> apply it, and no public API lets the app trigger the reload. The app shows a
+> power-cycle prompt after BLE programming. See the closed investigation log
+> [`superpowers/specs/2026-06-03-fs17pro-ble-live-apply-investigation.md`](superpowers/specs/2026-06-03-fs17pro-ble-live-apply-investigation.md)
+> for the six ruled-out probes.
+
 ## Multi-pedal devices
 
 Pedal count is **detected at runtime**, not recorded in this table: multi- and
