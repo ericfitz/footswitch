@@ -64,11 +64,31 @@ final class SettingsViewController: NSViewController {
         view = NSView(frame: NSRect(x: 0, y: 0, width: 560, height: 460))
     }
 
+    /// Observer token for live device-change refreshes (USB/BLE attach, detach,
+    /// transport switch). Removed in the nonisolated deinit; `nonisolated(unsafe)`
+    /// because the token is only ever assigned on the main actor and read once in
+    /// deinit (NotificationCenter.removeObserver is itself thread-safe).
+    private nonisolated(unsafe) var deviceChangeObserver: NSObjectProtocol?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         buildUI()
         tableView.reloadData()
         detectSlotsAndRebuild()
+
+        // Re-detect when devices change while this window is open, so the device
+        // row / config status / per-slot columns don't go stale (e.g. the user
+        // unplugs the pedal or switches the FS17Pro between USB and Bluetooth).
+        deviceChangeObserver = NotificationCenter.default.addObserver(
+            forName: .footswitchDeviceChanged, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.detectSlotsAndRebuild() }
+        }
+    }
+
+    deinit {
+        if let deviceChangeObserver {
+            NotificationCenter.default.removeObserver(deviceChangeObserver)
+        }
     }
 
     /// Probes the pedal count off-main (expensive), then on main updates the cache,

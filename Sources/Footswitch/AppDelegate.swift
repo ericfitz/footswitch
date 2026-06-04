@@ -2,6 +2,14 @@ import AppKit
 import FootswitchCore
 import IOKit.hid
 
+extension Notification.Name {
+    /// Posted (debounced) when the set of connected foot switch devices changes —
+    /// USB attach/detach and BLE connect/disconnect both surface through the IOKit
+    /// HID device-change observer (a BLE HID keyboard is an IOHID device too). An
+    /// open Settings window listens for this to refresh its device status.
+    static let footswitchDeviceChanged = Notification.Name("footswitch.deviceChanged")
+}
+
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBar: MenuBarController!
@@ -99,7 +107,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func scheduleListenerRebuild() {
         rebuildWorkItem?.cancel()
-        let work = DispatchWorkItem { [weak self] in self?.buildListener() }
+        let work = DispatchWorkItem { [weak self] in
+            self?.buildListener()
+            // Tell an open Settings window to re-detect so its device row / config
+            // status / per-slot columns reflect the change (USB↔BLE transport switch,
+            // plug, unplug) instead of staying frozen at window-open time.
+            NotificationCenter.default.post(name: .footswitchDeviceChanged, object: nil)
+        }
         rebuildWorkItem = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: work)
     }
