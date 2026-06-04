@@ -21,6 +21,18 @@ enum L10n {
         String(format: t("menu.lastFire", "Menu line for the most recent press. %1$@ app, %2$@ action."), app, action)
     }
 
+    /// %1$@ = app name, %2$@ = pedal label (e.g. "Pedal 2"), %3$@ = action.
+    static func menuLastFireSlot(app: String, slot: String, action: String) -> String {
+        String(format: t("menu.lastFireSlot",
+            "Menu line for the most recent press identifying the pedal. %1$@ app, %2$@ pedal, %3$@ action."),
+            app, slot, action)
+    }
+
+    /// %@ = pedal number, e.g. "Pedal 2". Reused for menu + settings rows/columns.
+    static func deviceSlotLabel(_ number: Int) -> String {
+        String(format: t("device.slotLabel", "Label for one pedal slot. %@ is the pedal number."), "\(number)")
+    }
+
     // Action descriptions
     static var actionDictation: String { t("action.dictation", "Action: starts dictation.") }
     static var actionNone: String { t("action.none", "Action: pedal does nothing.") }
@@ -37,11 +49,22 @@ enum L10n {
     static var settingsColApplication: String { t("settings.col.application", "Rules column header: application.") }
     static var settingsColShortcut: String { t("settings.col.shortcut", "Rules column header: shortcut.") }
 
+    /// %@ = pedal number. Rules-table shortcut column header for one pedal.
+    static func settingsColPedalShortcut(_ number: Int) -> String {
+        String(format: t("settings.col.pedalShortcut",
+            "Rules column header for one pedal's shortcut. %@ is the pedal number."), "\(number)")
+    }
+
     // Device status
     static var deviceNone: String { t("device.none", "Device status: none detected.") }
     /// %@ = device name.
     static func deviceDetected(name: String) -> String {
         String(format: t("device.detected", "Device status: detected. %@ name."), name)
+    }
+    /// %1$@ = device name, %2$@ = pedal count. Shown when >1 pedal detected.
+    static func deviceDetectedSlots(name: String, count: Int) -> String {
+        String(format: t("device.detectedSlots",
+            "Device status with pedal count. %1$@ name, %2$@ count."), name, "\(count)")
     }
     static var deviceConfigVerified: String { t("device.config.verified", "Config status: verified.") }
     static var deviceConfigStoredBluetooth: String { t("device.config.storedBluetooth", "Config status: stored over Bluetooth; power-cycle to apply.") }
