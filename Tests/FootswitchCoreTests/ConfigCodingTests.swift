@@ -237,4 +237,49 @@ final class ConfigCodingTests: XCTestCase {
         let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
         XCTAssertEqual(config.defaultAction, .dictation)
     }
+
+    // MARK: customDevices (issue #4)
+
+    func testDecodesCustomDevices() throws {
+        let json = """
+        { "triggerKey":"F13",
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [],
+          "customDevices": [
+            { "vendorId":"0xAAAA", "productId":"0xBBBB",
+              "program":"footswitch", "name":"Clone Pedal" }
+          ] }
+        """
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        XCTAssertEqual(config.customDevices.count, 1)
+        XCTAssertEqual(config.customDevices[0].name, "Clone Pedal")
+        XCTAssertEqual(config.customDevices[0].resolved()?.vendorID, 0xAAAA)
+    }
+
+    func testMissingCustomDevicesDecodesToEmpty() throws {
+        let json = """
+        { "triggerKey":"F13",
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [] }
+        """
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        XCTAssertEqual(config.customDevices, [])
+    }
+
+    func testCustomDevicesRoundTrip() throws {
+        var config = Config.default
+        config.customDevices = [CustomDevice(vendorId: "0xAAAA", productId: "0xBBBB",
+                                             program: "footswitch", name: "Clone")]
+        let data = try JSONEncoder().encode(config)
+        let decoded = try JSONDecoder().decode(Config.self, from: data)
+        XCTAssertEqual(decoded.customDevices, config.customDevices)
+    }
+
+    func testDefaultConfigOmitsCustomDevicesKey() throws {
+        // Default config (empty customDevices) must not emit the key, keeping
+        // existing serialized configs byte-stable in that respect.
+        let data = try JSONEncoder().encode(Config.default)
+        let json = String(decoding: data, as: UTF8.self)
+        XCTAssertFalse(json.contains("customDevices"))
+    }
 }

@@ -9,6 +9,15 @@ import IOKit.hid
 /// `IOHIDDeviceSetReport` (the macOS equivalent of HIDAPI's hid_write).
 enum FootswitchHIDController {
 
+    /// User-supplied device-table entries merged with the built-in table during
+    /// detection (GitHub issue #4). Set by AppDelegate on launch/reload from
+    /// `Config.customDevices`. Detection is otherwise stateless; this is the one
+    /// piece of config it needs, kept as a process-wide registry so the existing
+    /// static detection API doesn't have to thread a Config through every call.
+    /// `nonisolated(unsafe)`: written on the main thread (launch/reload) and read
+    /// from detection helpers that already hop off-main; writes are coarse and rare.
+    nonisolated(unsafe) static var registeredCustomDevices: [CustomDevice] = []
+
     struct Detected {
         let device: SupportedDevice
         let hidDevice: IOHIDDevice
@@ -100,7 +109,8 @@ enum FootswitchHIDController {
         return set.compactMap { hidDevice in
             guard let vid = intProperty(hidDevice, kIOHIDVendorIDKey),
                   let pid = intProperty(hidDevice, kIOHIDProductIDKey),
-                  let match = SupportedDevices.match(vendorID: vid, productID: pid) else { return nil }
+                  let match = SupportedDevices.match(vendorID: vid, productID: pid,
+                                                     custom: registeredCustomDevices) else { return nil }
             return Detected(device: match, hidDevice: hidDevice)
         }
     }

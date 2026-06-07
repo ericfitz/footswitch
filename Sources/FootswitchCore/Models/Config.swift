@@ -10,21 +10,30 @@ public struct Config: Codable, Equatable, Sendable {
     public var defaultAction: DefaultAction
     public var rules: [Rule]
 
+    /// User-supplied device-table entries, merged with the built-in
+    /// `SupportedDevices.all` at detection time so a same-protocol foot switch can
+    /// be added by editing config rather than changing code (GitHub issue #4).
+    /// Optional in JSON; defaults to empty. Invalid entries are skipped at use.
+    public var customDevices: [CustomDevice]
+
     /// Every trigger key across all transports (de-duplicated by key) — for the
     /// listener, which fires on any of them.
     public var allTriggerKeys: [TriggerKey] { triggers.allKeys }
 
     public init(triggers: Triggers, dictationShortcut: KeyCombo,
-                debounceMs: Int, defaultAction: DefaultAction, rules: [Rule]) {
+                debounceMs: Int, defaultAction: DefaultAction, rules: [Rule],
+                customDevices: [CustomDevice] = []) {
         self.triggers = triggers
         self.dictationShortcut = dictationShortcut
         self.debounceMs = debounceMs
         self.defaultAction = defaultAction
         self.rules = rules
+        self.customDevices = customDevices
     }
 
     private enum CodingKeys: String, CodingKey {
         case triggerKey, triggerKeys, triggers, dictationShortcut, debounceMs, defaultAction, rules
+        case customDevices
     }
 
     // Decoder accepts THREE shapes for backward compatibility, newest first:
@@ -56,6 +65,10 @@ public struct Config: Codable, Equatable, Sendable {
         debounceMs = try c.decode(Int.self, forKey: .debounceMs)
         defaultAction = (try? c.decode(DefaultAction.self, forKey: .defaultAction)) ?? .dictation
         rules = try c.decode([Rule].self, forKey: .rules)
+        // Optional + tolerant: a missing or malformed customDevices array decodes
+        // to empty rather than failing the whole config load (each entry is
+        // re-validated at use via CustomDevice.resolved()).
+        customDevices = (try? c.decode([CustomDevice].self, forKey: .customDevices)) ?? []
     }
 
     // Encode the new `triggers` form only (legacy keys are read-only, for migration).
@@ -66,6 +79,10 @@ public struct Config: Codable, Equatable, Sendable {
         try c.encode(debounceMs, forKey: .debounceMs)
         try c.encode(defaultAction, forKey: .defaultAction)
         try c.encode(rules, forKey: .rules)
+        // Only emit customDevices when present, keeping default configs unchanged.
+        if !customDevices.isEmpty {
+            try c.encode(customDevices, forKey: .customDevices)
+        }
     }
 
     public static let `default` = Config(

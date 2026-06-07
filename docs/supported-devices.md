@@ -18,6 +18,34 @@ per family). IDs are hex (USB idVendor:idProduct).
 | 055a     | 0998      | scythe2       |
 | 5131     | 2019      | footswitch1p  |
 
+## Adding a device via config
+
+A foot switch that uses an **existing protocol family** (most PCsensor clones use
+`footswitch`) can be recognized without a code change by adding a `customDevices`
+array to `~/.footswitch/config.json` — these entries are merged with the built-in
+table at detection time (a custom entry with the same VID/PID **overrides** a
+built-in one):
+
+```jsonc
+"customDevices": [
+  { "vendorId": "0x3553", "productId": "0xc100",
+    "program": "footswitch", "name": "My Pedal" }
+]
+```
+
+- `vendorId` / `productId` are hex strings (the `0x` prefix is optional; bare
+  strings are read as hex). Each must be a valid 16-bit value.
+- `program` must name an existing family: `footswitch`, `footswitchBLE`, `scythe`,
+  `scythe2`, or `footswitch1p`.
+- `name` is a non-empty display label.
+- Malformed entries (bad VID/PID, unknown family, blank name) are **skipped**, not
+  fatal — the rest of the config still loads.
+- Changes take effect on relaunch.
+
+This only extends **detection/programming** to same-protocol hardware; it does not
+add a new wire protocol. Per-device trigger namespacing is a future extension (see
+GitHub issue #4).
+
 The unit on hand (verified via `ioreg`) reports `idVendor=13651 (0x3553)`,
 `idProduct=45057 (0xb001)`, "PCsensor / FootSwitch" — i.e. the `3553:b001`
 `footswitch` variant.

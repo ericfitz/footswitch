@@ -38,6 +38,21 @@ public enum SupportedDevices {
     public static func match(vendorID: Int, productID: Int) -> SupportedDevice? {
         all.first { $0.vendorID == vendorID && $0.productID == productID }
     }
+
+    /// Matches against user-supplied `custom` devices first (so a custom entry can
+    /// override or extend the built-in table), then the built-ins. Invalid custom
+    /// entries (malformed VID/PID, unknown program family) are skipped via
+    /// `resolved()`. Adding a same-protocol pedal is thus a config change, not a
+    /// code change (GitHub issue #4).
+    public static func match(vendorID: Int, productID: Int,
+                             custom: [CustomDevice]) -> SupportedDevice? {
+        for entry in custom {
+            if let dev = entry.resolved(), dev.vendorID == vendorID, dev.productID == productID {
+                return dev
+            }
+        }
+        return match(vendorID: vendorID, productID: productID)
+    }
 }
 
 /// Left-side modifier bits used in the device's key report byte (data[2]).

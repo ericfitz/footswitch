@@ -24,6 +24,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         config = (try? store.load()) ?? .default
+        // Make any user-supplied device-table entries visible to detection (#4).
+        FootswitchHIDController.registeredCustomDevices = config.customDevices
 
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
@@ -140,6 +142,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func reload(_ newConfig: Config) {
         config = newConfig
         try? store.save(newConfig)
+        FootswitchHIDController.registeredCustomDevices = newConfig.customDevices
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
             dictationShortcut: config.dictationShortcut)
