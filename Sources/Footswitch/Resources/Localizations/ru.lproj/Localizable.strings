@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Приложение";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Сочетание клавиш";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Действие";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Сочетание клавиш";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Запустить команду";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Выберите команду…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Команды не найдены";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (не установлена)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "При первом запуске команды macOS может запросить разрешение.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Поддерживаемая педаль не обнаружена";

@@ -29,7 +29,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
-            dictationShortcut: config.dictationShortcut)
+            dictationShortcut: config.dictationShortcut,
+            shortcutRunner: ShortcutRunner())
 
         menuBar = MenuBarController(
             openSettings: { [weak self] in self?.showSettings() },
@@ -145,7 +146,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         FootswitchHIDController.registeredCustomDevices = newConfig.customDevices
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
-            dictationShortcut: config.dictationShortcut)
+            dictationShortcut: config.dictationShortcut,
+            shortcutRunner: ShortcutRunner())
         // Trigger keys / debounce changes take effect immediately by rebuilding
         // the listener (clamped to the detected slot count).
         buildListener()

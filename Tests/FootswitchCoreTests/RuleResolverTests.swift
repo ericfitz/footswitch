@@ -72,4 +72,22 @@ final class RuleResolverTests: XCTestCase {
         XCTAssertEqual(RuleResolver.resolve(bundleID: "com.x.app", config: config),
                        .keyCombo(KeyCombo(modifiers: [.command], key: "A")))
     }
+
+    // MARK: shortcut action (issue #3)
+
+    func testMatchedShortcutRuleResolvesToShortcut() {
+        let ref = ShortcutRef(identifier: "UUID-1", name: "My SC")
+        let r = Rule(match: "com.notes.app", appName: "Notes", action: .shortcut(ref))
+        let config = makeConfig(rules: [r])
+        XCTAssertEqual(RuleResolver.resolve(bundleID: "com.notes.app", config: config),
+                       .shortcut(ref))
+    }
+
+    func testShortcutRuleDoesNotAffectDefaultPath() {
+        // A shortcut rule for one app leaves an unmatched app on the default.
+        let r = Rule(match: "com.notes.app", appName: "Notes",
+                     action: .shortcut(ShortcutRef(identifier: "U", name: "N")))
+        let config = makeConfig(rules: [r], def: .dictation)
+        XCTAssertEqual(RuleResolver.resolve(bundleID: "com.apple.Safari", config: config), .dictation)
+    }
 }

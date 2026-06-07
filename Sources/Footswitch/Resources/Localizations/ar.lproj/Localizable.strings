@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "التطبيق";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "الاختصار";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "الإجراء";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "تسلسل المفاتيح";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "تشغيل اختصار";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "اختر اختصارًا…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "لم يتم العثور على اختصارات";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (غير مثبّت)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "قد يطلب macOS الإذن في المرة الأولى التي يتم فيها تشغيل اختصار.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "لم يتم اكتشاف مفتاح قدم مدعوم";

@@ -9,11 +9,17 @@ final class MockEventPoster: EventPosting {
     }
 }
 
+final class MockShortcutRunner: ShortcutRunning {
+    var ran: [ShortcutRef] = []
+    func run(_ ref: ShortcutRef) { ran.append(ref) }
+}
+
 final class ActionDispatcherTests: XCTestCase {
     private func makeDispatcher(_ poster: MockEventPoster,
-                                dictation: KeyCombo = KeyCombo(modifiers: [.control, .option, .command], key: "D"))
+                                dictation: KeyCombo = KeyCombo(modifiers: [.control, .option, .command], key: "D"),
+                                runner: ShortcutRunning? = nil)
         -> ActionDispatcher {
-        ActionDispatcher(poster: poster, dictationShortcut: dictation)
+        ActionDispatcher(poster: poster, dictationShortcut: dictation, shortcutRunner: runner)
     }
 
     func testKeyComboPostsCorrectStroke() {
@@ -39,5 +45,32 @@ final class ActionDispatcherTests: XCTestCase {
         let poster = MockEventPoster()
         makeDispatcher(poster).dispatch(.keyCombo(KeyCombo(modifiers: [.command], key: "NotAKey")))
         XCTAssertTrue(poster.posted.isEmpty)
+    }
+
+    // MARK: shortcut dispatch (issue #3)
+
+    func testShortcutCallsRunnerOnce() {
+        let poster = MockEventPoster()
+        let runner = MockShortcutRunner()
+        let ref = ShortcutRef(identifier: "UUID-1", name: "My SC")
+        makeDispatcher(poster, runner: runner).dispatch(.shortcut(ref))
+        XCTAssertEqual(runner.ran, [ref])
+        XCTAssertTrue(poster.posted.isEmpty)  // never posts a keystroke
+    }
+
+    func testShortcutWithNilRunnerIsNoOp() {
+        let poster = MockEventPoster()
+        // No runner supplied — .shortcut must be a silent no-op, like .none.
+        makeDispatcher(poster).dispatch(.shortcut(ShortcutRef(identifier: "X", name: "Y")))
+        XCTAssertTrue(poster.posted.isEmpty)
+    }
+
+    func testKeyComboAndDictationNeverCallRunner() {
+        let poster = MockEventPoster()
+        let runner = MockShortcutRunner()
+        let d = makeDispatcher(poster, runner: runner)
+        d.dispatch(.keyCombo(KeyCombo(modifiers: [.command], key: "D")))
+        d.dispatch(.dictation)
+        XCTAssertTrue(runner.ran.isEmpty)
     }
 }

@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "アプリケーション";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "ショートカット";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "アクション";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "キーシーケンス";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "ショートカットを実行";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "ショートカットを選択…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "ショートカットが見つかりません";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@（インストールされていません）";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "ショートカットを初めて実行する際、macOSが許可を求めることがあります。";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "対応するフットスイッチが検出されません";

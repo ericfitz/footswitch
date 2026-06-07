@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Program";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Genvej";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Handling";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Tastesekvens";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Kør en genvej";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Vælg en genvej…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Ingen genveje fundet";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (ikke installeret)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS kan bede om tilladelse, første gang en genvej køres.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Ingen understøttet fodpedal fundet";

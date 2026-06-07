@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Aplicação";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Atalho";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Ação";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Sequência de teclas";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Executar um atalho";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Escolher um atalho…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Nenhum atalho encontrado";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (não instalado)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "O macOS pode pedir permissão na primeira vez que um atalho for executado.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Nenhum pedal compatível detetado";

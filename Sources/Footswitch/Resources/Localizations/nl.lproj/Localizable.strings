@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "App";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Toetscombinatie";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Actie";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Toetsenreeks";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Een opdracht uitvoeren";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Kies een opdracht…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Geen opdrachten gevonden";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (niet geïnstalleerd)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS vraagt mogelijk om toestemming wanneer een opdracht voor het eerst wordt uitgevoerd.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Geen ondersteunde voetschakelaar gevonden";

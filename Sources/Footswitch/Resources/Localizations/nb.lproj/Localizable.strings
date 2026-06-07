@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Program";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Tastatursnarvei";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Handling";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Tastesekvens";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Kjør en snarvei";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Velg en snarvei…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Ingen snarveier funnet";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (ikke installert)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS kan be om tillatelse første gang en snarvei kjøres.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Ingen støttet fotbryter oppdaget";

@@ -12,6 +12,7 @@ public enum RuleResolver {
             switch action {
             case .keyCombo(let combo): return .keyCombo(combo)
             case .dictation:           return .dictation
+            case .shortcut(let ref):   return .shortcut(ref)
             }
         }
         switch config.defaultAction {

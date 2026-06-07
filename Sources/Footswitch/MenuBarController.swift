@@ -34,6 +34,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch action {
         case .keyCombo(let c): return KeyComboFormatter.display(c)
         case .dictation: return L10n.actionDictation
+        case .shortcut(let ref): return ref.name
         case .none: return L10n.actionNone
         }
     }

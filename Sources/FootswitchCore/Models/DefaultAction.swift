@@ -40,5 +40,6 @@ public enum DefaultAction: Codable, Equatable, Sendable {
 public enum ResolvedAction: Equatable, Sendable {
     case keyCombo(KeyCombo)
     case dictation
+    case shortcut(ShortcutRef)
     case none
 }

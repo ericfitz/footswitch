@@ -1,6 +1,9 @@
 import AppKit
 import FootswitchCore
 
+/// The two per-rule action kinds the Settings UI lets the user choose between.
+enum ActionKind { case keySequence, shortcut }
+
 // MARK: - Window factory
 
 enum SettingsWindowFactory {
@@ -48,6 +51,19 @@ final class SettingsViewController: NSViewController {
 
     /// Dynamically-created config rows for slots 2..N (slot 1 reuses `configRow`).
     private var extraSlotRows: [NSStackView] = []
+
+    /// Installed Shortcuts.app shortcuts, fetched once on first use and cached for
+    /// this window's lifetime (NSTableView recycles cells, so a per-cell fetch
+    /// would spawn `shortcuts list` repeatedly). `nil` until first fetched.
+    private var shortcutCatalogCache: [ShortcutRef]?
+
+    /// Lazily fetches + caches the installed-shortcut catalog.
+    private func shortcutCatalog() -> [ShortcutRef] {
+        if let cache = shortcutCatalogCache { return cache }
+        let list = ShortcutCatalog.installed()
+        shortcutCatalogCache = list
+        return list
+    }
 
     init(config: Config, onSave: @escaping (Config) -> Void) {
         self.baseConfig = config
@@ -166,6 +182,13 @@ final class SettingsViewController: NSViewController {
         hint.maximumNumberOfLines = 2
         hint.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
+        // One-line note that macOS may prompt the first time a Shortcut runs.
+        let shortcutHint = NSTextField(wrappingLabelWithString: L10n.settingsShortcutPermissionHint)
+        shortcutHint.font = .systemFont(ofSize: 11)
+        shortcutHint.textColor = .secondaryLabelColor
+        shortcutHint.maximumNumberOfLines = 2
+        shortcutHint.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
         // Table inside a scroll view.
         configureTable()
         let scroll = NSScrollView()
@@ -190,7 +213,7 @@ final class SettingsViewController: NSViewController {
         let stack = NSStackView(views: [deviceHeader, deviceSection, makeSpacer(8),
                                         generalHeader, launchAtLoginCheckbox, launchAtLoginHint, makeSpacer(8),
                                         defaultHeader, dictationCheckbox, makeSpacer(8),
-                                        rulesHeader, hint, scroll, addRemove])
+                                        rulesHeader, hint, scroll, addRemove, shortcutHint])
         stack.orientation = .vertical
         stack.alignment = .leading
         stack.spacing = 6
@@ -209,6 +232,7 @@ final class SettingsViewController: NSViewController {
             // line instead of stretching the layout.
             hint.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
             launchAtLoginHint.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
+            shortcutHint.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32),
         ])
     }
 
@@ -239,23 +263,24 @@ final class SettingsViewController: NSViewController {
         rebuildShortcutColumns()
     }
 
-    /// Rebuilds the shortcut column(s): one per detected slot. Identifier encodes
-    /// the 1-based slot as "shortcut.<slot>". When count==1 the single column keeps
-    /// the legacy "Shortcut" title for an unchanged single-pedal look.
+    /// Rebuilds the action column(s): one per detected slot. Identifier encodes
+    /// the 1-based slot as "shortcut.<slot>" (kept stable — the cell-vending switch
+    /// keys off it). When count==1 the single column uses the generic "Action"
+    /// title since a row can hold either a key sequence or a Shortcut.
     private func rebuildShortcutColumns() {
         for col in tableView.tableColumns where col.identifier.rawValue.hasPrefix("shortcut") {
             tableView.removeTableColumn(col)
         }
         if detectedSlotCount <= 1 {
             let col = NSTableColumn(identifier: .init("shortcut.1"))
-            col.title = L10n.settingsColShortcut
-            col.width = 180
+            col.title = L10n.settingsColAction
+            col.width = 240
             tableView.addTableColumn(col)
         } else {
             for slot in 1...detectedSlotCount {
                 let col = NSTableColumn(identifier: .init("shortcut.\(slot)"))
                 col.title = L10n.settingsColPedalShortcut(slot)
-                col.width = 140
+                col.width = 200
                 tableView.addTableColumn(col)
             }
         }
@@ -548,6 +573,29 @@ final class SettingsViewController: NSViewController {
         save()
     }
 
+    /// Switches a (row, slot)'s action between a key sequence and a Shortcut. To
+    /// Key sequence seeds a blank combo (user then records); to Shortcut seeds an
+    /// empty ref (user then picks). Rebuilds the row so the editor swaps.
+    fileprivate func updateActionKind(row: Int, slot: Int, kind: ActionKind) {
+        guard rules.indices.contains(row) else { return }
+        switch kind {
+        case .keySequence:
+            rules[row].slots.bySlot[slot] = .keyCombo(KeyCombo(modifiers: [], key: ""))
+        case .shortcut:
+            rules[row].slots.bySlot[slot] = .shortcut(ShortcutRef(identifier: "", name: ""))
+        }
+        save()
+        tableView.reloadData(forRowIndexes: [row],
+                             columnIndexes: IndexSet(0..<tableView.numberOfColumns))
+    }
+
+    /// Sets a (row, slot)'s action to a chosen Shortcut.
+    fileprivate func updateShortcutRef(row: Int, slot: Int, ref: ShortcutRef) {
+        guard rules.indices.contains(row) else { return }
+        rules[row].slots.bySlot[slot] = .shortcut(ref)
+        save()
+    }
+
     private func save() {
         var config = baseConfig
         config.rules = rules
@@ -587,21 +635,108 @@ extension SettingsViewController: NSTableViewDataSource, NSTableViewDelegate {
 
         case let id? where id.hasPrefix("shortcut."):
             let slot = Int(id.dropFirst("shortcut.".count)) ?? 1
-            let capture = ShortcutCaptureView()
-            if case .keyCombo(let combo)? = rule.slots.action(forSlot: slot), !combo.key.isEmpty {
-                capture.combo = combo
-            }
-            capture.onCapture = { [weak self] combo in
-                self?.updateShortcut(row: row, slot: slot, combo: combo)
-            }
-            capture.onClear = { [weak self] in
-                self?.clearShortcut(row: row, slot: slot)
-            }
-            return capture
+            return actionCell(row: row, slot: slot, action: rule.slots.action(forSlot: slot))
 
         default:
             return nil
         }
+    }
+
+    /// Builds the per-(row, slot) action cell: a kind popup (Key sequence / Run a
+    /// Shortcut) plus the kind-specific editor.
+    private func actionCell(row: Int, slot: Int, action: Action?) -> NSView {
+        let kind: ActionKind = { if case .shortcut = action { return .shortcut } else { return .keySequence } }()
+
+        let kindPopup = NSPopUpButton(frame: .zero, pullsDown: false)
+        kindPopup.addItem(withTitle: L10n.settingsActionKindKeySequence)
+        kindPopup.addItem(withTitle: L10n.settingsActionKindShortcut)
+        kindPopup.selectItem(at: kind == .shortcut ? 1 : 0)
+        kindPopup.target = self
+        kindPopup.action = #selector(actionKindChanged(_:))
+        kindPopup.tag = encode(row: row, slot: slot)
+        kindPopup.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+
+        let editor: NSView
+        switch kind {
+        case .keySequence:
+            let capture = ShortcutCaptureView()
+            if case .keyCombo(let combo)? = action, !combo.key.isEmpty { capture.combo = combo }
+            capture.onCapture = { [weak self] combo in self?.updateShortcut(row: row, slot: slot, combo: combo) }
+            capture.onClear = { [weak self] in self?.clearShortcut(row: row, slot: slot) }
+            editor = capture
+        case .shortcut:
+            editor = shortcutPopup(row: row, slot: slot, action: action)
+        }
+
+        let stack = NSStackView(views: [kindPopup, editor])
+        stack.orientation = .horizontal
+        stack.spacing = 4
+        stack.distribution = .fill
+        editor.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        return stack
+    }
+
+    /// A popup listing installed Shortcuts (from the cached catalog). The current
+    /// selection shows `ref.name`; a stored shortcut no longer installed is shown
+    /// with a localized "(not installed)" suffix so the user notices.
+    private func shortcutPopup(row: Int, slot: Int, action: Action?) -> NSPopUpButton {
+        let popup = NSPopUpButton(frame: .zero, pullsDown: false)
+        popup.target = self
+        popup.action = #selector(shortcutSelectionChanged(_:))
+        popup.tag = encode(row: row, slot: slot)
+
+        let catalog = shortcutCatalog()
+        let current: ShortcutRef? = { if case .shortcut(let ref)? = action { return ref } else { return nil } }()
+
+        if catalog.isEmpty {
+            popup.addItem(withTitle: L10n.settingsShortcutNone)
+            popup.item(at: 0)?.isEnabled = false
+            // Preserve a previously-stored (now un-listable) name if present.
+            if let current, !current.name.isEmpty {
+                popup.addItem(withTitle: L10n.settingsShortcutNotInstalled(name: current.name))
+                popup.selectItem(at: popup.numberOfItems - 1)
+            }
+            return popup
+        }
+
+        // Placeholder first when nothing is chosen yet.
+        if current == nil || (current?.identifier.isEmpty ?? true) {
+            popup.addItem(withTitle: L10n.settingsShortcutChoose)
+            popup.item(at: 0)?.isEnabled = false
+        }
+        for ref in catalog {
+            popup.addItem(withTitle: ref.name)
+            popup.lastItem?.representedObject = ref
+        }
+        if let current, !current.identifier.isEmpty {
+            if let idx = catalog.firstIndex(where: { $0.identifier == current.identifier }) {
+                // +offset for a leading placeholder if one was added (it wasn't here).
+                popup.selectItem(withTitle: catalog[idx].name)
+            } else {
+                // Stored but not in the freshly-listed set: show "(not installed)".
+                popup.addItem(withTitle: L10n.settingsShortcutNotInstalled(name: current.name))
+                popup.lastItem?.representedObject = current
+                popup.selectItem(at: popup.numberOfItems - 1)
+            }
+        }
+        return popup
+    }
+
+    /// Packs (row, slot) into an NSControl tag. slot is small (1...3); row is the
+    /// high bits. Decoded by `decode(tag:)`.
+    private func encode(row: Int, slot: Int) -> Int { row * 16 + slot }
+    private func decode(tag: Int) -> (row: Int, slot: Int) { (tag / 16, tag % 16) }
+
+    @objc private func actionKindChanged(_ sender: NSPopUpButton) {
+        let (row, slot) = decode(tag: sender.tag)
+        let kind: ActionKind = sender.indexOfSelectedItem == 1 ? .shortcut : .keySequence
+        updateActionKind(row: row, slot: slot, kind: kind)
+    }
+
+    @objc private func shortcutSelectionChanged(_ sender: NSPopUpButton) {
+        let (row, slot) = decode(tag: sender.tag)
+        guard let ref = sender.selectedItem?.representedObject as? ShortcutRef else { return }
+        updateShortcutRef(row: row, slot: slot, ref: ref)
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {

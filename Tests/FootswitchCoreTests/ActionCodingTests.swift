@@ -25,4 +25,29 @@ final class ActionCodingTests: XCTestCase {
         let decoded = try JSONDecoder().decode(Action.self, from: Data(json.utf8))
         XCTAssertEqual(decoded, .keyCombo(KeyCombo(modifiers: [.command], key: "D")))
     }
+
+    // MARK: shortcut action (issue #3)
+
+    func testShortcutRoundTrips() throws {
+        let action = Action.shortcut(ShortcutRef(identifier: "ABC-123", name: "My SC"))
+        let decoded = try JSONDecoder().decode(Action.self, from: JSONEncoder().encode(action))
+        XCTAssertEqual(decoded, action)
+    }
+
+    func testShortcutDecodesFromJSON() throws {
+        let json = #"{"type":"shortcut","identifier":"UUID-1","name":"My SC"}"#
+        let decoded = try JSONDecoder().decode(Action.self, from: Data(json.utf8))
+        XCTAssertEqual(decoded, .shortcut(ShortcutRef(identifier: "UUID-1", name: "My SC")))
+    }
+
+    func testShortcutNameDefaultsToEmptyWhenAbsent() throws {
+        let json = #"{"type":"shortcut","identifier":"UUID-1"}"#
+        let decoded = try JSONDecoder().decode(Action.self, from: Data(json.utf8))
+        XCTAssertEqual(decoded, .shortcut(ShortcutRef(identifier: "UUID-1", name: "")))
+    }
+
+    func testShortcutMissingIdentifierThrows() throws {
+        let json = #"{"type":"shortcut","name":"My SC"}"#
+        XCTAssertThrowsError(try JSONDecoder().decode(Action.self, from: Data(json.utf8)))
+    }
 }

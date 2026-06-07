@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Anwendung";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Kurzbefehl";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Aktion";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Tastenfolge";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Kurzbefehl ausführen";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Kurzbefehl auswählen…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Keine Kurzbefehle gefunden";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (nicht installiert)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS fragt möglicherweise beim ersten Ausführen eines Kurzbefehls nach einer Berechtigung.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Kein unterstützter Fußschalter erkannt";

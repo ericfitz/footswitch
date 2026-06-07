@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "应用程序";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "快捷键";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "操作";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "按键序列";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "运行快捷指令";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "选择快捷指令…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "未找到快捷指令";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@（未安装）";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "首次运行快捷指令时，macOS 可能会请求权限。";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "未检测到受支持的脚踏开关";

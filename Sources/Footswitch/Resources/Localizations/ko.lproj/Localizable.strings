@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "응용 프로그램";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "단축키";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "동작";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "키 시퀀스";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "단축어 실행";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "단축어 선택…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "단축어를 찾을 수 없음";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@(설치되지 않음)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "단축어를 처음 실행할 때 macOS가 권한을 요청할 수 있습니다.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "지원되는 풋 스위치가 감지되지 않음";

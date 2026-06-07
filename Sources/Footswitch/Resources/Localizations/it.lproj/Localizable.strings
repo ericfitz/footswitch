@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Applicazione";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Scorciatoia";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Azione";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Sequenza di tasti";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Esegui un comando rapido";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Scegli un comando rapido…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "Nessun comando rapido trovato";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (non installato)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS potrebbe chiedere l'autorizzazione la prima volta che viene eseguito un comando rapido.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "Nessun pedale supportato rilevato";

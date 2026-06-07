@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "แอปพลิเคชัน";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "แป้นพิมพ์ลัด";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "การกระทำ";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "ลำดับปุ่ม";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "เรียกใช้คำสั่งลัด";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "เลือกคำสั่งลัด…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "ไม่พบคำสั่งลัด";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (ไม่ได้ติดตั้ง)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS อาจขออนุญาตในครั้งแรกที่เรียกใช้คำสั่งลัด";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "ไม่พบแป้นเหยียบที่รองรับ";

@@ -58,8 +58,26 @@
 /* Rules table column header for the application. */
 "settings.col.application" = "Application";
 
-/* Rules table column header for the keyboard shortcut. */
-"settings.col.shortcut" = "Shortcut";
+/* Rules table column header for the action (a key sequence or a Shortcut). */
+"settings.col.action" = "Action";
+
+/* Per-rule action-kind popup item: send a keyboard key sequence. */
+"settings.actionKind.keySequence" = "Key sequence";
+
+/* Per-rule action-kind popup item: run a Shortcuts.app shortcut. */
+"settings.actionKind.shortcut" = "Run a Shortcut";
+
+/* Placeholder shown in the Shortcut picker before the user chooses one. */
+"settings.shortcut.choose" = "Choose a Shortcut…";
+
+/* Disabled item shown in the Shortcut picker when no Shortcuts are installed. */
+"settings.shortcut.none" = "No Shortcuts found";
+
+/* Shortcut picker item for a stored Shortcut that is no longer installed. %@ = stored name. */
+"settings.shortcut.notInstalled" = "%@ (not installed)";
+
+/* One-line hint under the rules table: macOS may prompt the first time a Shortcut runs. */
+"settings.shortcut.permissionHint" = "macOS may ask permission the first time a Shortcut runs.";
 
 /* Device status: no supported foot switch is connected. */
 "device.none" = "No supported foot switch detected";

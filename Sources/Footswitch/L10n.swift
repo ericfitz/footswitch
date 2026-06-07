@@ -50,7 +50,18 @@ enum L10n {
     static var settingsRulesHint: String { t("settings.rulesHint", "Settings hint below rules table.") }
     static var settingsProgramButton: String { t("settings.programButton", "Button: program the pedal.") }
     static var settingsColApplication: String { t("settings.col.application", "Rules column header: application.") }
-    static var settingsColShortcut: String { t("settings.col.shortcut", "Rules column header: shortcut.") }
+    static var settingsColAction: String { t("settings.col.action", "Rules column header: action (key sequence or Shortcut).") }
+
+    // Per-rule action kind + Shortcuts.app picker
+    static var settingsActionKindKeySequence: String { t("settings.actionKind.keySequence", "Action-kind popup item: send a key sequence.") }
+    static var settingsActionKindShortcut: String { t("settings.actionKind.shortcut", "Action-kind popup item: run a Shortcuts.app shortcut.") }
+    static var settingsShortcutChoose: String { t("settings.shortcut.choose", "Placeholder in the Shortcut picker before one is chosen.") }
+    static var settingsShortcutNone: String { t("settings.shortcut.none", "Disabled item shown when no Shortcuts are installed.") }
+    /// %@ = stored shortcut name.
+    static func settingsShortcutNotInstalled(name: String) -> String {
+        String(format: t("settings.shortcut.notInstalled", "Shortcut picker item for a stored shortcut no longer installed. %@ = stored name."), name)
+    }
+    static var settingsShortcutPermissionHint: String { t("settings.shortcut.permissionHint", "Hint under the rules table: macOS may prompt the first time a Shortcut runs.") }
 
     /// %@ = pedal number. Rules-table shortcut column header for one pedal.
     static func settingsColPedalShortcut(_ number: Int) -> String {

@@ -38,11 +38,27 @@ public struct KeyCombo: Codable, Equatable, Sendable {
     }
 }
 
+/// References a Shortcuts.app shortcut by its stable identifier (UUID), plus a
+/// display name captured at selection time. `identifier` is what `shortcuts run`
+/// is given; `name` is what the table and the "Last:" menu line show. If
+/// `identifier` is empty (e.g. a hand-edited config), invocation falls back to
+/// running by `name`.
+public struct ShortcutRef: Codable, Equatable, Sendable {
+    public var identifier: String
+    public var name: String
+
+    public init(identifier: String, name: String) {
+        self.identifier = identifier
+        self.name = name
+    }
+}
+
 public enum Action: Codable, Equatable, Sendable {
     case keyCombo(KeyCombo)
     case dictation
+    case shortcut(ShortcutRef)
 
-    private enum CodingKeys: String, CodingKey { case type, modifiers, key }
+    private enum CodingKeys: String, CodingKey { case type, modifiers, key, identifier, name }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -53,6 +69,10 @@ public enum Action: Codable, Equatable, Sendable {
                 key: try c.decode(String.self, forKey: .key)))
         case "dictation":
             self = .dictation
+        case "shortcut":
+            self = .shortcut(ShortcutRef(
+                identifier: try c.decode(String.self, forKey: .identifier),
+                name: try c.decodeIfPresent(String.self, forKey: .name) ?? ""))
         case let other:
             throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath,
                 debugDescription: "Unknown action type \(other)"))
@@ -68,6 +88,10 @@ public enum Action: Codable, Equatable, Sendable {
             try c.encode(combo.key, forKey: .key)
         case .dictation:
             try c.encode("dictation", forKey: .type)
+        case .shortcut(let ref):
+            try c.encode("shortcut", forKey: .type)
+            try c.encode(ref.identifier, forKey: .identifier)
+            try c.encode(ref.name, forKey: .name)
         }
     }
 }
