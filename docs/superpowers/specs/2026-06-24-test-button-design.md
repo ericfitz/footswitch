@@ -3,6 +3,11 @@
 **Issue:** [#6](https://github.com/ericfitz/footswitch/issues/6)
 **Status:** Design approved — pending implementation plan
 **Date:** 2026-06-24
+**Prerequisite:** [#9](https://github.com/ericfitz/footswitch/issues/9) (per-device
+trigger config) must be implemented first. This design is coordinated with the #9
+model: trigger keys live on per-`Device` entries (there is no global `triggers`),
+so "adopt" writes to the **connected device's entry**, not a global per-transport
+list. See `docs/superpowers/specs/2026-06-24-per-device-trigger-config-design.md`.
 
 ## Problem
 
@@ -80,8 +85,8 @@ logic is IO-free and unit-tested (mirrors how `PedalListener` already isolates i
 
 ### Reconciliation decision (IO-free core)
 
-A pure function takes `(capturedKeyCode, expectedKey, transport, slot)` and yields
-one of:
+A pure function takes `(capturedKeyCode, expectedKey, slot)` and yields
+one of (the expected key is resolved from the connected device's entry, per #9):
 
 - **match** — captured key resolves to a Keymap name equal to the configured key.
   → green diagnostic confirmation, no action buttons.
@@ -93,14 +98,19 @@ one of:
 
 ### Adopt-into-config
 
-On **Use \<captured\>**:
+On **Use \<captured\>** (per the #9 per-device model):
 
-- Update `triggers.<currentTransport>` slot N's `key` to the captured key name.
+- Set the captured key for slot N on the **connected device's entry** in
+  `Config.devices` — find-or-create that entry by the device's VID/PID (a fresh
+  config whose connected device has no entry yet gets one seeded from the matched
+  `SupportedDevice`). Implemented by the pure `Config.adoptingTriggerKey(in:key:slot:for:)`
+  helper (`Device.adopting` underneath).
 - Persist and reload through the existing `ConfigStore.save` + `AppDelegate.reload`
-  path so the listener rebuilds and catches the new key immediately.
-- Only the currently-connected transport's list is touched — the device emits per
-  the transport it is connected on, matching the per-transport `Triggers` model.
-- Current transport is taken from the existing `currentTransport()` helper.
+  path so the listener rebuilds (from `Config.listenerKeys`) and catches the new key
+  immediately.
+- The connected device comes from `FootswitchHIDController.detect()`; transport (for
+  any messaging) is derived from the device's program family (`Program.transport`).
+  There is no global `triggers` list and no `currentTransport()` helper under #9.
 
 ### Reprogram-to-expected
 
@@ -140,10 +150,12 @@ unknown   →  Slot 2   "Emits unknown key (0x6E)"  [Reprogram to F17] [Cancel]
 ## Testing
 
 - **Core / unit (IO-free):**
-  - Reconciliation decision: `(capturedKeyCode, expectedKey, transport, slot)` →
-    match | mismatch | unknown, plus the correct config mutation for adopt.
+  - Reconciliation decision: `(capturedKeyCode, expectedKey, slot)` →
+    match | mismatch | unknown.
   - Keymap name resolution for adopt-eligibility (known vs unknown keycode).
-  - Adopt config mutation round-trips through `ConfigStore`.
+  - `Config.adoptingTriggerKey(in:key:slot:for:)`: updates an existing device entry
+    and seeds a new one when the connected device has none; round-trips through
+    `ConfigStore`.
 - **App-target:** the capture-mode tap stays a thin shell around the testable
   decision logic; manual verification for the live event-tap capture.
 - **Localization:** new L10n keys (arm prompt, match / mismatch / unknown / timeout
@@ -152,6 +164,7 @@ unknown   →  Slot 2   "Emits unknown key (0x6E)"  [Reprogram to F17] [Cancel]
 
 ## Related
 
+- #9 — per-device trigger configuration (**prerequisite**; defines the `Device`
+  model and `Config.adoptingTriggerKey` this design's adopt path uses).
 - #7 — FS17Pro BLE live-apply investigation (why Test is the chosen mitigation).
 - #10 — modifier keys in trigger detection (combo capture deferred there).
-- #9 — per-device / per-transport trigger configuration (separate spec).

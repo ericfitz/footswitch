@@ -4,18 +4,18 @@
 
 **Goal:** Add a per-slot "Test" action in Settings that captures the key a pedal actually emits, compares it to config, and lets the user adopt the emitted key into config or reprogram the device.
 
-**Architecture:** A transient *capture mode* on the existing `PedalListener` event tap grabs the next keydown and reports it (suspending normal dispatch). `AppDelegate` coordinates arming, a timeout, and deferral of listener rebuilds during capture, exposing two closures to the Settings window. The compare/decide logic is an IO-free core type (`TriggerReconciler` + `CapturedKey`), unit-tested; the Settings UI presents the armed state and outcome via sheets and adopts via a pure `Triggers.adopting(...)` mutation.
+**Architecture:** A transient *capture mode* on the existing `PedalListener` event tap grabs the next keydown and reports it (suspending normal dispatch). `AppDelegate` coordinates arming, a timeout, and deferral of listener rebuilds during capture, exposing two closures to the Settings window. The compare/decide logic is an IO-free core type (`TriggerReconciler` + `CapturedKey`), unit-tested; the Settings UI presents the armed state and outcome via sheets and adopts the captured key onto the **connected device's entry** via the pure `Config.adoptingTriggerKey(in:key:slot:for:)` helper (the #9 per-device model).
 
 **Tech Stack:** Swift 6, AppKit, CoreGraphics event taps, Swift Package Manager. Spec: `docs/superpowers/specs/2026-06-24-test-button-design.md`.
 
-> **Dependency on #9:** This plan adopts captured keys into the global `Config.triggers` (via `Triggers.adopting`, Tasks 2/5/6). The #9 design (`docs/superpowers/specs/2026-06-24-per-device-trigger-config-design.md`) **removes global `triggers`** in favor of a per-`Device` trigger list. **Implement #9 before this plan**, or when implementing this plan after #9, retarget the adopt path and `keyForSlot` from `Triggers` to the connected `Device` entry. The reconciliation core (`TriggerReconciler`, `CapturedKey`) is unaffected.
+> **PREREQUISITE — #9 first:** This plan is coordinated with the #9 per-device design (`docs/superpowers/specs/2026-06-24-per-device-trigger-config-design.md`), which **removes global `Config.triggers`** in favor of per-`Device` trigger lists. **#9 must be implemented before this plan.** This plan therefore builds on #9's `Device` model, `Config.defaultTriggerKeys`, `Config.triggerKey(in:forVendorID:productID:slot:)`, `Device.adopting`, and the per-device `SettingsView.keyForSlot(_:device:)` / `programSlot` that resolve via `FootswitchHIDController.detect()`. There is no global `triggers` and no `currentTransport()` helper. The reconciliation core (`TriggerReconciler`, `CapturedKey`) is independent of all this.
 
 ## Global Constraints
 
 - Swift 6 strict concurrency; UI types are `@MainActor`. Cross-thread callbacks hop to main via `DispatchQueue.main.async`, matching existing `PedalListener.onFire`.
 - Settings has **no Save button** — every mutation calls `onSave(config)`, which routes to `AppDelegate.reload` (persists + rebuilds the listener).
 - Adopted/trigger key names must be **Keymap-recognized** (`Keymap.keyName(forCode:)` / `Keymap.keyCode(for:)`) so they round-trip through the listener and programming.
-- Trigger config is **per-transport** (`Triggers.usb` / `Triggers.bluetooth`); only the currently-connected transport is mutated.
+- Trigger config is **per-device** (#9): each `Device` entry owns its `[TriggerKey]`. Adopt mutates the **connected device's** entry (found by VID/PID, created if absent); there is no global `triggers` and no per-transport split.
 - Modifier/combo capture is **out of scope** (deferred to issue #10): capture records a single keycode and ignores modifier flags.
 - New user-facing strings must be added across **all 30 locales** with matching keys and placeholder arity; `LocalizationParityTests` must stay green.
 - Build/test commands: `swift build` and `swift test`. There is no SwiftLint config in this repo.
@@ -150,91 +150,128 @@ git commit -m "feat: core capture/reconcile types for Test button (#6)"
 
 ---
 
-### Task 2: Core — `Triggers.adopting(key:slot:transport:)`
+### Task 2: Core — per-device adopt + resolve helpers
+
+> Builds on #9: uses `Device`, `Config.devices`, `Config.defaultTriggerKeys`, `Device.adopting`, `SupportedDevice`. #9 must be implemented first.
 
 **Files:**
-- Modify: `Sources/FootswitchCore/Models/Triggers.swift` (append extension)
-- Test: `Tests/FootswitchCoreTests/TriggersAdoptTests.swift`
+- Modify: `Sources/FootswitchCore/Models/Config.swift` (append extension)
+- Test: `Tests/FootswitchCoreTests/ConfigAdoptTests.swift`
 
 **Interfaces:**
-- Consumes: `Triggers`, `TriggerKey`, `Transport` (existing).
-- Produces: `extension Triggers { func adopting(key: String, slot: Int, transport: Transport) -> Triggers }`
+- Consumes: `Device`, `Config.devices`, `Config.defaultTriggerKeys`, `Device.adopting(key:slot:)`, `SupportedDevice` (all from #9).
+- Produces two pure statics on `Config`:
+  - `static func triggerKey(in devices: [Device], forVendorID: Int, productID: Int, slot: Int) -> String`
+  - `static func adoptingTriggerKey(in devices: [Device], key: String, slot: Int, for supported: SupportedDevice) -> [Device]`
+
+These statics operate on a `[Device]` so the Settings UI can resolve/mutate its live working array without rebuilding a whole `Config`.
 
 - [ ] **Step 1: Write the failing tests**
 
 ```swift
-// Tests/FootswitchCoreTests/TriggersAdoptTests.swift
+// Tests/FootswitchCoreTests/ConfigAdoptTests.swift
 import XCTest
 @testable import FootswitchCore
 
-final class TriggersAdoptTests: XCTestCase {
-    func testReplacesExistingSlotKeyOnTransport() {
-        let t = Triggers(usb: [TriggerKey(key: "F13", slot: 1)],
-                         bluetooth: [TriggerKey(key: "F16", slot: 1)])
-        let out = t.adopting(key: "F19", slot: 1, transport: .bluetooth)
-        XCTAssertEqual(out.bluetooth, [TriggerKey(key: "F19", slot: 1)])
-        XCTAssertEqual(out.usb, [TriggerKey(key: "F13", slot: 1)]) // other transport untouched
+final class ConfigAdoptTests: XCTestCase {
+    private let fs17proBLE = SupportedDevice(vendorID: 0x245A, productID: 0x8276,
+                                             program: .footswitchBLE, name: "FS17Pro")
+
+    func testResolveEntryThenDefault() {
+        let devices = [Device(vendorId: "0x245A", productId: "0x8276",
+                              program: "footswitchBLE", name: "FS17Pro",
+                              triggers: [TriggerKey(key: "F16", slot: 1)])]
+        XCTAssertEqual(Config.triggerKey(in: devices, forVendorID: 0x245A, productID: 0x8276, slot: 1), "F16")
+        // Unknown device → code default for the slot.
+        XCTAssertEqual(Config.triggerKey(in: devices, forVendorID: 0x1111, productID: 0x2222, slot: 2), "F14")
     }
 
-    func testAppendsNewSlotWhenAbsent() {
-        let t = Triggers(usb: [TriggerKey(key: "F13", slot: 1)], bluetooth: [])
-        let out = t.adopting(key: "F14", slot: 2, transport: .usb)
-        XCTAssertEqual(out.usb, [TriggerKey(key: "F13", slot: 1), TriggerKey(key: "F14", slot: 2)])
+    func testAdoptUpdatesExistingEntry() {
+        let devices = [Device(vendorId: "0x245A", productId: "0x8276",
+                              program: "footswitchBLE", name: "FS17Pro",
+                              triggers: [TriggerKey(key: "F16", slot: 1)])]
+        let out = Config.adoptingTriggerKey(in: devices, key: "F19", slot: 1, for: fs17proBLE)
+        XCTAssertEqual(out.count, 1)
+        XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1)])
+    }
+
+    func testAdoptSeedsEntryWhenConnectedDeviceHasNone() {
+        let out = Config.adoptingTriggerKey(in: [], key: "F19", slot: 1, for: fs17proBLE)
+        XCTAssertEqual(out.count, 1)
+        XCTAssertEqual(out[0].resolved()?.vendorID, 0x245A)
+        XCTAssertEqual(out[0].program, "footswitchBLE")
+        XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1)])
     }
 
     func testAdoptRoundTripsThroughConfigCoding() throws {
         var config = Config.default
-        config.triggers = config.triggers.adopting(key: "F19", slot: 1, transport: .bluetooth)
-        let data = try JSONEncoder().encode(config)
-        let decoded = try JSONDecoder().decode(Config.self, from: data)
-        XCTAssertEqual(decoded.triggers.keys(for: .bluetooth).first { $0.slot == 1 }?.key, "F19")
+        config.devices = Config.adoptingTriggerKey(in: config.devices, key: "F19", slot: 1, for: fs17proBLE)
+        let decoded = try JSONDecoder().decode(Config.self, from: JSONEncoder().encode(config))
+        XCTAssertEqual(decoded.triggerKey(forVendorID: 0x245A, productID: 0x8276, slot: 1), "F19")
     }
 }
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `swift test --filter TriggersAdoptTests`
-Expected: FAIL — "value of type 'Triggers' has no member 'adopting'".
+Run: `swift test --filter ConfigAdoptTests`
+Expected: FAIL — "type 'Config' has no member 'adoptingTriggerKey'".
 
 - [ ] **Step 3: Write the implementation**
 
-Append to `Sources/FootswitchCore/Models/Triggers.swift`:
+Append to `Sources/FootswitchCore/Models/Config.swift`:
 
 ```swift
-extension Triggers {
-    /// Returns a copy with `key` set as the trigger for `slot` on `transport`. If a
-    /// trigger for that slot already exists its key is replaced (slot preserved);
-    /// otherwise a new `TriggerKey(key:slot:)` is appended. The other transport is
-    /// left untouched — the device emits per the transport it is connected on.
-    public func adopting(key: String, slot: Int, transport: Transport) -> Triggers {
-        func updated(_ list: [TriggerKey]) -> [TriggerKey] {
-            var copy = list
-            if let i = copy.firstIndex(where: { $0.slot == slot }) {
-                copy[i].key = key
-            } else {
-                copy.append(TriggerKey(key: key, slot: slot))
-            }
-            return copy
+extension Config {
+    /// Resolves a connected device's slot key from a `devices` array: the matching
+    /// entry's non-empty triggers, else `defaultTriggerKeys`. Mirrors the instance
+    /// `triggerKey(forVendorID:productID:slot:)` but works on a bare array so the
+    /// Settings UI can resolve its live working copy.
+    public static func triggerKey(in devices: [Device], forVendorID vid: Int,
+                                  productID pid: Int, slot: Int) -> String {
+        let entry = devices.first {
+            $0.resolved().map { $0.vendorID == vid && $0.productID == pid } ?? false
         }
-        switch transport {
-        case .usb:       return Triggers(usb: updated(usb), bluetooth: bluetooth)
-        case .bluetooth: return Triggers(usb: usb, bluetooth: updated(bluetooth))
+        let keys = (entry.map { !$0.triggers.isEmpty } ?? false) ? entry!.triggers : defaultTriggerKeys
+        return keys.first { $0.slot == slot }?.key
+            ?? keys.first?.key
+            ?? defaultTriggerKeys[0].key
+    }
+
+    /// Returns `devices` with `key` set for `slot` on the entry matching `supported`
+    /// (by VID/PID): updates the existing entry via `Device.adopting`, or appends a
+    /// new entry seeded from `supported` when none exists yet (e.g. a fresh config
+    /// whose connected device has no entry). Used by the #6 Test-button adopt path.
+    public static func adoptingTriggerKey(in devices: [Device], key: String, slot: Int,
+                                          for supported: SupportedDevice) -> [Device] {
+        var copy = devices
+        if let i = copy.firstIndex(where: {
+            $0.resolved().map { $0.vendorID == supported.vendorID
+                              && $0.productID == supported.productID } ?? false
+        }) {
+            copy[i] = copy[i].adopting(key: key, slot: slot)
+        } else {
+            copy.append(Device(
+                vendorId: String(format: "0x%04X", supported.vendorID),
+                productId: String(format: "0x%04X", supported.productID),
+                program: supported.program.rawValue, name: supported.name,
+                triggers: [TriggerKey(key: key, slot: slot)]))
         }
+        return copy
     }
 }
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `swift test --filter TriggersAdoptTests`
-Expected: PASS (3 tests).
+Run: `swift test --filter ConfigAdoptTests`
+Expected: PASS (4 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Sources/FootswitchCore/Models/Triggers.swift Tests/FootswitchCoreTests/TriggersAdoptTests.swift
-git commit -m "feat: Triggers.adopting for Test-button adopt path (#6)"
+git add Sources/FootswitchCore/Models/Config.swift Tests/FootswitchCoreTests/ConfigAdoptTests.swift
+git commit -m "feat: per-device adopt/resolve helpers for Test button (#6)"
 ```
 
 ---
@@ -430,28 +467,30 @@ git commit -m "feat: AppDelegate capture coordination + window wiring (#6)"
 
 ---
 
-### Task 5: App — Settings trigger state + adopt save path
+### Task 5: App — Settings device state + adopt save path
+
+> Builds on #9's `SettingsView`, where `keyForSlot(_ slot:device:)` resolves from `baseConfig` and there is no global `triggers`. This task gives the controller a **live `devices` array** so an adopted key is reflected immediately.
 
 **Files:**
 - Modify: `Sources/Footswitch/SettingsView.swift`
 
 **Interfaces:**
-- Consumes: factory closures from Task 4; `Triggers.adopting(...)` (Task 2).
-- Produces: `SettingsViewController.init(config:onSave:beginCapture:cancelCapture:)`; stored `triggers`, `beginCaptureFn`, `cancelCaptureFn`; `save()` persists `triggers`; `keyForSlot` reads `triggers`.
+- Consumes: factory closures from Task 4; `Config.triggerKey(in:forVendorID:productID:slot:)` (Task 2).
+- Produces: `SettingsViewController.init(config:onSave:beginCapture:cancelCapture:)`; stored `devices`, `beginCaptureFn`, `cancelCaptureFn`; `save()` persists `devices`; `keyForSlot(_:device:)` reads the live `devices`.
 
 - [ ] **Step 1: Add stored properties**
 
-After `private let onSave: (Config) -> Void` (line 34), add:
+After `private let onSave: (Config) -> Void`, add:
 
 ```swift
-    private var triggers: Triggers
+    private var devices: [Device]
     private let beginCaptureFn: (_ timeoutMs: Int, _ completion: @escaping (CapturedKey) -> Void) -> Void
     private let cancelCaptureFn: () -> Void
 ```
 
 - [ ] **Step 2: Update the initializer**
 
-Replace the initializer (lines 68-74) with:
+Replace the (#9) initializer with:
 
 ```swift
     init(config: Config,
@@ -461,7 +500,7 @@ Replace the initializer (lines 68-74) with:
         self.baseConfig = config
         self.rules = config.rules
         self.defaultAction = config.defaultAction
-        self.triggers = config.triggers
+        self.devices = config.devices
         self.onSave = onSave
         self.beginCaptureFn = beginCapture
         self.cancelCaptureFn = cancelCapture
@@ -469,30 +508,31 @@ Replace the initializer (lines 68-74) with:
     }
 ```
 
-- [ ] **Step 3: Persist triggers on save**
+- [ ] **Step 3: Persist devices on save**
 
-Replace `save()` (lines 599-604) with:
+Replace `save()` with:
 
 ```swift
     private func save() {
         var config = baseConfig
         config.rules = rules
         config.defaultAction = defaultAction
-        config.triggers = triggers
+        config.devices = devices
         onSave(config)
     }
 ```
 
-- [ ] **Step 4: Read the live trigger state in `keyForSlot`**
+- [ ] **Step 4: Read the live device state in `keyForSlot`**
 
-Replace `keyForSlot(_:transport:)` (lines 367-370) with:
+Replace the (#9) `keyForSlot(_:device:)` with one that reads the controller's live `devices` (so an adopted key shows immediately) instead of `baseConfig`:
 
 ```swift
-    /// The configured trigger key for a slot on a transport (fallback to primary).
-    /// Reads the live `triggers` state so an adopted key is reflected immediately.
-    private func keyForSlot(_ slot: Int, transport: Transport) -> String {
-        triggers.keys(for: transport).first { $0.slot == slot }?.key
-            ?? triggers.primary(for: transport).key
+    /// The configured trigger key for a slot on the connected `device` (its entry's
+    /// keys, else the code default), read from the live `devices` so an adopted key
+    /// is reflected immediately.
+    private func keyForSlot(_ slot: Int, device: SupportedDevice) -> String {
+        Config.triggerKey(in: devices, forVendorID: device.vendorID,
+                          productID: device.productID, slot: slot)
     }
 ```
 
@@ -505,7 +545,7 @@ Expected: Build succeeds (factory + controller now agree).
 
 ```bash
 git add Sources/Footswitch/SettingsView.swift
-git commit -m "feat: Settings holds live triggers + adopt-aware save (#6)"
+git commit -m "feat: Settings holds live devices + adopt-aware save (#6)"
 ```
 
 ---
@@ -516,7 +556,7 @@ git commit -m "feat: Settings holds live triggers + adopt-aware save (#6)"
 - Modify: `Sources/Footswitch/SettingsView.swift`
 
 **Interfaces:**
-- Consumes: `beginCaptureFn`, `cancelCaptureFn`, `triggers`, `keyForSlot`, `programSlot`, `refreshDeviceStatus`, `TriggerReconciler.reconcile`, `Triggers.adopting`; new L10n accessors from Task 7.
+- Consumes: `beginCaptureFn`, `cancelCaptureFn`, `devices`, `keyForSlot(_:device:)`, `programSlot`, `refreshDeviceStatus`, `FootswitchHIDController.detect()`, `TriggerReconciler.reconcile`, `Config.adoptingTriggerKey(in:key:slot:for:)`; new L10n accessors from Task 7.
 - Produces: a `[Test]` button on slot 1 and each extra slot row; armed-state sheet; outcome sheet with adopt / reprogram.
 
 > Note: while the armed sheet is up, the window is sheet-blocked, so other buttons can't be clicked — no separate enable/disable bookkeeping is needed. The global capture swallows the keydown, so pressing **Escape** is captured as a key (it won't dismiss the sheet); the user cancels with the mouse. This is an accepted minor limitation.
@@ -548,7 +588,7 @@ In `buildUI()`, replace the `configRow` construction (lines 146-151) with:
 
 - [ ] **Step 3: Add a Test button to each extra slot row**
 
-In `renderExtraSlotRows(transport:)`, replace the row assembly (current lines 378-388) with:
+In the (#9) `renderExtraSlotRows(device:)`, replace the row assembly with (note the trailing call uses the #9 `device:` signature):
 
 ```swift
             let button = NSButton(title: L10n.settingsProgramButton,
@@ -566,7 +606,7 @@ In `renderExtraSlotRows(transport:)`, replace the row assembly (current lines 37
             row.spacing = 8
             deviceSection.addArrangedSubview(row)
             extraSlotRows.append(row)
-            verifyAndRenderRow(slot: slot, transport: transport, label: status, button: button)
+            verifyAndRenderRow(slot: slot, device: device, label: status, button: button)
 ```
 
 - [ ] **Step 4: Make `programSlot` accept an optional button**
@@ -595,12 +635,13 @@ Insert after `programSlot(_:button:)` (after line 467):
     @objc private func testSlotButton(_ sender: NSButton) { startTest(slot: sender.tag) }
 
     /// Arms capture for `slot`, shows a cancelable "press the pedal" sheet, and on
-    /// completion presents the reconciliation outcome. Gated on a connected
-    /// programmable transport; no-ops otherwise (matches the Program button).
+    /// completion presents the reconciliation outcome. Gated on a connected device
+    /// (resolved via detect()); no-ops otherwise (matches the Program button).
     private func startTest(slot: Int) {
         guard activeTestSlot == nil,
-              let transport = currentTransport(),
+              let detected = FootswitchHIDController.detect(),
               let window = view.window else { return }
+        let device = detected.device
         activeTestSlot = slot
 
         let armed = NSAlert()
@@ -622,13 +663,14 @@ Insert after `programSlot(_:button:)` (after line 467):
             if let sheet = self.view.window?.attachedSheet {
                 self.view.window?.endSheet(sheet)
             }
-            let expected = self.keyForSlot(slot, transport: transport)
+            let expected = self.keyForSlot(slot, device: device)
             let outcome = TriggerReconciler.reconcile(captured: captured, expected: expected)
-            self.presentTestOutcome(outcome, slot: slot, transport: transport)
+            self.presentTestOutcome(outcome, slot: slot, device: device)
         }
     }
 
-    private func presentTestOutcome(_ outcome: TriggerReconciliation, slot: Int, transport: Transport) {
+    private func presentTestOutcome(_ outcome: TriggerReconciliation, slot: Int,
+                                    device: SupportedDevice) {
         refreshDeviceStatus()   // restore the normal row UI under the outcome sheet
         let alert = NSAlert()
         alert.messageText = L10n.alertTestTitle
@@ -644,7 +686,7 @@ Insert after `programSlot(_:button:)` (after line 467):
             alert.addButton(withTitle: L10n.alertCancel)                   // third
             runOutcome(alert) { [weak self] resp in
                 if resp == .alertFirstButtonReturn {
-                    self?.adopt(key: captured, slot: slot, transport: transport)
+                    self?.adopt(key: captured, slot: slot, device: device)
                 } else if resp == .alertSecondButtonReturn {
                     self?.reprogram(slot: slot)
                 }
@@ -664,11 +706,12 @@ Insert after `programSlot(_:button:)` (after line 467):
         }
     }
 
-    /// Adopts the emitted key into config for the connected transport, persists, and
-    /// re-verifies. Save routes to AppDelegate.reload, which rebuilds the listener so
-    /// the new key is caught immediately — no reprogramming, no power-cycle.
-    private func adopt(key: String, slot: Int, transport: Transport) {
-        triggers = triggers.adopting(key: key, slot: slot, transport: transport)
+    /// Adopts the emitted key onto the connected device's entry (find-or-create),
+    /// persists, and re-verifies. Save routes to AppDelegate.reload, which rebuilds
+    /// the listener from `Config.listenerKeys` so the new key is caught immediately —
+    /// no reprogramming, no power-cycle.
+    private func adopt(key: String, slot: Int, device: SupportedDevice) {
+        devices = Config.adoptingTriggerKey(in: devices, key: key, slot: slot, for: device)
         save()
         refreshDeviceStatus()
     }
@@ -816,7 +859,7 @@ Expected: Build succeeds, no warnings introduced.
 - [ ] **Step 2: Full test suite**
 
 Run: `swift test`
-Expected: All tests pass, including `TriggerReconcilerTests`, `TriggersAdoptTests`, and `LocalizationParityTests`.
+Expected: All tests pass, including `TriggerReconcilerTests`, `ConfigAdoptTests`, and `LocalizationParityTests`.
 
 - [ ] **Step 3: Manual smoke test (requires a real pedal)**
 
@@ -845,10 +888,10 @@ git commit -m "chore: Test-button verification fixups (#6)"
 - Per-slot Test button → Task 6 (slot 1 + extra rows). ✓
 - Capture mechanism = capture mode on PedalListener, 15s timeout, swallow, suspend dispatch → Tasks 3, 4. ✓
 - Reconciliation match | mismatch | unknown | noKey → Task 1; UI presentation → Task 6. ✓
-- Adopt into config for connected transport, rebuild listener → Tasks 2, 5, 6 (`adopting` + `save` → `reload`). ✓
+- Adopt onto the connected device's entry (find-or-create), rebuild listener → Tasks 2, 5, 6 (`Config.adoptingTriggerKey` + `save` → `reload` → `listenerKeys`). ✓
 - Reprogram reuses existing program path with BLE power-cycle alert → Task 6 `reprogram` → existing `programSlot`. ✓
 - Unknown key: show raw code, disable adopt, allow reprogram → Task 6 `.unknown` case. ✓
-- Timeout / no-device gating → Task 4 timeout; Task 6 `currentTransport()` guard + Test visible only when `configRow` shown. ✓
+- Timeout / no-device gating → Task 4 timeout; Task 6 `FootswitchHIDController.detect()` guard + Test visible only when `configRow` shown. ✓
 - Modifier/combo deferred to #10 → captured as single keycode, flags ignored (Task 3). ✓
 - L10n across 30 locales + parity green → Task 7. ✓
 - IO-free core unit-tested → Tasks 1, 2. ✓
@@ -858,6 +901,6 @@ git commit -m "chore: Test-button verification fixups (#6)"
 
 **Placeholder scan:** No TBD/TODO; every code step shows complete code; the only delegated step (Task 7 Step 3 translation) names a concrete tool (`loc:backfill`) and the exact key set/locales. ✓
 
-**Type consistency:** `CapturedKey`, `TriggerReconciliation`, `TriggerReconciler.reconcile`, `Triggers.adopting`, `beginCapture`/`cancelCapture`/`endCapture`, and the factory/init signatures match across Tasks 1–7. ✓
+**Type consistency:** `CapturedKey`, `TriggerReconciliation`, `TriggerReconciler.reconcile`, `Config.triggerKey(in:...)` / `Config.adoptingTriggerKey(in:...)`, `keyForSlot(_:device:)`, `beginCapture`/`cancelCapture`/`endCapture`, and the factory/init signatures match across Tasks 1–7 (and with the #9 `Device` model). ✓
 
 > **Known limitation (documented in Task 6):** while armed, the global capture swallows Escape, so the armed sheet is cancel-by-mouse only. Combo capture is deferred to #10.
