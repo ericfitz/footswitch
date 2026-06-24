@@ -21,6 +21,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var aboutWindowController: AboutWindowController?
     private var hidMonitorManager: IOHIDManager?
     private var rebuildWorkItem: DispatchWorkItem?
+    private var isCapturing = false
+    private var pendingRebuildAfterCapture = false
+    private var captureTimeoutWork: DispatchWorkItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         config = (try? store.load()) ?? .default
@@ -89,6 +92,50 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.setLastFire(app: FrontmostApp.name(), slot: slot, action: action)
     }
 
+    /// Arms the live listener to capture the next keydown for the Settings "Test"
+    /// flow, with a timeout. `completion` runs on the main thread with the resolved
+    /// `CapturedKey` (or `.none` on timeout). Listener rebuilds requested during
+    /// capture are deferred so the capturing listener isn't swapped out mid-test.
+    private func beginCapture(timeoutMs: Int, completion: @escaping @Sendable (CapturedKey) -> Void) {
+        captureTimeoutWork?.cancel()
+        isCapturing = true
+        listener.beginCapture { [weak self] keyCode in
+            // PedalListener already delivers this handler on the main thread; the
+            // handler is @Sendable, so assert isolation to touch actor state.
+            guard let self else { return }
+            MainActor.assumeIsolated {
+                guard self.isCapturing else { return }   // timeout may have already fired
+                self.finishCapture()
+                completion(CapturedKey.from(keyCode: keyCode))
+            }
+        }
+        let work = DispatchWorkItem { [weak self] in
+            guard let self, self.isCapturing else { return }
+            self.finishCapture()
+            completion(.none)
+        }
+        captureTimeoutWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(timeoutMs), execute: work)
+    }
+
+    /// Cancels an in-flight capture without invoking the completion (the UI that
+    /// asked to cancel already knows). Safe to call when not capturing.
+    private func cancelCapture() {
+        guard isCapturing else { return }
+        finishCapture()
+    }
+
+    private func finishCapture() {
+        isCapturing = false
+        captureTimeoutWork?.cancel()
+        captureTimeoutWork = nil
+        listener?.endCapture()
+        if pendingRebuildAfterCapture {
+            pendingRebuildAfterCapture = false
+            buildListener()
+        }
+    }
+
     /// Observes USB HID attach/detach and rebuilds the listener (debounced 600ms
     /// so a burst of interface (un)registrations from one physical (un)plug only
     /// triggers one re-detect).
@@ -111,10 +158,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func scheduleListenerRebuild() {
         rebuildWorkItem?.cancel()
         let work = DispatchWorkItem { [weak self] in
-            self?.buildListener()
-            // Tell an open Settings window to re-detect so its device row / config
-            // status / per-slot columns reflect the change (USB↔BLE transport switch,
-            // plug, unplug) instead of staying frozen at window-open time.
+            guard let self else { return }
+            if self.isCapturing {
+                // Don't swap out the capturing listener or clear the test UI mid-test;
+                // run the rebuild when capture finishes.
+                self.pendingRebuildAfterCapture = true
+                return
+            }
+            self.buildListener()
             NotificationCenter.default.post(name: .footswitchDeviceChanged, object: nil)
         }
         rebuildWorkItem = work
@@ -125,7 +176,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if settingsWindow == nil {
             settingsWindow = SettingsWindowFactory.make(
                 store: store,
-                onSave: { [weak self] newConfig in self?.reload(newConfig) })
+                onSave: { [weak self] newConfig in self?.reload(newConfig) },
+                beginCapture: { [weak self] (timeoutMs: Int, completion: @escaping @Sendable (CapturedKey) -> Void) in
+                    self?.beginCapture(timeoutMs: timeoutMs, completion: completion)
+                },
+                cancelCapture: { [weak self] in self?.cancelCapture() })
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)

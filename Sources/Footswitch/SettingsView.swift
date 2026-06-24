@@ -8,9 +8,13 @@ enum ActionKind { case keySequence, shortcut }
 
 enum SettingsWindowFactory {
     @MainActor
-    static func make(store: ConfigStore, onSave: @escaping (Config) -> Void) -> NSWindow {
+    static func make(store: ConfigStore,
+                     onSave: @escaping (Config) -> Void,
+                     beginCapture: @escaping (_ timeoutMs: Int, _ completion: @escaping @Sendable (CapturedKey) -> Void) -> Void,
+                     cancelCapture: @escaping () -> Void) -> NSWindow {
         let config = (try? store.load()) ?? .default
-        let controller = SettingsViewController(config: config, onSave: onSave)
+        let controller = SettingsViewController(config: config, onSave: onSave,
+                                                beginCapture: beginCapture, cancelCapture: cancelCapture)
         let window = NSWindow(contentViewController: controller)
         window.title = L10n.settingsWindowTitle
         window.styleMask = [.titled, .closable]
@@ -32,6 +36,9 @@ final class SettingsViewController: NSViewController {
     private var defaultAction: DefaultAction
     private let baseConfig: Config
     private let onSave: (Config) -> Void
+    private var devices: [Device]
+    private let beginCaptureFn: (_ timeoutMs: Int, _ completion: @escaping @Sendable (CapturedKey) -> Void) -> Void
+    private let cancelCaptureFn: () -> Void
 
     private let tableView = NSTableView()
     private let addRemove = NSSegmentedControl()
@@ -42,6 +49,8 @@ final class SettingsViewController: NSViewController {
     private var infoButton: NSButton!
     private var configStatusLabel: NSTextField!
     private var programButton: NSButton!
+    private var testButton: NSButton!
+    private var activeTestSlot: Int?
     private var configRow: NSStackView!
     private var deviceSection: NSStackView!
 
@@ -65,11 +74,17 @@ final class SettingsViewController: NSViewController {
         return list
     }
 
-    init(config: Config, onSave: @escaping (Config) -> Void) {
+    init(config: Config,
+         onSave: @escaping (Config) -> Void,
+         beginCapture: @escaping (_ timeoutMs: Int, _ completion: @escaping @Sendable (CapturedKey) -> Void) -> Void,
+         cancelCapture: @escaping () -> Void) {
         self.baseConfig = config
         self.rules = config.rules
         self.defaultAction = config.defaultAction
+        self.devices = config.devices
         self.onSave = onSave
+        self.beginCaptureFn = beginCapture
+        self.cancelCaptureFn = cancelCapture
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -146,7 +161,10 @@ final class SettingsViewController: NSViewController {
         programButton = NSButton(title: L10n.settingsProgramButton,
                                  target: self, action: #selector(programPedal))
         programButton.bezelStyle = .rounded
-        configRow = NSStackView(views: [configStatusLabel, programButton])
+        testButton = NSButton(title: L10n.settingsTestButton,
+                              target: self, action: #selector(testPedal))
+        testButton.bezelStyle = .rounded
+        configRow = NSStackView(views: [configStatusLabel, programButton, testButton])
         configRow.orientation = .horizontal
         configRow.spacing = 12
 
@@ -354,9 +372,11 @@ final class SettingsViewController: NSViewController {
     }
 
     /// The configured trigger key for a slot on the connected `device` (its entry's
-    /// keys, else the code default), resolved from config by VID/PID.
+    /// keys, else the code default), read from the live `devices` so an adopted key
+    /// is reflected immediately.
     private func keyForSlot(_ slot: Int, device: SupportedDevice) -> String {
-        baseConfig.triggerKey(forVendorID: device.vendorID, productID: device.productID, slot: slot)
+        Config.triggerKey(in: devices, forVendorID: device.vendorID,
+                          productID: device.productID, slot: slot)
     }
 
     private func renderExtraSlotRows(device: SupportedDevice) {
@@ -369,9 +389,13 @@ final class SettingsViewController: NSViewController {
                                   target: self, action: #selector(programSlotButton(_:)))
             button.bezelStyle = .rounded
             button.tag = slot
+            let test = NSButton(title: L10n.settingsTestButton,
+                                target: self, action: #selector(testSlotButton(_:)))
+            test.bezelStyle = .rounded
+            test.tag = slot
             let prefix = NSTextField(labelWithString: L10n.deviceSlotLabel(slot) + ":")
             prefix.font = .systemFont(ofSize: 12)
-            let row = NSStackView(views: [prefix, status, button])
+            let row = NSStackView(views: [prefix, status, button, test])
             row.orientation = .horizontal
             row.spacing = 8
             deviceSection.addArrangedSubview(row)
@@ -427,7 +451,7 @@ final class SettingsViewController: NSViewController {
         programSlot(sender.tag, button: sender)
     }
 
-    private func programSlot(_ slot: Int, button: NSButton) {
+    private func programSlot(_ slot: Int, button: NSButton?) {
         // Program the key for the transport the device is currently connected on —
         // the FS17Pro stores USB and Bluetooth configs independently, so we must
         // write the correct transport's key (not a single global key).
@@ -437,7 +461,7 @@ final class SettingsViewController: NSViewController {
         let transport = detected.device.program.transport
         let key = keyForSlot(slot, device: detected.device)
         let combo = KeyCombo(modifiers: [], key: key)
-        button.isEnabled = false
+        button?.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             let message: String
             do {
@@ -450,10 +474,112 @@ final class SettingsViewController: NSViewController {
             }
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                button.isEnabled = true
+                button?.isEnabled = true
                 self.presentInfo(message)
                 self.refreshDeviceStatus()
             }
+        }
+    }
+
+    @objc private func testPedal() { startTest(slot: 1) }
+
+    @objc private func testSlotButton(_ sender: NSButton) { startTest(slot: sender.tag) }
+
+    /// Arms capture for `slot`, shows a cancelable "press the pedal" sheet, and on
+    /// completion presents the reconciliation outcome. Gated on a connected device
+    /// (resolved via detect()); no-ops otherwise (matches the Program button).
+    private func startTest(slot: Int) {
+        guard activeTestSlot == nil,
+              let detected = FootswitchHIDController.detect(),
+              let window = view.window else { return }
+        let device = detected.device
+        activeTestSlot = slot
+
+        let armed = NSAlert()
+        armed.messageText = L10n.alertTestTitle
+        armed.informativeText = L10n.testPrompt(slot: slot)
+        armed.addButton(withTitle: L10n.alertCancel)
+        armed.beginSheetModal(for: window) { [weak self] _ in
+            // Sheet dismissed. If still armed, it was a user Cancel — stop capture.
+            guard let self, self.activeTestSlot == slot else { return }
+            self.activeTestSlot = nil
+            self.cancelCaptureFn()
+            self.refreshDeviceStatus()
+        }
+
+        beginCaptureFn(15_000) { [weak self] captured in
+            // AppDelegate calls this completion on the main thread; assert isolation.
+            MainActor.assumeIsolated {
+                guard let self, self.activeTestSlot == slot else { return }
+                self.activeTestSlot = nil
+                // Dismiss the armed sheet before showing the result.
+                if let sheet = self.view.window?.attachedSheet {
+                    self.view.window?.endSheet(sheet)
+                }
+                let expected = self.keyForSlot(slot, device: device)
+                let outcome = TriggerReconciler.reconcile(captured: captured, expected: expected)
+                self.presentTestOutcome(outcome, slot: slot, device: device)
+            }
+        }
+    }
+
+    private func presentTestOutcome(_ outcome: TriggerReconciliation, slot: Int,
+                                    device: SupportedDevice) {
+        refreshDeviceStatus()   // restore the normal row UI under the outcome sheet
+        let alert = NSAlert()
+        alert.messageText = L10n.alertTestTitle
+        switch outcome {
+        case .match(let key):
+            alert.informativeText = L10n.testMatch(key: key)
+            alert.addButton(withTitle: L10n.alertOK)
+            runOutcome(alert) { _ in }
+        case .mismatch(let captured, let expected):
+            alert.informativeText = L10n.testMismatch(captured: captured, expected: expected)
+            alert.addButton(withTitle: L10n.testUseKey(key: captured))     // first
+            alert.addButton(withTitle: L10n.testReprogram(key: expected))  // second
+            alert.addButton(withTitle: L10n.alertCancel)                   // third
+            runOutcome(alert) { [weak self] resp in
+                if resp == .alertFirstButtonReturn {
+                    self?.adopt(key: captured, slot: slot, device: device)
+                } else if resp == .alertSecondButtonReturn {
+                    self?.reprogram(slot: slot)
+                }
+            }
+        case .unknown(let code, let expected):
+            alert.informativeText = L10n.testUnknown(
+                code: String(format: "0x%02X", code), expected: expected)
+            alert.addButton(withTitle: L10n.testReprogram(key: expected))  // first
+            alert.addButton(withTitle: L10n.alertCancel)                   // second
+            runOutcome(alert) { [weak self] resp in
+                if resp == .alertFirstButtonReturn { self?.reprogram(slot: slot) }
+            }
+        case .noKey:
+            alert.informativeText = L10n.testNoKey
+            alert.addButton(withTitle: L10n.alertOK)
+            runOutcome(alert) { _ in }
+        }
+    }
+
+    /// Adopts the emitted key onto the connected device's entry (find-or-create),
+    /// persists, and re-verifies. Save routes to AppDelegate.reload, which rebuilds
+    /// the listener from `Config.listenerKeys` so the new key is caught immediately —
+    /// no reprogramming, no power-cycle.
+    private func adopt(key: String, slot: Int, device: SupportedDevice) {
+        devices = Config.adoptingTriggerKey(in: devices, key: key, slot: slot, for: device)
+        save()
+        refreshDeviceStatus()
+    }
+
+    private func reprogram(slot: Int) {
+        programSlot(slot, button: slot == 1 ? programButton : nil)
+    }
+
+    private func runOutcome(_ alert: NSAlert,
+                            handler: @escaping (NSApplication.ModalResponse) -> Void) {
+        if let window = view.window {
+            alert.beginSheetModal(for: window, completionHandler: handler)
+        } else {
+            handler(alert.runModal())
         }
     }
 
@@ -591,6 +717,7 @@ final class SettingsViewController: NSViewController {
         var config = baseConfig
         config.rules = rules
         config.defaultAction = defaultAction
+        config.devices = devices
         onSave(config)
     }
 }
