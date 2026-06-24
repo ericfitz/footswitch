@@ -212,6 +212,9 @@ final class SettingsViewController: NSViewController {
         let scroll = NSScrollView()
         scroll.documentView = tableView
         scroll.hasVerticalScroller = true
+        // Safety net (issue #11): if the window is narrowed past the point where the
+        // app column can absorb it, scroll horizontally rather than clip the mapping.
+        scroll.hasHorizontalScroller = true
         scroll.borderType = .bezelBorder
         scroll.translatesAutoresizingMaskIntoConstraints = false
 
@@ -272,10 +275,16 @@ final class SettingsViewController: NSViewController {
         tableView.usesAlternatingRowBackgroundColors = true
         tableView.rowHeight = 28
         tableView.allowsMultipleSelection = false
+        // Width priority (issue #11): the action/key-mapping column(s) must stay wide
+        // enough to show the whole mapping. Make the app-name column the only one that
+        // auto-resizes, so when the table is narrowed it is the app column that shrinks
+        // — not the mapping column.
+        tableView.columnAutoresizingStyle = .firstColumnOnlyAutoresizingStyle
 
         let appCol = NSTableColumn(identifier: .init("app"))
         appCol.title = L10n.settingsColApplication
         appCol.width = 320
+        appCol.minWidth = 80   // absorbs narrowing, but never collapses to nothing
         tableView.addTableColumn(appCol)
 
         rebuildShortcutColumns()
@@ -293,12 +302,14 @@ final class SettingsViewController: NSViewController {
             let col = NSTableColumn(identifier: .init("shortcut.1"))
             col.title = L10n.settingsColAction
             col.width = 240
+            col.minWidth = 240   // hold full width for the key mapping (issue #11)
             tableView.addTableColumn(col)
         } else {
             for slot in 1...detectedSlotCount {
                 let col = NSTableColumn(identifier: .init("shortcut.\(slot)"))
                 col.title = L10n.settingsColPedalShortcut(slot)
                 col.width = 200
+                col.minWidth = 200   // hold full width for the key mapping (issue #11)
                 tableView.addTableColumn(col)
             }
         }
