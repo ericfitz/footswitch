@@ -77,7 +77,7 @@ final class CustomDeviceTests: XCTestCase {
         XCTAssertEqual(d?.name, "PCsensor FootSwitch")
     }
 
-    func testNoMatchReturnsNilWithCustom() {
+    func testNoMatchReturnsNilWithDevices() {
         XCTAssertNil(SupportedDevices.match(vendorID: 0x9999, productID: 0x9999, devices: []))
     }
 }

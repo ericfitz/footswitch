@@ -1,5 +1,7 @@
 import Foundation
 
+/// Retained only for legacy config decode/migration (issue #9); not part of the live config model.
+///
 /// A user-supplied device-table entry, letting a same-protocol foot switch be
 /// recognized by editing config instead of changing code (GitHub issue #4).
 ///

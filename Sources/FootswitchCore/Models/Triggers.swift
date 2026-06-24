@@ -1,5 +1,7 @@
 import Foundation
 
+/// Retained only for legacy config decode/migration (issue #9); not part of the live config model.
+///
 /// Trigger keys grouped by transport. The FS17Pro (and similar) keeps a separate
 /// key configuration for USB vs Bluetooth, so we store a list per transport. The
 /// pedal listener watches the UNION across transports (any of them fires); the
@@ -11,22 +13,6 @@ public struct Triggers: Codable, Equatable, Sendable {
     public init(usb: [TriggerKey], bluetooth: [TriggerKey]) {
         self.usb = usb
         self.bluetooth = bluetooth
-    }
-
-    /// The trigger keys for a specific transport.
-    public func keys(for transport: Transport) -> [TriggerKey] {
-        switch transport {
-        case .usb: return usb
-        case .bluetooth: return bluetooth
-        }
-    }
-
-    /// The primary (first) trigger key for a transport, or a F13/slot-1 fallback.
-    /// Only `.key` is load-bearing for programming today: the programmers map the
-    /// connected transport to a hardcoded pedal index (USB 0 / BLE 1), so `.slot`
-    /// is carried for the future multi-button feature but not yet honored here.
-    public func primary(for transport: Transport) -> TriggerKey {
-        keys(for: transport).first ?? TriggerKey(key: "F13", slot: 1)
     }
 
     /// All trigger keys across every transport, de-duplicated by key name (the

@@ -197,7 +197,7 @@
 "test.useKey" = "Gunakan %@";
 
 /* Button: reprogram device to the configured key. %@ = key. */
-"test.reprogram" = "Pogram ulang ke %@";
+"test.reprogram" = "Program ulang ke %@";
 
 /* Generic Cancel button. */
 "alert.cancel" = "Batal";
