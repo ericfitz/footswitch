@@ -109,8 +109,12 @@ enum FootswitchHIDController {
         return set.compactMap { hidDevice in
             guard let vid = intProperty(hidDevice, kIOHIDVendorIDKey),
                   let pid = intProperty(hidDevice, kIOHIDProductIDKey),
-                  let match = SupportedDevices.match(vendorID: vid, productID: pid,
-                                                     custom: registeredCustomDevices) else { return nil }
+                  let match = SupportedDevices.match(
+                      vendorID: vid, productID: pid,
+                      devices: registeredCustomDevices.map {
+                          Device(vendorId: $0.vendorId, productId: $0.productId,
+                                 program: $0.program, name: $0.name)
+                      }) else { return nil }
             return Detected(device: match, hidDevice: hidDevice)
         }
     }

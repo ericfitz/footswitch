@@ -39,14 +39,13 @@ public enum SupportedDevices {
         all.first { $0.vendorID == vendorID && $0.productID == productID }
     }
 
-    /// Matches against user-supplied `custom` devices first (so a custom entry can
-    /// override or extend the built-in table), then the built-ins. Invalid custom
-    /// entries (malformed VID/PID, unknown program family) are skipped via
-    /// `resolved()`. Adding a same-protocol pedal is thus a config change, not a
-    /// code change (GitHub issue #4).
+    /// Matches against configured `devices` first (so an entry can override or
+    /// extend the built-in table), then the built-ins. Invalid entries (malformed
+    /// VID/PID, unknown program family) are skipped via `resolved()`. Adding a
+    /// same-protocol pedal is thus a config change, not a code change (issues #4/#9).
     public static func match(vendorID: Int, productID: Int,
-                             custom: [CustomDevice]) -> SupportedDevice? {
-        for entry in custom {
+                             devices: [Device]) -> SupportedDevice? {
+        for entry in devices {
             if let dev = entry.resolved(), dev.vendorID == vendorID, dev.productID == productID {
                 return dev
             }

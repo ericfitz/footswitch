@@ -47,37 +47,37 @@ final class CustomDeviceTests: XCTestCase {
                                   program: "footswitch", name: "   ").resolved())
     }
 
-    // MARK: merge with the built-in table
+    // MARK: merge with the built-in table (via Device / match(devices:))
 
     func testCustomMatchAddsNewDevice() {
-        let custom = [CustomDevice(vendorId: "0xAAAA", productId: "0xBBBB",
-                                   program: "footswitch", name: "Clone Pedal")]
+        let devices = [Device(vendorId: "0xAAAA", productId: "0xBBBB",
+                              program: "footswitch", name: "Clone Pedal")]
         // Not in the built-in table...
         XCTAssertNil(SupportedDevices.match(vendorID: 0xAAAA, productID: 0xBBBB))
-        // ...but matched once custom is supplied.
-        let d = SupportedDevices.match(vendorID: 0xAAAA, productID: 0xBBBB, custom: custom)
+        // ...but matched once devices is supplied.
+        let d = SupportedDevices.match(vendorID: 0xAAAA, productID: 0xBBBB, devices: devices)
         XCTAssertEqual(d?.name, "Clone Pedal")
         XCTAssertEqual(d?.program, .footswitch)
     }
 
     func testCustomEntryOverridesBuiltIn() {
         // Re-map an existing built-in VID/PID to a different name/family.
-        let custom = [CustomDevice(vendorId: "0x3553", productId: "0xB001",
-                                   program: "footswitchBLE", name: "Overridden")]
-        let d = SupportedDevices.match(vendorID: 0x3553, productID: 0xB001, custom: custom)
+        let devices = [Device(vendorId: "0x3553", productId: "0xB001",
+                              program: "footswitchBLE", name: "Overridden")]
+        let d = SupportedDevices.match(vendorID: 0x3553, productID: 0xB001, devices: devices)
         XCTAssertEqual(d?.name, "Overridden")
         XCTAssertEqual(d?.program, .footswitchBLE)
     }
 
     func testInvalidCustomEntryIsSkippedAndFallsBackToBuiltIn() {
-        let custom = [CustomDevice(vendorId: "garbage", productId: "0xB001",
-                                   program: "footswitch", name: "Bad")]
+        let devices = [Device(vendorId: "garbage", productId: "0xB001",
+                              program: "footswitch", name: "Bad")]
         // The bad entry is skipped; the built-in 0x3553/0xB001 still resolves.
-        let d = SupportedDevices.match(vendorID: 0x3553, productID: 0xB001, custom: custom)
+        let d = SupportedDevices.match(vendorID: 0x3553, productID: 0xB001, devices: devices)
         XCTAssertEqual(d?.name, "PCsensor FootSwitch")
     }
 
     func testNoMatchReturnsNilWithCustom() {
-        XCTAssertNil(SupportedDevices.match(vendorID: 0x9999, productID: 0x9999, custom: []))
+        XCTAssertNil(SupportedDevices.match(vendorID: 0x9999, productID: 0x9999, devices: []))
     }
 }
