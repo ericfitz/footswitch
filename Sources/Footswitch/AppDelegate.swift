@@ -24,8 +24,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         config = (try? store.load()) ?? .default
-        // Make any user-supplied device-table entries visible to detection (#4).
-        FootswitchHIDController.registeredCustomDevices = config.customDevices
+        // Make any user-supplied device-table entries visible to detection (#4/#9).
+        FootswitchHIDController.registeredDevices = config.devices
 
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
@@ -44,7 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // presses are caught immediately — backgrounded slot detection (~1.5s worst
         // case) would otherwise leave a startup gap where presses pass through. The
         // backgrounded probe then rebuilds with the full clamped key set.
-        installListener(triggerKeys: Array(config.allTriggerKeys.prefix(1)))
+        installListener(triggerKeys: Array(config.listenerKeys.prefix(1)))
         buildListener()
 
         // Live hot-plug: when USB HID devices change, re-detect the pedal count
@@ -59,7 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// (~1.5s worst case) so it runs off-main; the listener is (re)installed back
     /// on the main thread.
     private func buildListener() {
-        let allKeys = config.allTriggerKeys
+        let allKeys = config.listenerKeys
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let slotCount = FootswitchHIDController.detectedSlotCount()
             let clamped = allKeys.filter { $0.slot <= slotCount }
@@ -143,7 +143,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func reload(_ newConfig: Config) {
         config = newConfig
         try? store.save(newConfig)
-        FootswitchHIDController.registeredCustomDevices = newConfig.customDevices
+        FootswitchHIDController.registeredDevices = newConfig.devices
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
             dictationShortcut: config.dictationShortcut,
