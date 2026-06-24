@@ -8,6 +8,8 @@
 
 **Tech Stack:** Swift 6, AppKit, CoreGraphics event taps, Swift Package Manager. Spec: `docs/superpowers/specs/2026-06-24-test-button-design.md`.
 
+> **Dependency on #9:** This plan adopts captured keys into the global `Config.triggers` (via `Triggers.adopting`, Tasks 2/5/6). The #9 design (`docs/superpowers/specs/2026-06-24-per-device-trigger-config-design.md`) **removes global `triggers`** in favor of a per-`Device` trigger list. **Implement #9 before this plan**, or when implementing this plan after #9, retarget the adopt path and `keyForSlot` from `Triggers` to the connected `Device` entry. The reconciliation core (`TriggerReconciler`, `CapturedKey`) is unaffected.
+
 ## Global Constraints
 
 - Swift 6 strict concurrency; UI types are `@MainActor`. Cross-thread callbacks hop to main via `DispatchQueue.main.async`, matching existing `PedalListener.onFire`.
