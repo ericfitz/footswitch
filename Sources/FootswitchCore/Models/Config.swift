@@ -55,12 +55,13 @@ public struct Config: Codable, Equatable, Sendable {
     }
 
     /// Every trigger key the listener should watch: the union across all device
-    /// entries (deduped by key name), or the code default if none are configured.
+    /// entries, deduped by combo (key + modifiers), or the code default if none.
     public var listenerKeys: [TriggerKey] {
         var seen = Set<String>()
         var result: [TriggerKey] = []
-        for k in devices.flatMap(\.triggers) where seen.insert(k.key).inserted {
-            result.append(k)
+        for k in devices.flatMap(\.triggers) {
+            let sig = k.key.uppercased() + "|" + k.modifiers.map(\.rawValue).sorted().joined(separator: ",")
+            if seen.insert(sig).inserted { result.append(k) }
         }
         return result.isEmpty ? Self.defaultTriggerKeys : result
     }
@@ -200,6 +201,39 @@ extension Config {
                 productId: String(format: "0x%04X", supported.productID),
                 program: supported.program.rawValue, name: supported.name,
                 triggers: [TriggerKey(key: key, slot: slot)]))
+        }
+        return copy
+    }
+
+    /// Resolves a connected device's slot trigger as a `KeyCombo` (key + modifiers):
+    /// the matching entry's non-empty triggers, else `defaultTriggerKeys`.
+    public static func triggerCombo(in devices: [Device], forVendorID vid: Int,
+                                    productID pid: Int, slot: Int) -> KeyCombo {
+        let entry = devices.first {
+            $0.resolved().map { $0.vendorID == vid && $0.productID == pid } ?? false
+        }
+        let keys = entry.flatMap { $0.triggers.isEmpty ? nil : $0.triggers } ?? defaultTriggerKeys
+        let tk = keys.first { $0.slot == slot } ?? keys.first ?? defaultTriggerKeys[0]
+        return tk.combo
+    }
+
+    /// Returns `devices` with `combo` set for `slot` on the entry matching `supported`
+    /// (by VID/PID): updates the existing entry via `Device.adopting(combo:slot:)`, or
+    /// appends a new entry seeded from `supported`. The combo-carrying #6 adopt path (#10).
+    public static func adoptingTriggerCombo(in devices: [Device], combo: KeyCombo, slot: Int,
+                                            for supported: SupportedDevice) -> [Device] {
+        var copy = devices
+        if let i = copy.firstIndex(where: {
+            $0.resolved().map { $0.vendorID == supported.vendorID
+                              && $0.productID == supported.productID } ?? false
+        }) {
+            copy[i] = copy[i].adopting(combo: combo, slot: slot)
+        } else {
+            copy.append(Device(
+                vendorId: String(format: "0x%04X", supported.vendorID),
+                productId: String(format: "0x%04X", supported.productID),
+                program: supported.program.rawValue, name: supported.name,
+                triggers: [TriggerKey(key: combo.key, slot: slot, modifiers: combo.modifiers)]))
         }
         return copy
     }

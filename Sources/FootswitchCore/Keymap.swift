@@ -59,4 +59,21 @@ public enum Keymap {
         }
         return bits
     }
+
+    /// The four modifier flag bits a foot switch can emit (⌃⌥⇧⌘). Mask a raw
+    /// CGEventFlags value with this to drop Caps Lock / fn / numeric-pad bits that
+    /// must not affect trigger matching.
+    public static let deviceModifierMask: UInt64 = 0x20000 | 0x40000 | 0x80000 | 0x100000
+
+    /// Reverse of `flagBits(for:)`: the `Modifier`s encoded in a CGEventFlags bit
+    /// field, in canonical order (control, option, shift, command) so the result
+    /// compares equal to config / device-read-back modifier arrays.
+    public static func modifiers(forFlagBits bits: UInt64) -> [Modifier] {
+        var mods: [Modifier] = []
+        if bits & 0x40000  != 0 { mods.append(.control) }
+        if bits & 0x80000  != 0 { mods.append(.option) }
+        if bits & 0x20000  != 0 { mods.append(.shift) }
+        if bits & 0x100000 != 0 { mods.append(.command) }
+        return mods
+    }
 }

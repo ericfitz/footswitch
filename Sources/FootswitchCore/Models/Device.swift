@@ -84,4 +84,20 @@ public struct Device: Codable, Equatable, Sendable {
         out.triggers = copy
         return out
     }
+
+    /// Returns a copy with `combo` (key + modifiers) set as the trigger for `slot`:
+    /// replaces the slot's existing trigger or appends a new one. Used by the #6
+    /// Test-button adopt path once it captures full combos (#10).
+    public func adopting(combo: KeyCombo, slot: Int) -> Device {
+        var copy = triggers
+        let tk = TriggerKey(key: combo.key, slot: slot, modifiers: combo.modifiers)
+        if let i = copy.firstIndex(where: { $0.slot == slot }) {
+            copy[i] = tk
+        } else {
+            copy.append(tk)
+        }
+        var out = self
+        out.triggers = copy
+        return out
+    }
 }
