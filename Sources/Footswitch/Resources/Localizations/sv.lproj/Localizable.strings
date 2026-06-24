@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Pedal %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Testa";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Testa pedal";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Tryck på pedal %@ nu…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Pedalen skickar %@ — matchar din konfiguration.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Pedalen skickar %1$@, men din konfiguration förväntar sig %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Pedalen skickar en okänd tangent (%1$@). Din konfiguration förväntar sig %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "Ingen tangent registrerades — är pedalen ansluten och nedtryckt?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Använd %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Omprogrammera till %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Avbryt";

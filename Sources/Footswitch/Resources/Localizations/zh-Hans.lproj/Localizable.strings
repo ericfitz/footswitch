@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "踏板 %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "测试";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "测试踏板";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "请立即踩下踏板 %@…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "踏板发送 %@ — 与您的配置匹配。";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "踏板发送 %1$@，但您的配置期望 %2$@。";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "踏板发送了无法识别的按键（%1$@）。您的配置期望 %2$@。";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "未检测到按键 — 踏板是否已连接并按下？";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "使用 %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "重新编程为 %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "取消";

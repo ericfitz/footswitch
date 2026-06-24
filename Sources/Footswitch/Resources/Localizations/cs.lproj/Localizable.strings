@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Pedál %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Testovat";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Testovat pedál";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Stiskněte pedál %@ nyní…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Pedál vysílá %@ — odpovídá vaší konfiguraci.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Pedál vysílá %1$@, ale vaše konfigurace očekává %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Pedál vysílá neznámou klávesu (%1$@). Vaše konfigurace očekává %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "Nebyla zjištěna žádná klávesa — je pedál připojen a stisknut?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Použít %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Přeprogramovat na %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Zrušit";

@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Pedal %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Uji";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Uji pedal";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Tekan pedal %@ sekarang…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Pedal mengirimkan %@ — sesuai dengan konfigurasi Anda.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Pedal mengirimkan %1$@, tetapi konfigurasi Anda mengharapkan %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Pedal mengirimkan tombol yang tidak dikenal (%1$@). Konfigurasi Anda mengharapkan %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "Tidak ada tombol terdeteksi — apakah pedal terhubung dan ditekan?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Gunakan %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Pogram ulang ke %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Batal";

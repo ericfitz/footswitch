@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Pedal %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Test";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Test pedal";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Press pedal %@ now…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Pedal emits %@ — matches your configuration.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Pedal emits %1$@, but your configuration expects %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Pedal emits an unrecognized key (%1$@). Your configuration expects %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "No key detected — is the pedal connected and pressed?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Use %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Reprogram to %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Cancel";

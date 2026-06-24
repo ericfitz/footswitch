@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Bàn đạp %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Kiểm tra";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Kiểm tra bàn đạp";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Nhấn bàn đạp %@ ngay bây giờ…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Bàn đạp gửi %@ — khớp với cấu hình của bạn.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Bàn đạp gửi %1$@, nhưng cấu hình của bạn mong đợi %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Bàn đạp gửi phím không nhận dạng được (%1$@). Cấu hình của bạn mong đợi %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "Không phát hiện phím nào — bàn đạp có được kết nối và nhấn không?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Sử dụng %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Lập trình lại thành %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Hủy";

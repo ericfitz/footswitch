@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Πεντάλ %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Δοκιμή";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Δοκιμή πεντάλ";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Πατήστε το πεντάλ %@ τώρα…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Το πεντάλ στέλνει %@ — ταιριάζει με τη διαμόρφωσή σας.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Το πεντάλ στέλνει %1$@, αλλά η διαμόρφωσή σας αναμένει %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Το πεντάλ στέλνει άγνωστο πλήκτρο (%1$@). Η διαμόρφωσή σας αναμένει %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "Δεν εντοπίστηκε πλήκτρο — είναι το πεντάλ συνδεδεμένο και πατημένο;";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Χρήση %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Επαναπρογραμματισμός σε %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Ακύρωση";

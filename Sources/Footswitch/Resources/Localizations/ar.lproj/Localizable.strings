@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "دواسة %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "اختبار";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "اختبار الدواسة";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "اضغط على الدواسة %@ الآن…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "الدواسة ترسل %@ — يطابق إعداداتك.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "الدواسة ترسل %1$@، لكن إعداداتك تتوقع %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "الدواسة ترسل مفتاحاً غير معروف (%1$@). إعداداتك تتوقع %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "لم يتم اكتشاف أي مفتاح — هل الدواسة متصلة ومضغوطة؟";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "استخدم %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "إعادة البرمجة إلى %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "إلغاء";

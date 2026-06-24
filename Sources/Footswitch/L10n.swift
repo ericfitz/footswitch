@@ -118,6 +118,36 @@ enum L10n {
     static var captureUnsupportedKey: String { t("capture.unsupportedKey", "Capture: unsupported key.") }
     static var captureAddModifier: String { t("capture.addModifier", "Capture: modifier required.") }
 
+    // Pedal test (issue #6)
+    static var settingsTestButton: String { t("settings.testButton", "Button: test what key the pedal emits.") }
+    static var alertTestTitle: String { t("alert.test.title", "Test-pedal alert title.") }
+    /// %@ = pedal number.
+    static func testPrompt(slot: Int) -> String {
+        String(format: t("test.prompt", "Armed prompt while waiting for a pedal press. %@ = pedal number."), "\(slot)")
+    }
+    /// %@ = key name.
+    static func testMatch(key: String) -> String {
+        String(format: t("test.match", "Result: emitted key matches config. %@ = key."), key)
+    }
+    /// %1$@ = emitted key, %2$@ = expected key.
+    static func testMismatch(captured: String, expected: String) -> String {
+        String(format: t("test.mismatch", "Result: emitted key differs. %1$@ emitted, %2$@ expected."), captured, expected)
+    }
+    /// %1$@ = raw key code, %2$@ = expected key.
+    static func testUnknown(code: String, expected: String) -> String {
+        String(format: t("test.unknown", "Result: emitted an unrecognized key. %1$@ code, %2$@ expected."), code, expected)
+    }
+    static var testNoKey: String { t("test.noKey", "Result: nothing captured (timeout/cancel).") }
+    /// %@ = key to adopt.
+    static func testUseKey(key: String) -> String {
+        String(format: t("test.useKey", "Button: adopt the emitted key into config. %@ = key."), key)
+    }
+    /// %@ = expected key to program.
+    static func testReprogram(key: String) -> String {
+        String(format: t("test.reprogram", "Button: reprogram device to the configured key. %@ = key."), key)
+    }
+    static var alertCancel: String { t("alert.cancel", "Generic Cancel button.") }
+
     // About
     static var aboutWindowTitle: String { t("about.windowTitle", "About window title.") }
     static var aboutDescription: String { t("about.description", "About window description.") }

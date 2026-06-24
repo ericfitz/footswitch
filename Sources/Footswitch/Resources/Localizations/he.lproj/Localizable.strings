@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "דוושה %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "בדיקה";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "בדיקת דוושה";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "לחץ על דוושה %@ עכשיו…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "הדוושה שולחת %@ — תואמת את ההגדרות שלך.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "הדוושה שולחת %1$@, אך ההגדרות שלך מצפות ל-%2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "הדוושה שולחת מקש לא מוכר (%1$@). ההגדרות שלך מצפות ל-%2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "לא זוהה מקש — האם הדוושה מחוברת ולחוצה?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "השתמש ב-%@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "תכנות מחדש ל-%@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "ביטול";

@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "Pedał %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "Testuj";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "Testuj pedał";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "Naciśnij pedał %@ teraz…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "Pedał wysyła %@ — pasuje do Twojej konfiguracji.";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "Pedał wysyła %1$@, ale Twoja konfiguracja oczekuje %2$@.";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "Pedał wysyła nierozpoznany klawisz (%1$@). Twoja konfiguracja oczekuje %2$@.";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "Nie wykryto klawisza — czy pedał jest podłączony i naciśnięty?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "Użyj %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "Przeprogramuj na %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "Anuluj";

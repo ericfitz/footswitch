@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "แป้นเหยียบ %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "ทดสอบ";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "ทดสอบแป้นเหยียบ";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "กดแป้นเหยียบ %@ ตอนนี้…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "แป้นเหยียบส่ง %@ — ตรงกับการตั้งค่าของคุณ";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "แป้นเหยียบส่ง %1$@ แต่การตั้งค่าของคุณคาดหวัง %2$@";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "แป้นเหยียบส่งคีย์ที่ไม่รู้จัก (%1$@) การตั้งค่าของคุณคาดหวัง %2$@";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "ไม่พบคีย์ — แป้นเหยียบเชื่อมต่อและถูกกดแล้วหรือไม่?";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "ใช้ %@";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "โปรแกรมใหม่เป็น %@";
+
+/* Generic Cancel button. */
+"alert.cancel" = "ยกเลิก";

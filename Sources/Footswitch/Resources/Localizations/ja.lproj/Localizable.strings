@@ -171,3 +171,33 @@
 
 /* Rules column header for one pedal's shortcut. %@ is the pedal number. */
 "settings.col.pedalShortcut" = "ペダル %@";
+
+/* Button: test what key the pedal emits. */
+"settings.testButton" = "テスト";
+
+/* Test-pedal alert title. */
+"alert.test.title" = "ペダルをテスト";
+
+/* Armed prompt while waiting for a pedal press. %@ = pedal number. */
+"test.prompt" = "ペダル %@ を今すぐ押してください…";
+
+/* Result: emitted key matches config. %@ = key. */
+"test.match" = "ペダルが %@ を送信しています — 設定と一致しています。";
+
+/* Result: emitted key differs. %1$@ emitted, %2$@ expected. */
+"test.mismatch" = "ペダルが %1$@ を送信していますが、設定では %2$@ が期待されています。";
+
+/* Result: emitted an unrecognized key. %1$@ code, %2$@ expected. */
+"test.unknown" = "ペダルが不明なキー（%1$@）を送信しています。設定では %2$@ が期待されています。";
+
+/* Result: nothing captured (timeout/cancel). */
+"test.noKey" = "キーが検出されませんでした — ペダルは接続されていますか？";
+
+/* Button: adopt the emitted key into config. %@ = key. */
+"test.useKey" = "%@ を使用";
+
+/* Button: reprogram device to the configured key. %@ = key. */
+"test.reprogram" = "%@ に再プログラム";
+
+/* Generic Cancel button. */
+"alert.cancel" = "キャンセル";
