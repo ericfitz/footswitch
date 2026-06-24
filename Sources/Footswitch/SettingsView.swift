@@ -58,6 +58,14 @@ final class SettingsViewController: NSViewController {
     /// rebuilds / reloadData don't re-probe. Starts at 1 (safe single-slot layout).
     private var detectedSlotCount = 1
 
+    /// Slots that were just programmed over Bluetooth and are awaiting a physical
+    /// power-cycle. A BLE program writes the stored config slot but the live keymap
+    /// only reloads on a power-cycle (#7), so the stored config can read back as
+    /// "verified" while the pedal still emits the old key. Only these slots show the
+    /// "power-cycle to apply" warning; it is cleared on re-detect (a power-cycle's
+    /// disconnect/reconnect), adopt, or a confirming Test (#12).
+    private var blePowerCyclePendingSlots: Set<Int> = []
+
     /// Dynamically-created config rows for slots 2..N (slot 1 reuses `configRow`).
     private var extraSlotRows: [NSStackView] = []
 
@@ -112,7 +120,12 @@ final class SettingsViewController: NSViewController {
         // unplugs the pedal or switches the FS17Pro between USB and Bluetooth).
         deviceChangeObserver = NotificationCenter.default.addObserver(
             forName: .footswitchDeviceChanged, object: nil, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.detectSlotsAndRebuild() }
+            MainActor.assumeIsolated {
+                // A device change includes a BLE power-cycle's disconnect/reconnect, by
+                // which point the live keymap has reloaded — clear pending warnings (#12).
+                self?.blePowerCyclePendingSlots.removeAll()
+                self?.detectSlotsAndRebuild()
+            }
         }
     }
 
@@ -358,7 +371,10 @@ final class SettingsViewController: NSViewController {
                 guard let self else { return }
                 switch result {
                 case .verified:
-                    if transport == .bluetooth {
+                    // Show the BLE "power-cycle to apply" warning only for a slot we
+                    // just programmed over Bluetooth (live keymap not yet reloaded);
+                    // an otherwise-verified BLE config reads as ✓ verified (#12).
+                    if transport == .bluetooth && self.blePowerCyclePendingSlots.contains(slot) {
                         label.attributedStringValue =
                             self.statusLine("⚠", L10n.deviceConfigStoredBluetooth, .systemYellow)
                     } else {
@@ -475,8 +491,10 @@ final class SettingsViewController: NSViewController {
         button?.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             let message: String
+            var programmedBLE = false
             do {
                 try FootswitchHIDController.program(combo: combo, slot: slot)
+                programmedBLE = (transport == .bluetooth)
                 message = transport == .bluetooth
                     ? L10n.alertProgrammedBluetooth(key: key)
                     : L10n.alertProgrammed(key: key)
@@ -486,6 +504,9 @@ final class SettingsViewController: NSViewController {
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 button?.isEnabled = true
+                // A successful BLE program needs a power-cycle before the pedal emits
+                // the new key — mark the slot pending so the row warns until cleared (#12).
+                if programmedBLE { self.blePowerCyclePendingSlots.insert(slot) }
                 self.presentInfo(message)
                 self.refreshDeviceStatus()
             }
@@ -536,6 +557,9 @@ final class SettingsViewController: NSViewController {
 
     private func presentTestOutcome(_ outcome: TriggerReconciliation, slot: Int,
                                     device: SupportedDevice) {
+        // A Test that confirms the pedal emits the expected key means no power-cycle is
+        // pending for that slot — clear it before rendering so the row shows ✓ (#12).
+        if case .match = outcome { blePowerCyclePendingSlots.remove(slot) }
         refreshDeviceStatus()   // restore the normal row UI under the outcome sheet
         let alert = NSAlert()
         alert.messageText = L10n.alertTestTitle
@@ -577,6 +601,8 @@ final class SettingsViewController: NSViewController {
     /// no reprogramming, no power-cycle.
     private func adopt(key: String, slot: Int, device: SupportedDevice) {
         devices = Config.adoptingTriggerKey(in: devices, key: key, slot: slot, for: device)
+        // Config now matches what the pedal emits — there is no pending power-cycle (#12).
+        blePowerCyclePendingSlots.remove(slot)
         save()
         refreshDeviceStatus()
     }
