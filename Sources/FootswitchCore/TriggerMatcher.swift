@@ -1,5 +1,4 @@
 // Sources/FootswitchCore/TriggerMatcher.swift
-import Foundation
 
 /// Pure, IO-free trigger-match table for the pedal listener: maps a (virtual key
 /// code + masked modifier bits) to a slot, with EXACT modifier matching. Built from

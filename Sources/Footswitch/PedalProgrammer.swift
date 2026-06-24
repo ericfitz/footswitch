@@ -29,7 +29,7 @@ extension PedalProgrammer {
     func verify(expected: KeyCombo, slot: Int) -> PedalVerification {
         guard let stored = readStoredConfig(slot: slot) else { return .unreadable }
         switch stored {
-        case .key(let combo): return combo == expected ? .verified : .mismatch
+        case .key(let combo): return combo.matchesTrigger(expected) ? .verified : .mismatch
         case .unconfigured, .other: return .mismatch
         }
     }

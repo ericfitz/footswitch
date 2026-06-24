@@ -38,6 +38,17 @@ public struct KeyCombo: Codable, Equatable, Sendable {
     }
 }
 
+public extension KeyCombo {
+    /// True when this combo and `other` denote the same trigger: same key name
+    /// (case-insensitive) and the same modifier SET (order-independent). Used by
+    /// trigger reconciliation and device-config verification so a non-canonical
+    /// modifier order never causes a false mismatch.
+    func matchesTrigger(_ other: KeyCombo) -> Bool {
+        key.compare(other.key, options: .caseInsensitive) == .orderedSame
+            && Set(modifiers) == Set(other.modifiers)
+    }
+}
+
 /// References a Shortcuts.app shortcut by its stable identifier (UUID), plus a
 /// display name captured at selection time. `identifier` is what `shortcuts run`
 /// is given; `name` is what the table and the "Last:" menu line show. If

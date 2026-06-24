@@ -37,8 +37,7 @@ public enum TriggerReconciler {
         case .unknown(let code):
             return .unknown(code: code, expected: expected)
         case .named(let combo):
-            let sameKey = combo.key.compare(expected.key, options: .caseInsensitive) == .orderedSame
-            if sameKey && Set(combo.modifiers) == Set(expected.modifiers) {
+            if combo.matchesTrigger(expected) {
                 return .match(combo: combo)
             }
             return .mismatch(captured: combo, expected: expected)

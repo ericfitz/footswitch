@@ -31,6 +31,7 @@ final class ConfigAdoptTests: XCTestCase {
                                               slot: 1, for: fs17proBLE)
         XCTAssertEqual(out.count, 1)
         XCTAssertEqual(out[0].resolved()?.vendorID, 0x245A)
+        XCTAssertEqual(out[0].program, "footswitchBLE")
         XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1, modifiers: [.control])])
     }
 
