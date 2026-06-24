@@ -170,6 +170,13 @@ public enum FootswitchProgram {
     }
 }
 
+public extension SupportedDevice.Program {
+    /// The transport this protocol family implies. Only `.footswitchBLE` is
+    /// Bluetooth; the rest are USB HID. Used wherever transport must be derived
+    /// from a matched device (programming path, config-verify, BLE messaging).
+    var transport: Transport { self == .footswitchBLE ? .bluetooth : .usb }
+}
+
 /// Logical pedal/button slots. 1-based to match `TriggerKey.slot` ("1 = first
 /// button"). Convert to the wire's 0-based `pedalIndex` with `slot - 1`.
 public enum Slot {
