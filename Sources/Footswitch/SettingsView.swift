@@ -363,7 +363,7 @@ final class SettingsViewController: NSViewController {
     private func verifyAndRenderRow(slot: Int, device: SupportedDevice,
                                     label: NSTextField, button: NSButton) {
         let transport = device.program.transport
-        let expected = KeyCombo(modifiers: [], key: keyForSlot(slot, device: device))
+        let expected = keyForSlot(slot, device: device)
         label.attributedStringValue = statusLine("…", "", .secondaryLabelColor)
         DispatchQueue.global(qos: .userInitiated).async {
             let result = FootswitchHIDController.verifyConfiguration(expected: expected, slot: slot)
@@ -398,12 +398,11 @@ final class SettingsViewController: NSViewController {
         }
     }
 
-    /// The configured trigger key for a slot on the connected `device` (its entry's
-    /// keys, else the code default), read from the live `devices` so an adopted key
-    /// is reflected immediately.
-    private func keyForSlot(_ slot: Int, device: SupportedDevice) -> String {
-        Config.triggerKey(in: devices, forVendorID: device.vendorID,
-                          productID: device.productID, slot: slot)
+    /// The configured trigger combo for a slot on the connected `device` (its entry's
+    /// trigger, else the code default), from the live `devices` so an adopt shows now.
+    private func keyForSlot(_ slot: Int, device: SupportedDevice) -> KeyCombo {
+        Config.triggerCombo(in: devices, forVendorID: device.vendorID,
+                            productID: device.productID, slot: slot)
     }
 
     private func renderExtraSlotRows(device: SupportedDevice) {
@@ -486,8 +485,7 @@ final class SettingsViewController: NSViewController {
         // when a programmable device was detected (i.e. on .mismatch).
         guard let detected = FootswitchHIDController.detect() else { return }
         let transport = detected.device.program.transport
-        let key = keyForSlot(slot, device: detected.device)
-        let combo = KeyCombo(modifiers: [], key: key)
+        let combo = keyForSlot(slot, device: detected.device)
         button?.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
             let message: String
@@ -496,8 +494,8 @@ final class SettingsViewController: NSViewController {
                 try FootswitchHIDController.program(combo: combo, slot: slot)
                 programmedBLE = (transport == .bluetooth)
                 message = transport == .bluetooth
-                    ? L10n.alertProgrammedBluetooth(key: key)
-                    : L10n.alertProgrammed(key: key)
+                    ? L10n.alertProgrammedBluetooth(key: KeyComboFormatter.display(combo))
+                    : L10n.alertProgrammed(key: KeyComboFormatter.display(combo))
             } catch {
                 message = L10n.alertProgramFailed(error: "\(error)")
             }
@@ -551,6 +549,7 @@ final class SettingsViewController: NSViewController {
                 let expected = self.keyForSlot(slot, device: device)
                 let outcome = TriggerReconciler.reconcile(captured: captured, expected: expected)
                 self.presentTestOutcome(outcome, slot: slot, device: device)
+
             }
         }
     }
@@ -564,27 +563,30 @@ final class SettingsViewController: NSViewController {
         let alert = NSAlert()
         alert.messageText = L10n.alertTestTitle
         switch outcome {
-        case .match(let key):
-            alert.informativeText = L10n.testMatch(key: key)
+        case .match(let combo):
+            alert.informativeText = L10n.testMatch(key: KeyComboFormatter.display(combo))
             alert.addButton(withTitle: L10n.alertOK)
             runOutcome(alert) { _ in }
         case .mismatch(let captured, let expected):
-            alert.informativeText = L10n.testMismatch(captured: captured, expected: expected)
-            alert.addButton(withTitle: L10n.testUseKey(key: captured))     // first
-            alert.addButton(withTitle: L10n.testReprogram(key: expected))  // second
-            alert.addButton(withTitle: L10n.alertCancel)                   // third
+            alert.informativeText = L10n.testMismatch(
+                captured: KeyComboFormatter.display(captured),
+                expected: KeyComboFormatter.display(expected))
+            alert.addButton(withTitle: L10n.testUseKey(key: KeyComboFormatter.display(captured)))     // first
+            alert.addButton(withTitle: L10n.testReprogram(key: KeyComboFormatter.display(expected)))  // second
+            alert.addButton(withTitle: L10n.alertCancel)                                              // third
             runOutcome(alert) { [weak self] resp in
                 if resp == .alertFirstButtonReturn {
-                    self?.adopt(key: captured, slot: slot, device: device)
+                    self?.adopt(combo: captured, slot: slot, device: device)
                 } else if resp == .alertSecondButtonReturn {
                     self?.reprogram(slot: slot)
                 }
             }
         case .unknown(let code, let expected):
             alert.informativeText = L10n.testUnknown(
-                code: String(format: "0x%02X", code), expected: expected)
-            alert.addButton(withTitle: L10n.testReprogram(key: expected))  // first
-            alert.addButton(withTitle: L10n.alertCancel)                   // second
+                code: String(format: "0x%02X", code),
+                expected: KeyComboFormatter.display(expected))
+            alert.addButton(withTitle: L10n.testReprogram(key: KeyComboFormatter.display(expected)))  // first
+            alert.addButton(withTitle: L10n.alertCancel)                                              // second
             runOutcome(alert) { [weak self] resp in
                 if resp == .alertFirstButtonReturn { self?.reprogram(slot: slot) }
             }
@@ -595,12 +597,8 @@ final class SettingsViewController: NSViewController {
         }
     }
 
-    /// Adopts the emitted key onto the connected device's entry (find-or-create),
-    /// persists, and re-verifies. Save routes to AppDelegate.reload, which rebuilds
-    /// the listener from `Config.listenerKeys` so the new key is caught immediately —
-    /// no reprogramming, no power-cycle.
-    private func adopt(key: String, slot: Int, device: SupportedDevice) {
-        devices = Config.adoptingTriggerKey(in: devices, key: key, slot: slot, for: device)
+    private func adopt(combo: KeyCombo, slot: Int, device: SupportedDevice) {
+        devices = Config.adoptingTriggerCombo(in: devices, combo: combo, slot: slot, for: device)
         // Config now matches what the pedal emits — there is no pending power-cycle (#12).
         blePowerCyclePendingSlots.remove(slot)
         save()

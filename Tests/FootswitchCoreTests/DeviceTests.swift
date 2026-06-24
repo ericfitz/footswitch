@@ -37,12 +37,12 @@ final class DeviceTests: XCTestCase {
         XCTAssertNil(obj?["triggers"])
     }
 
-    func testAdoptReplacesAndAppends() {
+    func testAdoptComboReplacesAndAppends() {
         let base = Device(vendorId: "0x1", productId: "0x2", program: "footswitch",
                           name: "X", triggers: [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(base.adopting(key: "F19", slot: 1).triggers,
-                       [TriggerKey(key: "F19", slot: 1)])
-        XCTAssertEqual(base.adopting(key: "F14", slot: 2).triggers,
+        XCTAssertEqual(base.adopting(combo: KeyCombo(modifiers: [.control], key: "F19"), slot: 1).triggers,
+                       [TriggerKey(key: "F19", slot: 1, modifiers: [.control])])
+        XCTAssertEqual(base.adopting(combo: KeyCombo(modifiers: [], key: "F14"), slot: 2).triggers,
                        [TriggerKey(key: "F13", slot: 1), TriggerKey(key: "F14", slot: 2)])
     }
 }

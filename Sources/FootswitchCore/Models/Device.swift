@@ -70,21 +70,6 @@ public struct Device: Codable, Equatable, Sendable {
         return SupportedDevice(vendorID: vid, productID: pid, program: prog, name: trimmedName)
     }
 
-    /// Returns a copy with `key` set as the trigger for `slot`: replaces the slot's
-    /// existing key (slot preserved) or appends `TriggerKey(key:slot:)`. The #6 Test
-    /// button's adopt path uses this under the per-device model.
-    public func adopting(key: String, slot: Int) -> Device {
-        var copy = triggers
-        if let i = copy.firstIndex(where: { $0.slot == slot }) {
-            copy[i].key = key
-        } else {
-            copy.append(TriggerKey(key: key, slot: slot))
-        }
-        var out = self
-        out.triggers = copy
-        return out
-    }
-
     /// Returns a copy with `combo` (key + modifiers) set as the trigger for `slot`:
     /// replaces the slot's existing trigger or appends a new one. Used by the #6
     /// Test-button adopt path once it captures full combos (#10).

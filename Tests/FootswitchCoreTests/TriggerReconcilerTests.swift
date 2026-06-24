@@ -3,36 +3,41 @@ import XCTest
 @testable import FootswitchCore
 
 final class TriggerReconcilerTests: XCTestCase {
-    func testFromKnownKeyCode() {
-        XCTAssertEqual(CapturedKey.from(keyCode: 0x69), .named("F13"))
+    private func combo(_ key: String, _ mods: [Modifier] = []) -> KeyCombo {
+        KeyCombo(modifiers: mods, key: key)
+    }
+
+    func testFromKnownKeyCodeWithModifiers() {
+        // F13 = 0x69; control flag = 0x40000.
+        XCTAssertEqual(CapturedKey.from(keyCode: 0x69, modifierBits: 0x40000),
+                       .named(combo("F13", [.control])))
     }
 
     func testFromUnknownKeyCode() {
-        // 0x6E has no entry in Keymap.table.
-        XCTAssertEqual(CapturedKey.from(keyCode: 0x6E), .unknown(0x6E))
+        XCTAssertEqual(CapturedKey.from(keyCode: 0x6E, modifierBits: 0), .unknown(0x6E))
     }
 
-    func testReconcileMatchIsCaseInsensitive() {
+    func testReconcileMatchExactCaseInsensitiveModifierSet() {
         XCTAssertEqual(
-            TriggerReconciler.reconcile(captured: .named("f13"), expected: "F13"),
-            .match(key: "f13"))
+            TriggerReconciler.reconcile(captured: .named(combo("f13", [.shift, .control])),
+                                        expected: combo("F13", [.control, .shift])),
+            .match(combo: combo("f13", [.shift, .control])))
     }
 
-    func testReconcileMismatch() {
+    func testReconcileMismatchOnModifiers() {
         XCTAssertEqual(
-            TriggerReconciler.reconcile(captured: .named("F19"), expected: "F16"),
-            .mismatch(captured: "F19", expected: "F16"))
+            TriggerReconciler.reconcile(captured: .named(combo("F13")),
+                                        expected: combo("F13", [.control])),
+            .mismatch(captured: combo("F13"), expected: combo("F13", [.control])))
     }
 
     func testReconcileUnknown() {
         XCTAssertEqual(
-            TriggerReconciler.reconcile(captured: .unknown(0x6E), expected: "F16"),
-            .unknown(code: 0x6E, expected: "F16"))
+            TriggerReconciler.reconcile(captured: .unknown(0x6E), expected: combo("F16")),
+            .unknown(code: 0x6E, expected: combo("F16")))
     }
 
     func testReconcileNoKey() {
-        XCTAssertEqual(
-            TriggerReconciler.reconcile(captured: .none, expected: "F16"),
-            .noKey)
+        XCTAssertEqual(TriggerReconciler.reconcile(captured: .none, expected: combo("F16")), .noKey)
     }
 }

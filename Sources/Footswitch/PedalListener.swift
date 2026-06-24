@@ -8,38 +8,23 @@ import FootswitchCore
 final class PedalListener {
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    private let keyCodeToSlot: [UInt16: Int]
-    private var debouncers: [UInt16: Debouncer]
+    private let matcher: TriggerMatcher
+    private var debouncers: [TriggerMatcher.Key: Debouncer]
     private let onFire: @Sendable (_ slot: Int) -> Void
 
-    /// While non-nil, the next keydown of any key is captured (reported via this
-    /// handler on the main thread) and swallowed, instead of the normal slot
-    /// dispatch — used by the Settings "Test" flow to learn what the pedal really
-    /// emits. One-shot: cleared after a capture or via `endCapture()`.
-    private var captureHandler: (@Sendable (UInt16) -> Void)?
+    /// While non-nil, the next keydown is captured (keycode + masked modifier bits,
+    /// reported on the main thread) and swallowed instead of the normal slot
+    /// dispatch — the Settings "Test" flow. One-shot.
+    private var captureHandler: (@Sendable (UInt16, UInt64) -> Void)?
 
-    /// Arms one-shot capture of the next keydown. Replaces any prior arming.
-    func beginCapture(onCapture: @escaping @Sendable (UInt16) -> Void) { captureHandler = onCapture }
-
-    /// Disarms capture without firing (cancel/timeout from the caller).
+    func beginCapture(onCapture: @escaping @Sendable (UInt16, UInt64) -> Void) { captureHandler = onCapture }
     func endCapture() { captureHandler = nil }
 
-    /// `triggerKeys` are the keys to catch (already clamped to detected slots by the
-    /// caller). Each key's `slot` (1-based) tags its fires. Keys that don't resolve
-    /// to a keycode are skipped (that slot simply won't fire). On a fully-empty/
-    /// unresolved set, fall back to catching F13 as slot 1 (prior behavior).
     init(triggerKeys: [TriggerKey], debounceMs: Int, onFire: @escaping @Sendable (_ slot: Int) -> Void) {
-        var map: [UInt16: Int] = [:]
-        for tk in triggerKeys {
-            guard let code = Keymap.keyCode(for: tk.key) else { continue }
-            // First writer wins per keycode (de-dup): a duplicate key can't map to
-            // two slots, so the first one in the list (USB before Bluetooth) keeps it.
-            if map[code] == nil { map[code] = tk.slot }
-        }
-        if map.isEmpty { map[0x69] = 1 }   // F13 / slot 1 fallback
-        self.keyCodeToSlot = map
+        let matcher = TriggerMatcher(triggerKeys: triggerKeys)
+        self.matcher = matcher
         self.debouncers = Dictionary(uniqueKeysWithValues:
-            map.keys.map { ($0, Debouncer(intervalMs: debounceMs)) })
+            matcher.keys.map { ($0, Debouncer(intervalMs: debounceMs)) })
         self.onFire = onFire
     }
 
@@ -82,20 +67,21 @@ final class PedalListener {
             return Unmanaged.passUnretained(event)
         }
         let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+        let modBits = event.flags.rawValue & Keymap.deviceModifierMask
         if let capture = captureHandler {
-            captureHandler = nil                  // one-shot
-            DispatchQueue.main.async { capture(keyCode) }
-            return nil                            // swallow; suspend normal dispatch
+            captureHandler = nil                          // one-shot
+            DispatchQueue.main.async { capture(keyCode, modBits) }
+            return nil                                    // swallow; suspend dispatch
         }
-        guard let slot = keyCodeToSlot[keyCode] else {
-            return Unmanaged.passUnretained(event)   // pass through everything else
+        guard let slot = matcher.slot(forKeyCode: keyCode, modBits: modBits) else {
+            return Unmanaged.passUnretained(event)        // pass through everything else
         }
-        // A trigger key: debounce that specific key, fire (with its slot), swallow.
+        let matchKey = TriggerMatcher.Key(keyCode: keyCode, modBits: modBits)
         let nowMs = Int(Date().timeIntervalSince1970 * 1000)
         var fired = false
-        if var d = debouncers[keyCode] {
+        if var d = debouncers[matchKey] {
             fired = d.shouldFire(atMs: nowMs)
-            debouncers[keyCode] = d           // write the mutated struct back
+            debouncers[matchKey] = d
         } else {
             fired = true
         }
@@ -103,6 +89,6 @@ final class PedalListener {
             let fire = onFire
             DispatchQueue.main.async { fire(slot) }
         }
-        return nil   // swallow the trigger key so it never reaches the focused app
+        return nil   // swallow the trigger so it never reaches the focused app
     }
 }

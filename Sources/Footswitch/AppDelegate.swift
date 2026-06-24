@@ -99,14 +99,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func beginCapture(timeoutMs: Int, completion: @escaping @Sendable (CapturedKey) -> Void) {
         captureTimeoutWork?.cancel()
         isCapturing = true
-        listener.beginCapture { [weak self] keyCode in
-            // PedalListener already delivers this handler on the main thread; the
-            // handler is @Sendable, so assert isolation to touch actor state.
+        listener.beginCapture { [weak self] keyCode, modBits in
             guard let self else { return }
             MainActor.assumeIsolated {
-                guard self.isCapturing else { return }   // timeout may have already fired
+                guard self.isCapturing else { return }
                 self.finishCapture()
-                completion(CapturedKey.from(keyCode: keyCode))
+                completion(CapturedKey.from(keyCode: keyCode, modifierBits: modBits))
             }
         }
         let work = DispatchWorkItem { [weak self] in

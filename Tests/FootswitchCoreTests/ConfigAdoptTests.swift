@@ -6,36 +6,41 @@ final class ConfigAdoptTests: XCTestCase {
     private let fs17proBLE = SupportedDevice(vendorID: 0x245A, productID: 0x8276,
                                              program: .footswitchBLE, name: "FS17Pro")
 
-    func testResolveEntryThenDefault() {
+    func testResolveComboEntryThenDefault() {
         let devices = [Device(vendorId: "0x245A", productId: "0x8276",
                               program: "footswitchBLE", name: "FS17Pro",
-                              triggers: [TriggerKey(key: "F16", slot: 1)])]
-        XCTAssertEqual(Config.triggerKey(in: devices, forVendorID: 0x245A, productID: 0x8276, slot: 1), "F16")
-        // Unknown device → code default for the slot.
-        XCTAssertEqual(Config.triggerKey(in: devices, forVendorID: 0x1111, productID: 0x2222, slot: 2), "F14")
+                              triggers: [TriggerKey(key: "F16", slot: 1, modifiers: [.control])])]
+        XCTAssertEqual(Config.triggerCombo(in: devices, forVendorID: 0x245A, productID: 0x8276, slot: 1),
+                       KeyCombo(modifiers: [.control], key: "F16"))
+        XCTAssertEqual(Config.triggerCombo(in: devices, forVendorID: 0x1, productID: 0x2, slot: 2),
+                       KeyCombo(modifiers: [], key: "F14"))
     }
 
-    func testAdoptUpdatesExistingEntry() {
+    func testAdoptComboUpdatesExistingEntry() {
         let devices = [Device(vendorId: "0x245A", productId: "0x8276",
                               program: "footswitchBLE", name: "FS17Pro",
                               triggers: [TriggerKey(key: "F16", slot: 1)])]
-        let out = Config.adoptingTriggerKey(in: devices, key: "F19", slot: 1, for: fs17proBLE)
+        let out = Config.adoptingTriggerCombo(in: devices, combo: KeyCombo(modifiers: [.option], key: "F19"),
+                                              slot: 1, for: fs17proBLE)
         XCTAssertEqual(out.count, 1)
-        XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1)])
+        XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1, modifiers: [.option])])
     }
 
-    func testAdoptSeedsEntryWhenConnectedDeviceHasNone() {
-        let out = Config.adoptingTriggerKey(in: [], key: "F19", slot: 1, for: fs17proBLE)
+    func testAdoptComboSeedsEntryWhenDeviceHasNone() {
+        let out = Config.adoptingTriggerCombo(in: [], combo: KeyCombo(modifiers: [.control], key: "F19"),
+                                              slot: 1, for: fs17proBLE)
         XCTAssertEqual(out.count, 1)
         XCTAssertEqual(out[0].resolved()?.vendorID, 0x245A)
-        XCTAssertEqual(out[0].program, "footswitchBLE")
-        XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1)])
+        XCTAssertEqual(out[0].triggers, [TriggerKey(key: "F19", slot: 1, modifiers: [.control])])
     }
 
-    func testAdoptRoundTripsThroughConfigCoding() throws {
+    func testAdoptComboRoundTripsThroughConfigCoding() throws {
         var config = Config.default
-        config.devices = Config.adoptingTriggerKey(in: config.devices, key: "F19", slot: 1, for: fs17proBLE)
+        config.devices = Config.adoptingTriggerCombo(in: config.devices,
+                                                     combo: KeyCombo(modifiers: [.shift], key: "F19"),
+                                                     slot: 1, for: fs17proBLE)
         let decoded = try JSONDecoder().decode(Config.self, from: JSONEncoder().encode(config))
-        XCTAssertEqual(decoded.triggerKey(forVendorID: 0x245A, productID: 0x8276, slot: 1), "F19")
+        XCTAssertEqual(decoded.triggerCombo(forVendorID: 0x245A, productID: 0x8276, slot: 1),
+                       KeyCombo(modifiers: [.shift], key: "F19"))
     }
 }

@@ -54,6 +54,12 @@ public struct Config: Codable, Equatable, Sendable {
             ?? Self.defaultTriggerKeys[0].key
     }
 
+    /// The configured trigger combo for a connected device's slot (else the code
+    /// default).
+    public func triggerCombo(forVendorID vid: Int, productID pid: Int, slot: Int) -> KeyCombo {
+        Self.triggerCombo(in: devices, forVendorID: vid, productID: pid, slot: slot)
+    }
+
     /// Every trigger key the listener should watch: the union across all device
     /// entries, deduped by combo (key + modifiers), or the code default if none.
     public var listenerKeys: [TriggerKey] {
@@ -168,43 +174,6 @@ public struct Config: Codable, Equatable, Sendable {
 }
 
 extension Config {
-    /// Resolves a connected device's slot key from a `devices` array: the matching
-    /// entry's non-empty triggers, else `defaultTriggerKeys`. Mirrors the instance
-    /// `triggerKey(forVendorID:productID:slot:)` but works on a bare array so the
-    /// Settings UI can resolve its live working copy.
-    public static func triggerKey(in devices: [Device], forVendorID vid: Int,
-                                  productID pid: Int, slot: Int) -> String {
-        let entry = devices.first {
-            $0.resolved().map { $0.vendorID == vid && $0.productID == pid } ?? false
-        }
-        let keys = entry.flatMap { $0.triggers.isEmpty ? nil : $0.triggers } ?? defaultTriggerKeys
-        return keys.first { $0.slot == slot }?.key
-            ?? keys.first?.key
-            ?? defaultTriggerKeys[0].key
-    }
-
-    /// Returns `devices` with `key` set for `slot` on the entry matching `supported`
-    /// (by VID/PID): updates the existing entry via `Device.adopting`, or appends a
-    /// new entry seeded from `supported` when none exists yet (e.g. a fresh config
-    /// whose connected device has no entry). Used by the #6 Test-button adopt path.
-    public static func adoptingTriggerKey(in devices: [Device], key: String, slot: Int,
-                                          for supported: SupportedDevice) -> [Device] {
-        var copy = devices
-        if let i = copy.firstIndex(where: {
-            $0.resolved().map { $0.vendorID == supported.vendorID
-                              && $0.productID == supported.productID } ?? false
-        }) {
-            copy[i] = copy[i].adopting(key: key, slot: slot)
-        } else {
-            copy.append(Device(
-                vendorId: String(format: "0x%04X", supported.vendorID),
-                productId: String(format: "0x%04X", supported.productID),
-                program: supported.program.rawValue, name: supported.name,
-                triggers: [TriggerKey(key: key, slot: slot)]))
-        }
-        return copy
-    }
-
     /// Resolves a connected device's slot trigger as a `KeyCombo` (key + modifiers):
     /// the matching entry's non-empty triggers, else `defaultTriggerKeys`.
     public static func triggerCombo(in devices: [Device], forVendorID vid: Int,
