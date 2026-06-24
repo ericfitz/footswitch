@@ -288,16 +288,6 @@ final class SettingsViewController: NSViewController {
 
     // MARK: Actions
 
-    /// The transport of the currently-detected device, or nil if none. `.footswitch`
-    /// family means USB; `.footswitchBLE` means Bluetooth.
-    private func currentTransport() -> Transport? {
-        switch FootswitchHIDController.detect()?.device.program {
-        case .footswitch: return .usb
-        case .footswitchBLE: return .bluetooth
-        default: return nil
-        }
-    }
-
     private func refreshDeviceStatus() {
         guard let detected = FootswitchHIDController.detect() else {
             deviceStatusLabel.attributedStringValue = statusLine("⊘", L10n.deviceNone, .secondaryLabelColor)
@@ -316,22 +306,22 @@ final class SettingsViewController: NSViewController {
         infoButton.isHidden = false
         configRow.isHidden = false
 
-        let transport: Transport = detected.device.program == .footswitchBLE ? .bluetooth : .usb
         if multi {
-            verifyAndRenderRow(slot: 1, transport: transport,
+            verifyAndRenderRow(slot: 1, device: detected.device,
                                label: configStatusLabel, button: programButton)
-            renderExtraSlotRows(transport: transport)
+            renderExtraSlotRows(device: detected.device)
         } else {
             clearExtraSlotRows()
-            verifyAndRenderRow(slot: 1, transport: transport,
+            verifyAndRenderRow(slot: 1, device: detected.device,
                                label: configStatusLabel, button: programButton)
         }
     }
 
     /// Verifies one slot off-main and renders status + program button for its row.
-    private func verifyAndRenderRow(slot: Int, transport: Transport,
+    private func verifyAndRenderRow(slot: Int, device: SupportedDevice,
                                     label: NSTextField, button: NSButton) {
-        let expected = KeyCombo(modifiers: [], key: keyForSlot(slot, transport: transport))
+        let transport = device.program.transport
+        let expected = KeyCombo(modifiers: [], key: keyForSlot(slot, device: device))
         label.attributedStringValue = statusLine("…", "", .secondaryLabelColor)
         DispatchQueue.global(qos: .userInitiated).async {
             let result = FootswitchHIDController.verifyConfiguration(expected: expected, slot: slot)
@@ -363,13 +353,13 @@ final class SettingsViewController: NSViewController {
         }
     }
 
-    /// The configured trigger key for a slot on a transport (fallback to primary).
-    private func keyForSlot(_ slot: Int, transport: Transport) -> String {
-        baseConfig.triggers.keys(for: transport).first { $0.slot == slot }?.key
-            ?? baseConfig.triggers.primary(for: transport).key
+    /// The configured trigger key for a slot on the connected `device` (its entry's
+    /// keys, else the code default), resolved from config by VID/PID.
+    private func keyForSlot(_ slot: Int, device: SupportedDevice) -> String {
+        baseConfig.triggerKey(forVendorID: device.vendorID, productID: device.productID, slot: slot)
     }
 
-    private func renderExtraSlotRows(transport: Transport) {
+    private func renderExtraSlotRows(device: SupportedDevice) {
         clearExtraSlotRows()
         guard detectedSlotCount > 1 else { return }
         for slot in 2...detectedSlotCount {
@@ -386,7 +376,7 @@ final class SettingsViewController: NSViewController {
             row.spacing = 8
             deviceSection.addArrangedSubview(row)
             extraSlotRows.append(row)
-            verifyAndRenderRow(slot: slot, transport: transport, label: status, button: button)
+            verifyAndRenderRow(slot: slot, device: device, label: status, button: button)
         }
     }
 
@@ -443,8 +433,9 @@ final class SettingsViewController: NSViewController {
         // write the correct transport's key (not a single global key).
         // Silent no-op if no device: intentional — the Program button is only shown
         // when a programmable device was detected (i.e. on .mismatch).
-        guard let transport = currentTransport() else { return }
-        let key = keyForSlot(slot, transport: transport)
+        guard let detected = FootswitchHIDController.detect() else { return }
+        let transport = detected.device.program.transport
+        let key = keyForSlot(slot, device: detected.device)
         let combo = KeyCombo(modifiers: [], key: key)
         button.isEnabled = false
         DispatchQueue.global(qos: .userInitiated).async {
