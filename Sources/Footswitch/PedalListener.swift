@@ -12,6 +12,18 @@ final class PedalListener {
     private var debouncers: [UInt16: Debouncer]
     private let onFire: @Sendable (_ slot: Int) -> Void
 
+    /// While non-nil, the next keydown of any key is captured (reported via this
+    /// handler on the main thread) and swallowed, instead of the normal slot
+    /// dispatch — used by the Settings "Test" flow to learn what the pedal really
+    /// emits. One-shot: cleared after a capture or via `endCapture()`.
+    private var captureHandler: (@Sendable (UInt16) -> Void)?
+
+    /// Arms one-shot capture of the next keydown. Replaces any prior arming.
+    func beginCapture(onCapture: @escaping @Sendable (UInt16) -> Void) { captureHandler = onCapture }
+
+    /// Disarms capture without firing (cancel/timeout from the caller).
+    func endCapture() { captureHandler = nil }
+
     /// `triggerKeys` are the keys to catch (already clamped to detected slots by the
     /// caller). Each key's `slot` (1-based) tags its fires. Keys that don't resolve
     /// to a keycode are skipped (that slot simply won't fire). On a fully-empty/
@@ -70,6 +82,11 @@ final class PedalListener {
             return Unmanaged.passUnretained(event)
         }
         let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+        if let capture = captureHandler {
+            captureHandler = nil                  // one-shot
+            DispatchQueue.main.async { capture(keyCode) }
+            return nil                            // swallow; suspend normal dispatch
+        }
         guard let slot = keyCodeToSlot[keyCode] else {
             return Unmanaged.passUnretained(event)   // pass through everything else
         }
