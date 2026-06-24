@@ -1,101 +1,167 @@
+// Sources/FootswitchCore/Models/Config.swift
 import Foundation
 
 public struct Config: Codable, Equatable, Sendable {
-    /// Trigger keys grouped by transport. The FS17Pro stores its key config
-    /// separately for USB vs Bluetooth; the listener watches the union of all
-    /// transports' keys, while programming targets only the connected transport.
-    public var triggers: Triggers
+    /// Recognized foot switches and their trigger keys (GitHub issue #9). Replaces
+    /// the global per-transport `triggers` and the #4 `customDevices` array. A
+    /// connected device's keys come from its matching entry; an entry-less or
+    /// unknown device falls back to `Config.defaultTriggerKeys`.
+    public var devices: [Device]
     public var dictationShortcut: KeyCombo
     public var debounceMs: Int
     public var defaultAction: DefaultAction
     public var rules: [Rule]
 
-    /// User-supplied device-table entries, merged with the built-in
-    /// `SupportedDevices.all` at detection time so a same-protocol foot switch can
-    /// be added by editing config rather than changing code (GitHub issue #4).
-    /// Optional in JSON; defaults to empty. Invalid entries are skipped at use.
-    public var customDevices: [CustomDevice]
+    /// The historical default trigger set, applied when a connected device has no
+    /// entry (or an empty `triggers`). Clamped to detected slots by the listener.
+    public static let defaultTriggerKeys: [TriggerKey] = [
+        TriggerKey(key: "F13", slot: 1),
+        TriggerKey(key: "F14", slot: 2),
+        TriggerKey(key: "F15", slot: 3),
+    ]
 
-    /// Every trigger key across all transports (de-duplicated by key) — for the
-    /// listener, which fires on any of them.
-    public var allTriggerKeys: [TriggerKey] { triggers.allKeys }
-
-    public init(triggers: Triggers, dictationShortcut: KeyCombo,
-                debounceMs: Int, defaultAction: DefaultAction, rules: [Rule],
-                customDevices: [CustomDevice] = []) {
-        self.triggers = triggers
+    public init(devices: [Device], dictationShortcut: KeyCombo, debounceMs: Int,
+                defaultAction: DefaultAction, rules: [Rule]) {
+        self.devices = devices
         self.dictationShortcut = dictationShortcut
         self.debounceMs = debounceMs
         self.defaultAction = defaultAction
         self.rules = rules
-        self.customDevices = customDevices
     }
+
+    // MARK: Resolution
+
+    /// The configured device entry matching a connected VID/PID, if any.
+    public func device(forVendorID vid: Int, productID pid: Int) -> Device? {
+        devices.first { $0.resolved().map { $0.vendorID == vid && $0.productID == pid } ?? false }
+    }
+
+    /// The trigger keys for a connected device: its entry's non-empty `triggers`,
+    /// else the code default.
+    public func triggerKeys(forVendorID vid: Int, productID pid: Int) -> [TriggerKey] {
+        if let d = device(forVendorID: vid, productID: pid), !d.triggers.isEmpty {
+            return d.triggers
+        }
+        return Self.defaultTriggerKeys
+    }
+
+    /// The configured key name for a connected device's slot (else the code-default
+    /// key for that slot, else the first default key).
+    public func triggerKey(forVendorID vid: Int, productID pid: Int, slot: Int) -> String {
+        let keys = triggerKeys(forVendorID: vid, productID: pid)
+        return keys.first { $0.slot == slot }?.key
+            ?? keys.first?.key
+            ?? Self.defaultTriggerKeys[0].key
+    }
+
+    /// Every trigger key the listener should watch: the union across all device
+    /// entries (deduped by key name), or the code default if none are configured.
+    public var listenerKeys: [TriggerKey] {
+        var seen = Set<String>()
+        var result: [TriggerKey] = []
+        for k in devices.flatMap(\.triggers) where seen.insert(k.key).inserted {
+            result.append(k)
+        }
+        return result.isEmpty ? Self.defaultTriggerKeys : result
+    }
+
+    // MARK: Codable
 
     private enum CodingKeys: String, CodingKey {
-        case triggerKey, triggerKeys, triggers, dictationShortcut, debounceMs, defaultAction, rules
-        case customDevices
+        case devices                                   // current
+        case triggerKey, triggerKeys, triggers, customDevices  // legacy (read-only)
+        case dictationShortcut, debounceMs, defaultAction, rules
     }
 
-    // Decoder accepts THREE shapes for backward compatibility, newest first:
-    //  - new:     "triggers": { "usb": [TriggerKey], "bluetooth": [TriggerKey] }
-    //  - interim: "triggerKeys": [TriggerKey]   -> same list applied to BOTH transports
-    //  - legacy:  "triggerKey": "F13" (string)  -> [{F13,slot1}] applied to BOTH transports
-    //  - none:    default F13/slot1 on both transports
-    // Applying legacy/interim keys to BOTH transports preserves prior listener
-    // behavior (it watched those keys) and gives programming a sane per-transport
-    // default. An all-empty `triggers` map (e.g. hand-edited to []/[]) is treated
-    // as absent and falls through, so the listener never ends up watching nothing.
-    //
-    // defaultAction also tolerates a legacy Action-shaped value, migrating to
-    // .dictation, as before.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        if let t = try? c.decode(Triggers.self, forKey: .triggers), !t.allKeys.isEmpty {
-            triggers = t
-        } else if let keys = try? c.decode([TriggerKey].self, forKey: .triggerKeys), !keys.isEmpty {
-            triggers = Triggers(usb: keys, bluetooth: keys)
-        } else if let legacy = try? c.decode(String.self, forKey: .triggerKey) {
-            let k = [TriggerKey(key: legacy, slot: 1)]
-            triggers = Triggers(usb: k, bluetooth: k)
-        } else {
-            let k = [TriggerKey(key: "F13", slot: 1)]
-            triggers = Triggers(usb: k, bluetooth: k)
-        }
         dictationShortcut = try c.decode(KeyCombo.self, forKey: .dictationShortcut)
         debounceMs = try c.decode(Int.self, forKey: .debounceMs)
         defaultAction = (try? c.decode(DefaultAction.self, forKey: .defaultAction)) ?? .dictation
         rules = try c.decode([Rule].self, forKey: .rules)
-        // Optional + tolerant: a missing or malformed customDevices array decodes
-        // to empty rather than failing the whole config load (each entry is
-        // re-validated at use via CustomDevice.resolved()).
-        customDevices = (try? c.decode([CustomDevice].self, forKey: .customDevices)) ?? []
+
+        if c.contains(.devices) {
+            // Current shape: a config written by this app version (the encoder always
+            // emits `devices`). Decode directly; a malformed array decodes to empty.
+            devices = (try? c.decode([Device].self, forKey: .devices)) ?? []
+        } else {
+            // Legacy shape (older app version): migrate the old global triggers (+
+            // customDevices) into a per-device table, seeding every built-in + custom
+            // device so no trigger config is lost.
+            devices = Self.migrateLegacy(container: c)
+        }
     }
 
-    // Encode the new `triggers` form only (legacy keys are read-only, for migration).
+    // The encoder ALWAYS writes `devices` (even when empty) so a config we saved is
+    // never re-migrated on reload — only configs lacking the key (older versions)
+    // migrate. Legacy keys are read-only and never written.
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
-        try c.encode(triggers, forKey: .triggers)
+        try c.encode(devices, forKey: .devices)
         try c.encode(dictationShortcut, forKey: .dictationShortcut)
         try c.encode(debounceMs, forKey: .debounceMs)
         try c.encode(defaultAction, forKey: .defaultAction)
         try c.encode(rules, forKey: .rules)
-        // Only emit customDevices when present, keeping default configs unchanged.
-        if !customDevices.isEmpty {
-            try c.encode(customDevices, forKey: .customDevices)
-        }
     }
 
     public static let `default` = Config(
-        triggers: Triggers(
-            usb: [
-                TriggerKey(key: "F13", slot: 1),
-                TriggerKey(key: "F14", slot: 2),
-                TriggerKey(key: "F15", slot: 3),
-            ],
-            bluetooth: [TriggerKey(key: "F13", slot: 1)]),
+        devices: [],
         dictationShortcut: KeyCombo(modifiers: [.control, .option, .command], key: "D"),
         debounceMs: 250,
         defaultAction: .dictation,
         rules: []
     )
+
+    // MARK: Legacy migration
+
+    /// Builds the per-device table from a legacy config's global triggers and
+    /// `customDevices`. Seeds an entry for every built-in `SupportedDevices.all`
+    /// device plus each custom entry (custom first so overrides win; deduped by
+    /// VID/PID), assigning trigger keys by the device's transport (USB families get
+    /// the old `triggers.usb`, `.footswitchBLE` gets `triggers.bluetooth`). Lossless.
+    private static func migrateLegacy(container c: KeyedDecodingContainer<CodingKeys>) -> [Device] {
+        let legacy = legacyTriggers(container: c)
+        let customs = (try? c.decode([CustomDevice].self, forKey: .customDevices)) ?? []
+
+        func hex(_ v: Int) -> String { String(format: "0x%04X", v) }
+        func keys(for prog: SupportedDevice.Program) -> [TriggerKey] {
+            prog.transport == .bluetooth ? legacy.bt : legacy.usb
+        }
+
+        var result: [Device] = []
+        var seen = Set<String>()
+        for cd in customs {
+            guard let dev = cd.resolved() else { continue }
+            let id = "\(dev.vendorID):\(dev.productID)"
+            guard seen.insert(id).inserted else { continue }
+            result.append(Device(vendorId: hex(dev.vendorID), productId: hex(dev.productID),
+                                 program: dev.program.rawValue, name: dev.name,
+                                 triggers: keys(for: dev.program)))
+        }
+        for dev in SupportedDevices.all {
+            let id = "\(dev.vendorID):\(dev.productID)"
+            guard seen.insert(id).inserted else { continue }
+            result.append(Device(vendorId: hex(dev.vendorID), productId: hex(dev.productID),
+                                 program: dev.program.rawValue, name: dev.name,
+                                 triggers: keys(for: dev.program)))
+        }
+        return result
+    }
+
+    /// Decodes legacy global triggers in the three historical shapes, newest first,
+    /// as per-transport lists. Empty/absent ⇒ the code default (USB) / F13 (BLE).
+    private static func legacyTriggers(container c: KeyedDecodingContainer<CodingKeys>)
+        -> (usb: [TriggerKey], bt: [TriggerKey]) {
+        if let t = try? c.decode(Triggers.self, forKey: .triggers), !t.allKeys.isEmpty {
+            return (t.usb, t.bluetooth)
+        }
+        if let keys = try? c.decode([TriggerKey].self, forKey: .triggerKeys), !keys.isEmpty {
+            return (keys, keys)
+        }
+        if let legacy = try? c.decode(String.self, forKey: .triggerKey) {
+            let k = [TriggerKey(key: legacy, slot: 1)]
+            return (k, k)
+        }
+        return (defaultTriggerKeys, [TriggerKey(key: "F13", slot: 1)])
+    }
 }

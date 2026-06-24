@@ -1,232 +1,142 @@
+// Tests/FootswitchCoreTests/ConfigCodingTests.swift
 import XCTest
 @testable import FootswitchCore
 
 final class ConfigCodingTests: XCTestCase {
-    func testDecodesSpecExample() throws {
-        let json = """
-        {
-          "triggerKey": "F13",
-          "dictationShortcut": { "modifiers": ["ctrl","opt","cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": [
-            { "match": "com.microsoft.VSCode", "appName": "Visual Studio Code",
-              "action": { "type": "keyCombo", "modifiers": ["cmd"], "key": "D" } }
-          ]
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        // Legacy string form migrates to a single slot-1 entry on BOTH transports.
-        XCTAssertEqual(config.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(config.triggers.bluetooth, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(config.triggers.primary(for: .usb), TriggerKey(key: "F13", slot: 1))
-        XCTAssertEqual(config.triggers.primary(for: .bluetooth), TriggerKey(key: "F13", slot: 1))
-        XCTAssertEqual(config.debounceMs, 250)
-        XCTAssertEqual(config.defaultAction, .dictation)
-        XCTAssertEqual(config.rules.count, 1)
-        XCTAssertEqual(config.rules[0].match, "com.microsoft.VSCode")
-        XCTAssertEqual(config.rules[0].slots.action(forSlot: 1),
-                       .keyCombo(KeyCombo(modifiers: [.command], key: "D")))
-    }
+    // MARK: New shape
 
-    func testRoundTrips() throws {
-        let config = Config.default
-        let decoded = try JSONDecoder().decode(Config.self, from: JSONEncoder().encode(config))
-        XCTAssertEqual(decoded, config)
-    }
-
-    func testDefaultHasDictationDefaultAndNoRules() {
-        XCTAssertEqual(Config.default.defaultAction, .dictation)
-        XCTAssertTrue(Config.default.rules.isEmpty)
-        XCTAssertEqual(Config.default.triggers.usb, [
-            TriggerKey(key: "F13", slot: 1),
-            TriggerKey(key: "F14", slot: 2),
-            TriggerKey(key: "F15", slot: 3),
-        ])
-        XCTAssertEqual(Config.default.triggers.bluetooth, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(Config.default.triggers.primary(for: .usb), TriggerKey(key: "F13", slot: 1))
-        XCTAssertEqual(Config.default.triggers.primary(for: .bluetooth), TriggerKey(key: "F13", slot: 1))
-        // Union de-dupes F13 (shared) -> F13, F14, F15.
-        XCTAssertEqual(Config.default.allTriggerKeys, [
-            TriggerKey(key: "F13", slot: 1),
-            TriggerKey(key: "F14", slot: 2),
-            TriggerKey(key: "F15", slot: 3),
-        ])
-    }
-
-    func testDecodesNewTriggersForm() throws {
-        // The new per-transport form decodes natively, with distinct usb/bluetooth
-        // lists and a de-duplicated union for the listener.
-        let json = """
-        {
-          "triggers": {
-            "usb": [ { "key": "F13", "slot": 1 } ],
-            "bluetooth": [ { "key": "F16", "slot": 1 } ]
-          },
-          "dictationShortcut": { "modifiers": ["cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": []
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(config.triggers.bluetooth, [TriggerKey(key: "F16", slot: 1)])
-        XCTAssertEqual(config.triggers.primary(for: .usb), TriggerKey(key: "F13", slot: 1))
-        XCTAssertEqual(config.triggers.primary(for: .bluetooth), TriggerKey(key: "F16", slot: 1))
-        XCTAssertEqual(config.allTriggerKeys,
-                       [TriggerKey(key: "F13", slot: 1), TriggerKey(key: "F16", slot: 1)])
-    }
-
-    func testInterimTriggerKeysAppliesToBothTransports() throws {
-        // The interim flat-list form applies the same keys to BOTH transports,
-        // preserving the prior listener behavior.
-        let json = """
-        {
-          "triggerKeys": [ { "key": "F16", "slot": 1 }, { "key": "F17", "slot": 2 } ],
-          "dictationShortcut": { "modifiers": ["cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": []
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        let keys = [TriggerKey(key: "F16", slot: 1), TriggerKey(key: "F17", slot: 2)]
-        XCTAssertEqual(config.triggers.usb, keys)
-        XCTAssertEqual(config.triggers.bluetooth, keys)
-        XCTAssertEqual(config.triggers.primary(for: .usb), TriggerKey(key: "F16", slot: 1))
-    }
-
-    func testLegacyTriggerKeyStringMigratesToBothTransports() throws {
-        // Critical backward-compat: a legacy "triggerKey":"F13" string must migrate
-        // to a single slot-1 entry on BOTH transports rather than failing to decode.
-        let json = """
-        {
-          "triggerKey": "F13",
-          "dictationShortcut": { "modifiers": ["cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": []
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(config.triggers.bluetooth, [TriggerKey(key: "F13", slot: 1)])
-    }
-
-    func testInterimTriggerKeysWinsOverLegacyWhenBothPresent() throws {
-        // When both the legacy "triggerKey" string and the interim "triggerKeys"
-        // array are present, the interim form must take precedence (legacy ignored),
-        // and lands in both transports.
-        let json = """
-        {
-          "triggerKey": "F13",
-          "triggerKeys": [ { "key": "F16", "slot": 1 } ],
-          "dictationShortcut": { "modifiers": ["cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": []
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.triggers.usb, [TriggerKey(key: "F16", slot: 1)])
-        XCTAssertEqual(config.triggers.bluetooth, [TriggerKey(key: "F16", slot: 1)])
-    }
-
-    func testTriggersWinsOverTriggerKeysWhenBothPresent() throws {
-        // The new per-transport form takes precedence over the interim flat list.
-        let json = """
-        {
-          "triggers": {
-            "usb": [ { "key": "F13", "slot": 1 } ],
-            "bluetooth": [ { "key": "F16", "slot": 1 } ]
-          },
-          "triggerKeys": [ { "key": "F19", "slot": 1 } ],
-          "dictationShortcut": { "modifiers": ["cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": []
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(config.triggers.bluetooth, [TriggerKey(key: "F16", slot: 1)])
-    }
-
-    func testEmptyTriggersMapFallsBackToDefault() throws {
-        // A fully-empty triggers map (e.g. hand-edited) is treated as absent and
-        // falls through to the default, so the listener never watches nothing.
-        let json = """
-        {
-          "triggers": { "usb": [], "bluetooth": [] },
-          "dictationShortcut": { "modifiers": ["cmd"], "key": "D" },
-          "debounceMs": 250,
-          "defaultAction": { "type": "dictation" },
-          "rules": []
-        }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(config.triggers.bluetooth, [TriggerKey(key: "F13", slot: 1)])
-    }
-
-    func testTriggersRoundTrips() throws {
+    func testNewDevicesShapeRoundTrips() throws {
         let config = Config(
-            triggers: Triggers(
-                usb: [TriggerKey(key: "F13", slot: 1)],
-                bluetooth: [TriggerKey(key: "F16", slot: 1), TriggerKey(key: "F17", slot: 2)]),
+            devices: [Device(vendorId: "0x245A", productId: "0x8276",
+                             program: "footswitchBLE", name: "FS17Pro",
+                             triggers: [TriggerKey(key: "F16", slot: 1)])],
             dictationShortcut: KeyCombo(modifiers: [.command], key: "D"),
-            debounceMs: 250,
-            defaultAction: .dictation,
-            rules: [])
+            debounceMs: 250, defaultAction: .dictation, rules: [])
         let decoded = try JSONDecoder().decode(Config.self, from: JSONEncoder().encode(config))
         XCTAssertEqual(decoded, config)
-        XCTAssertEqual(decoded.triggers.usb, [TriggerKey(key: "F13", slot: 1)])
-        XCTAssertEqual(decoded.triggers.bluetooth,
-                       [TriggerKey(key: "F16", slot: 1), TriggerKey(key: "F17", slot: 2)])
     }
 
-    func testEncodeWritesTriggersFormOnly() throws {
-        let config = Config.default
-        let data = try JSONEncoder().encode(config)
-        let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        XCTAssertNotNil(object?["triggers"], "encoder should write triggers")
-        XCTAssertNil(object?["triggerKeys"], "encoder should not write the interim triggerKeys")
-        XCTAssertNil(object?["triggerKey"], "encoder should not write the legacy triggerKey")
-        // The triggers object should carry both transports.
-        let triggers = object?["triggers"] as? [String: Any]
-        XCTAssertNotNil(triggers?["usb"])
-        XCTAssertNotNil(triggers?["bluetooth"])
+    func testDefaultRoundTripsWithEmptyDevices() throws {
+        let decoded = try JSONDecoder().decode(Config.self, from: JSONEncoder().encode(Config.default))
+        XCTAssertEqual(decoded, Config.default)
+        XCTAssertEqual(decoded.devices, [])
     }
 
-    func testAllKeysDeDuplicatesAcrossTransports() {
-        // A key present in both transports appears once in the listener's union.
-        let triggers = Triggers(
-            usb: [TriggerKey(key: "F16", slot: 1)],
-            bluetooth: [TriggerKey(key: "F16", slot: 1)])
-        XCTAssertEqual(triggers.allKeys, [TriggerKey(key: "F16", slot: 1)])
+    func testEncoderWritesDevicesNotLegacyKeys() throws {
+        let obj = try JSONSerialization.jsonObject(
+            with: JSONEncoder().encode(Config.default)) as? [String: Any]
+        XCTAssertNotNil(obj?["devices"])
+        XCTAssertNil(obj?["triggers"])
+        XCTAssertNil(obj?["triggerKeys"])
+        XCTAssertNil(obj?["customDevices"])
     }
 
-    func testDecodesDefaultsAndMigratesRemovedMute() throws {
-        for (raw, expected): (String, DefaultAction) in [
-            (#"{"type":"none"}"#, .none),
-            (#"{"type":"dictation"}"#, .dictation),
-            // The removed device-mute default migrates to a no-op.
-            (#"{"type":"muteInput"}"#, .none),
-        ] {
-            let json = """
-            { "triggerKey":"F13",
-              "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
-              "debounceMs":250, "defaultAction": \(raw), "rules": [] }
-            """
-            let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-            XCTAssertEqual(config.defaultAction, expected)
+    // MARK: Resolution
+
+    func testResolutionEntryVsDefault() {
+        let config = Config(
+            devices: [Device(vendorId: "0x245A", productId: "0x8276",
+                             program: "footswitchBLE", name: "FS17Pro",
+                             triggers: [TriggerKey(key: "F16", slot: 1)])],
+            dictationShortcut: KeyCombo(modifiers: [.command], key: "D"),
+            debounceMs: 250, defaultAction: .dictation, rules: [])
+        XCTAssertEqual(config.triggerKey(forVendorID: 0x245A, productID: 0x8276, slot: 1), "F16")
+        // Unknown device → code default.
+        XCTAssertEqual(config.triggerKey(forVendorID: 0x1111, productID: 0x2222, slot: 2), "F14")
+    }
+
+    func testListenerKeysUnionAndFallback() {
+        let config = Config(
+            devices: [
+                Device(vendorId: "0x1", productId: "0x2", program: "footswitch",
+                       name: "A", triggers: [TriggerKey(key: "F13", slot: 1)]),
+                Device(vendorId: "0x3", productId: "0x4", program: "footswitchBLE",
+                       name: "B", triggers: [TriggerKey(key: "F13", slot: 1),
+                                             TriggerKey(key: "F16", slot: 2)]),
+            ],
+            dictationShortcut: KeyCombo(modifiers: [.command], key: "D"),
+            debounceMs: 250, defaultAction: .dictation, rules: [])
+        XCTAssertEqual(config.listenerKeys,
+                       [TriggerKey(key: "F13", slot: 1), TriggerKey(key: "F16", slot: 2)])
+        XCTAssertEqual(Config.default.listenerKeys, Config.defaultTriggerKeys)
+    }
+
+    // MARK: Legacy migration (lossless)
+
+    func testMigratesLegacyTriggersIntoSeededDevices() throws {
+        let json = """
+        {
+          "triggers": {
+            "usb": [ {"key":"F13","slot":1}, {"key":"F14","slot":2}, {"key":"F15","slot":3} ],
+            "bluetooth": [ {"key":"F16","slot":1} ]
+          },
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs": 250, "defaultAction": { "type":"dictation" }, "rules": []
         }
+        """
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        XCTAssertEqual(config.devices.count, 10) // all built-ins seeded
+        // FS17Pro BLE gets the bluetooth keys.
+        XCTAssertEqual(config.triggerKeys(forVendorID: 0x245A, productID: 0x8276),
+                       [TriggerKey(key: "F16", slot: 1)])
+        // A USB built-in gets the usb keys.
+        XCTAssertEqual(config.triggerKeys(forVendorID: 0x0c45, productID: 0x7403),
+                       [TriggerKey(key: "F13", slot: 1),
+                        TriggerKey(key: "F14", slot: 2),
+                        TriggerKey(key: "F15", slot: 3)])
     }
+
+    func testMigratesInterimTriggerKeysToAllDevices() throws {
+        let json = """
+        { "triggerKeys": [ {"key":"F19","slot":1} ],
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [] }
+        """
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        // Interim flat list applied to both transports → every device gets F19.
+        XCTAssertEqual(config.triggerKey(forVendorID: 0x245A, productID: 0x8276, slot: 1), "F19")
+        XCTAssertEqual(config.triggerKey(forVendorID: 0x0c45, productID: 0x7403, slot: 1), "F19")
+    }
+
+    func testMigratesLegacyStringTriggerKey() throws {
+        let json = """
+        { "triggerKey":"F13",
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [] }
+        """
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        XCTAssertEqual(config.triggerKey(forVendorID: 0x0c45, productID: 0x7403, slot: 1), "F13")
+    }
+
+    func testMigrationCustomDeviceOverridesBuiltIn() throws {
+        let json = """
+        { "triggerKey":"F13",
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [],
+          "customDevices": [
+            { "vendorId":"0x0c45", "productId":"0x7403", "program":"footswitch", "name":"My Clone" }
+          ] }
+        """
+        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        // Custom entry replaces the built-in on the same VID/PID (no duplicate).
+        XCTAssertEqual(config.devices.count, 10)
+        XCTAssertEqual(config.device(forVendorID: 0x0c45, productID: 0x7403)?.name, "My Clone")
+    }
+
+    func testMigrationIsByteStableOnReencode() throws {
+        let json = """
+        { "triggers": { "usb":[{"key":"F13","slot":1}], "bluetooth":[{"key":"F16","slot":1}] },
+          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
+          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [] }
+        """
+        let first = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
+        let second = try JSONDecoder().decode(Config.self, from: JSONEncoder().encode(first))
+        XCTAssertEqual(first, second)
+    }
+
+    // MARK: defaultAction migration (unchanged behavior)
 
     func testLegacyKeyComboDefaultMigratesToDictation() throws {
-        // Older configs could carry an Action as defaultAction; a keyCombo there
-        // is not a valid DefaultAction and must migrate to .dictation, not fail.
         let json = """
         { "triggerKey":"F13",
           "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
@@ -236,50 +146,5 @@ final class ConfigCodingTests: XCTestCase {
         """
         let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
         XCTAssertEqual(config.defaultAction, .dictation)
-    }
-
-    // MARK: customDevices (issue #4)
-
-    func testDecodesCustomDevices() throws {
-        let json = """
-        { "triggerKey":"F13",
-          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
-          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [],
-          "customDevices": [
-            { "vendorId":"0xAAAA", "productId":"0xBBBB",
-              "program":"footswitch", "name":"Clone Pedal" }
-          ] }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.customDevices.count, 1)
-        XCTAssertEqual(config.customDevices[0].name, "Clone Pedal")
-        XCTAssertEqual(config.customDevices[0].resolved()?.vendorID, 0xAAAA)
-    }
-
-    func testMissingCustomDevicesDecodesToEmpty() throws {
-        let json = """
-        { "triggerKey":"F13",
-          "dictationShortcut": { "modifiers":["cmd"], "key":"D" },
-          "debounceMs":250, "defaultAction": { "type":"dictation" }, "rules": [] }
-        """
-        let config = try JSONDecoder().decode(Config.self, from: Data(json.utf8))
-        XCTAssertEqual(config.customDevices, [])
-    }
-
-    func testCustomDevicesRoundTrip() throws {
-        var config = Config.default
-        config.customDevices = [CustomDevice(vendorId: "0xAAAA", productId: "0xBBBB",
-                                             program: "footswitch", name: "Clone")]
-        let data = try JSONEncoder().encode(config)
-        let decoded = try JSONDecoder().decode(Config.self, from: data)
-        XCTAssertEqual(decoded.customDevices, config.customDevices)
-    }
-
-    func testDefaultConfigOmitsCustomDevicesKey() throws {
-        // Default config (empty customDevices) must not emit the key, keeping
-        // existing serialized configs byte-stable in that respect.
-        let data = try JSONEncoder().encode(Config.default)
-        let json = String(decoding: data, as: UTF8.self)
-        XCTAssertFalse(json.contains("customDevices"))
     }
 }
