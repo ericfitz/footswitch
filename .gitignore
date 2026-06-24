@@ -27,3 +27,6 @@ scripts/.venv/
 
 # Local git worktrees (subagent-driven development)
 .worktrees/
+
+# Misc local files (research, etc.)
+.local/
