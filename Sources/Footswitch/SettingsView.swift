@@ -332,6 +332,24 @@ final class SettingsViewController: NSViewController {
         }
     }
 
+    /// Re-fits each action column to the widest action cell currently in it, so the
+    /// kind popup + its kind-specific editor stay fully visible (no clipping, no
+    /// excess slack) after a row's action kind changes (issue #14). Never shrinks a
+    /// column below its `minWidth` — that floor is the issue-#11 guarantee that the
+    /// mapping column keeps the app-name column, not itself, as the one that narrows.
+    private func fitShortcutColumns() {
+        for col in tableView.tableColumns where col.identifier.rawValue.hasPrefix("shortcut") {
+            let colIndex = tableView.column(withIdentifier: col.identifier)
+            guard colIndex >= 0 else { continue }
+            var widest = col.minWidth
+            for row in 0..<tableView.numberOfRows {
+                guard let cell = tableView.view(atColumn: colIndex, row: row, makeIfNecessary: true) else { continue }
+                widest = max(widest, cell.fittingSize.width)
+            }
+            col.width = widest
+        }
+    }
+
     // MARK: Actions
 
     private func refreshDeviceStatus() {
@@ -743,6 +761,10 @@ final class SettingsViewController: NSViewController {
         save()
         tableView.reloadData(forRowIndexes: [row],
                              columnIndexes: IndexSet(0..<tableView.numberOfColumns))
+        // The swapped-in editor (key-capture vs. Shortcut popup) has a different
+        // content width; re-fit the action column(s) so it isn't clipped or padded
+        // with slack (issue #14).
+        fitShortcutColumns()
     }
 
     /// Sets a (row, slot)'s action to a chosen Shortcut.
