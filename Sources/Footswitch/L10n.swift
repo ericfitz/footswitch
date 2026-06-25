@@ -19,6 +19,7 @@ enum L10n {
     static var menuSettings: String { t("menu.settings", "Menu item: open the Settings window.") }
     static var menuQuit: String { t("menu.quit", "Menu item: quit the application entirely.") }
     static var menuNeedsPermission: String { t("menu.needsPermission", "Menu warning when Accessibility permission is missing.") }
+    static var menuDictationUnsupported: String { t("menu.dictationUnsupported", "Menu warning: the macOS Dictation shortcut is a double-press that can't be sent.") }
     static var menuNoPresses: String { t("menu.noPresses", "Menu line before any pedal press.") }
     /// %1$@ = app name, %2$@ = action description.
     static func menuLastFire(app: String, action: String) -> String {

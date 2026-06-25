@@ -54,13 +54,22 @@ combo. The defaults (F13 / F14 / F15, no modifiers) are what most people want.
 ## macOS dictation setup
 
 There is no public API to start dictation, so the app synthesizes a dictation
-keyboard shortcut. Set it up once:
+keyboard shortcut. It reads your **real** macOS Dictation shortcut automatically,
+so the only setup is turning Dictation on:
 
 1. System Settings → Keyboard → Dictation → turn Dictation on.
-2. Set the Dictation **Shortcut** to a single custom combo, e.g. **⌃⌥⌘D**
-   (Control-Option-Command-D). Avoid the "double-tap" presets — they can't be
-   synthesized reliably.
-3. Make sure the app's `dictationShortcut` matches (the default is ⌃⌥⌘D).
+2. Leave the Dictation **Shortcut** at whatever single key combo you like — the
+   app detects it and uses it as-is, no config to keep in sync.
+
+Two caveats:
+
+- The "double-tap" presets (e.g. *Press Control twice*) can't be synthesized as a
+  keystroke. If your shortcut is a double-tap, the app surfaces a ⚠️ warning in the
+  menu bar and falls back to its configured `dictationShortcut`; pick a regular
+  combo instead.
+- To override auto-detection, set an explicit `dictationShortcut` in
+  `~/.footswitch/config.json` to any value other than the default ⌃⌥⌘D — that
+  always wins.
 
 ## PCsensor FS17Pro (wireless)
 

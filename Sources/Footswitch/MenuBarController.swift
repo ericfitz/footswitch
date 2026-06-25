@@ -5,6 +5,7 @@ import FootswitchCore
 final class MenuBarController: NSObject, NSMenuDelegate {
     private let statusItem: NSStatusItem
     private var lastFireText = L10n.menuNoPresses
+    private var dictationUnsupported = false
     private let openSettings: () -> Void
     private let openAbout: () -> Void
 
@@ -14,6 +15,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
         statusItem.button?.title = "🦶"
+        rebuildMenu(trusted: PermissionsManager.isTrusted())
+    }
+
+    /// Shows/hides the warning that the system's Dictation shortcut is a
+    /// double-press we can't synthesize (#15). Driven by `AppDelegate` whenever the
+    /// effective dictation shortcut is (re)resolved.
+    func setDictationUnsupported(_ unsupported: Bool) {
+        dictationUnsupported = unsupported
         rebuildMenu(trusted: PermissionsManager.isTrusted())
     }
 
@@ -45,6 +54,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             let warn = NSMenuItem(title: L10n.menuNeedsPermission,
                                   action: #selector(grantPermission), keyEquivalent: "")
             warn.target = self
+            menu.addItem(warn)
+            menu.addItem(.separator())
+        }
+        if dictationUnsupported {
+            // Informational only (no action): the right System Settings pane for
+            // the Dictation shortcut moves between macOS versions, so don't risk
+            // deep-linking to the wrong one — just make the problem visible.
+            let warn = NSMenuItem(title: L10n.menuDictationUnsupported, action: nil, keyEquivalent: "")
             menu.addItem(warn)
             menu.addItem(.separator())
         }

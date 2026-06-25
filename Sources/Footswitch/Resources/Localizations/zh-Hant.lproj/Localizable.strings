@@ -10,6 +10,9 @@
 /* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
 "menu.needsPermission" = "⚠️ 需要輔助使用權限";
 
+/* Menu warning shown when the user's macOS Dictation shortcut is a double-press (e.g. press a modifier key twice) that Footswitch cannot send as a keystroke. Leading warning emoji. */
+"menu.dictationUnsupported" = "⚠️ 不支援聽寫快速鍵";
+
 /* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
 "menu.lastFire" = "上次：%1$@ → %2$@";
 

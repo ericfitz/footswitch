@@ -24,6 +24,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isCapturing = false
     private var pendingRebuildAfterCapture = false
     private var captureTimeoutWork: DispatchWorkItem?
+    /// True when dictation is reachable but the system's Dictation shortcut can't
+    /// be synthesized (a double-press). Set by `effectiveDictationShortcut()`,
+    /// surfaced as a menu-bar warning. (#15)
+    private var dictationUnsupported = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         config = (try? store.load()) ?? .default
@@ -32,12 +36,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
-            dictationShortcut: config.dictationShortcut,
+            dictationShortcut: effectiveDictationShortcut(),
             shortcutRunner: ShortcutRunner())
 
         menuBar = MenuBarController(
             openSettings: { [weak self] in self?.showSettings() },
             openAbout: { [weak self] in self?.showAbout() })
+        menuBar.setDictationUnsupported(dictationUnsupported)
 
         if !PermissionsManager.isTrusted() {
             PermissionsManager.requestTrust()
@@ -199,10 +204,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         FootswitchHIDController.registeredDevices = newConfig.devices
         dispatcher = ActionDispatcher(
             poster: LiveEventPoster(),
-            dictationShortcut: config.dictationShortcut,
+            dictationShortcut: effectiveDictationShortcut(),
             shortcutRunner: ShortcutRunner())
+        menuBar.setDictationUnsupported(dictationUnsupported)
         // Trigger keys / debounce changes take effect immediately by rebuilding
         // the listener (clamped to the detected slot count).
         buildListener()
+    }
+
+    /// The Dictation key combo the dispatcher should send for a `.dictation` action.
+    ///
+    /// An explicit (non-default) `dictationShortcut` in config wins — that's the
+    /// user's manual override. Otherwise we adopt the user's *real* macOS Dictation
+    /// hotkey so the default action "just works" without hand-syncing config to
+    /// System Settings (#15). A double-press / unsynthesizable system shortcut
+    /// can't be sent as a keystroke: fall back to the configured combo and, when
+    /// dictation is actually reachable, flag a menu-bar warning so the failure is
+    /// visible rather than silent.
+    private func effectiveDictationShortcut() -> KeyCombo {
+        dictationUnsupported = false
+
+        // A hand-set override in config.json takes precedence over auto-detection.
+        if config.dictationShortcut != Config.default.dictationShortcut {
+            return config.dictationShortcut
+        }
+
+        switch DictationHotkeyReader.systemResolution() {
+        case .combo(let combo):
+            return combo
+        case .unsynthesizable:
+            dictationUnsupported = dictationReachable
+            return config.dictationShortcut
+        case .absent:
+            return config.dictationShortcut
+        }
+    }
+
+    /// Whether any press can resolve to dictation (so an unsynthesizable system
+    /// shortcut is worth warning about): the default action, or any per-app rule.
+    private var dictationReachable: Bool {
+        if config.defaultAction == .dictation { return true }
+        return config.rules.contains { $0.slots.bySlot.values.contains(.dictation) }
     }
 }

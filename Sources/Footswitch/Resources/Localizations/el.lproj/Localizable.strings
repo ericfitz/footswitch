@@ -10,6 +10,9 @@
 /* Menu warning shown when macOS Accessibility permission is not granted. Leading warning emoji. */
 "menu.needsPermission" = "⚠️ Απαιτείται άδεια Προσβασιμότητας";
 
+/* Menu warning shown when the user's macOS Dictation shortcut is a double-press (e.g. press a modifier key twice) that Footswitch cannot send as a keystroke. Leading warning emoji. */
+"menu.dictationUnsupported" = "⚠️ Η συντόμευση Υπαγόρευσης δεν υποστηρίζεται";
+
 /* Menu line showing the most recent pedal press. %1$@ = app name, %2$@ = action description. */
 "menu.lastFire" = "Τελευταίο: %1$@ → %2$@";
 
