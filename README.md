@@ -2,8 +2,8 @@
 
 Context-aware macOS menu bar app for iKKEGOL / PCsensor USB foot switches,
 single- or multi-pedal. Press a pedal to run an action chosen by the frontmost
-app: a key combo for apps you've configured, or macOS dictation as the default
-action.
+app: a key combo or a macOS Shortcut for apps you've configured, or macOS
+dictation as the default action.
 
 The app is a universal binary (Apple Silicon + Intel), runs as a menu bar
 (`LSUIElement`) app, and is localized into 30 languages — it follows your macOS
@@ -13,7 +13,9 @@ language automatically.
 
 The app was designed for two use cases: to allow the pedal to enable dictation
 in apps that accept text input, and to allow the pedal to mute/unmute apps that
-use the microphone for voice communication.
+use the microphone for voice communication. Because a pedal can also send any key
+combo or run any macOS Shortcut per app, you can map it to whatever else you like
+— a build command, a clipboard action, a multi-step automation, and so on.
 
 ## Multi-pedal switches
 
@@ -45,6 +47,10 @@ pedal (falling back to a configurable default). The tap only catches keys for
 pedals your connected device actually has, so unused function keys pass through
 normally.
 
+A pedal's trigger isn't limited to a bare function key — you can program it to
+emit a key plus modifiers (⌃⌥⇧⌘), e.g. ⌥F13, and the app listens for that exact
+combo. The defaults (F13 / F14 / F15, no modifiers) are what most people want.
+
 ## macOS dictation setup
 
 There is no public API to start dictation, so the app synthesizes a dictation
@@ -59,19 +65,19 @@ keyboard shortcut. Set it up once:
 ## PCsensor FS17Pro (wireless)
 
 The FS17Pro works over Bluetooth or USB. Pair it over Bluetooth (or connect the
-USB-C cable), open **Settings…**, set `triggerKey` to `F16`, and click **Program** —
-the app writes the key over whichever transport the pedal is connected on. F16 is
-recommended (the app's general default elsewhere is F13, but PCsensor's ElfKey app
-cannot assign F13–F15, so the FS17Pro uses F16). Programming over Bluetooth stores
-the key but the FS17Pro only applies it after you power-cycle the pedal (turn it
-off and on) — the app reminds you when you click **Program**. (Programming over USB
-applies immediately.)
+USB-C cable), open **Settings…**, set the pedal's trigger key to `F16`, and click
+**Program pedal** — the app writes the key over whichever transport the pedal is
+connected on. F16 is recommended (the app's general default elsewhere is F13, but
+PCsensor's ElfKey app cannot assign F13–F15, so the FS17Pro uses F16). Programming
+over Bluetooth stores the key but the FS17Pro only applies it after you power-cycle
+the pedal (turn it off and on) — the app reminds you when you click **Program
+pedal**. (Programming over USB applies immediately.)
 
 **Important:** the FS17Pro stores its key configuration independently for USB and
 Bluetooth — the two slots do not share. Programming over one transport has no
 effect on the other. You must program the pedal in the same mode you intend to use
-it. If you use it both wired and wireless, connect in each mode and click **Program**
-each time (use the same trigger key both times so it behaves identically).
+it. If you use it both wired and wireless, connect in each mode and click **Program
+pedal** each time (use the same trigger key both times so it behaves identically).
 
 The first time you program over Bluetooth, macOS asks for Bluetooth permission —
 allow it (the app needs Bluetooth only to configure the pedal).
@@ -80,10 +86,15 @@ allow it (the app needs Bluetooth only to configure the pedal).
 
 ```sh
 swift test                    # run the unit-tested core
+swiftlint                     # optional: style/lint check (brew install swiftlint)
 ./scripts/setup-signing.sh    # one-time: pick your signing identity (writes scripts/signing.env)
 ./scripts/package-app.sh      # build a signed Footswitch.app under build/
 open build/Footswitch.app
 ```
+
+Linting is optional for local dev but enforced for release builds:
+`package-app.sh` runs `swiftlint --strict` (when SwiftLint is installed) and fails
+the build on any violation. Rules live in `.swiftlint.yml`.
 
 `setup-signing.sh` reads your keychain, lets you choose an **Apple Development**
 identity, and writes an untracked `scripts/signing.env` that `package-app.sh`
@@ -118,13 +129,21 @@ click it to open the right settings pane.
 Config lives at `~/.footswitch/config.json` (created on first launch). Edit it
 via the **Settings…** menu item, or by hand. In-app edits to rules and the
 default action take effect immediately; hand edits — and any change to
-`triggerKey` or `debounceMs` — take effect on the next launch.
+`debounceMs` or a device's trigger keys — take effect on the next launch.
 
 Example:
 
 ```json
 {
-  "triggerKey": "F13",
+  "devices": [
+    {
+      "vendorId": "0x0C45",
+      "productId": "0x7403",
+      "program": "footswitch",
+      "name": "PCsensor Foot Switch",
+      "triggers": [{ "key": "F13", "slot": 1 }]
+    }
+  ],
   "dictationShortcut": { "modifiers": ["ctrl", "opt", "cmd"], "key": "D" },
   "debounceMs": 250,
   "defaultAction": { "type": "dictation" },
@@ -132,22 +151,45 @@ Example:
     {
       "match": "com.microsoft.VSCode",
       "appName": "Visual Studio Code",
-      "action": { "type": "keyCombo", "modifiers": ["cmd"], "key": "D" }
+      "slots": {
+        "1": { "type": "keyCombo", "modifiers": ["cmd"], "key": "D" }
+      }
+    },
+    {
+      "match": "com.apple.mail",
+      "appName": "Mail",
+      "slots": {
+        "1": { "type": "shortcut", "identifier": "01234567-89AB-CDEF-0123-456789ABCDEF", "name": "Archive & Reply" }
+      }
     }
   ]
 }
 ```
 
+- `devices` records each foot switch the app has seen and the trigger key each
+  pedal emits. The app writes this for you when you program a pedal; you rarely
+  edit it by hand. A device with no entry uses the defaults (F13 / F14 / F15).
+  Each entry under `triggers` may also carry a `modifiers` array if you've
+  programmed the pedal to emit a modifier combo.
 - `match` is the frontmost app's **bundle ID** (stable across renames). Exact
   match wins; otherwise `defaultAction` runs.
+- `slots` maps each pedal (1-based: `"1"` is the first pedal) to the action it
+  runs for that app. Single-pedal devices only use `"1"`.
 - `defaultAction.type` is `dictation` or `none`.
 - Modifiers accept `cmd`/`opt`/`ctrl`/`shift` (or the long forms).
 
 ## Action types
 
-Per-app rules send a key combo:
+Each per-app rule can run one of two kinds of action per pedal (pick the kind
+from the popup in the rule's action cell):
 
-- `keyCombo` — synthesize a keystroke to the frontmost app (e.g. VS Code → ⌘D)
+- **Key sequence** (`keyCombo`) — synthesize a keystroke to the frontmost app
+  (e.g. VS Code → ⌘D).
+- **Run a Shortcut** (`shortcut`) — run a macOS Shortcuts.app shortcut by name.
+  Footswitch lists your installed Shortcuts in the picker and runs the chosen one
+  via `shortcuts run` when the pedal fires (fire-and-forget, so a long-running
+  Shortcut never blocks the pedal). macOS may ask permission the first time a
+  Shortcut runs.
 
 The default action (when no app rule matches) is either **Start dictation**
 (replay your configured dictation shortcut) or nothing — controlled by the
