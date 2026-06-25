@@ -70,9 +70,9 @@ public enum Keymap {
     /// compares equal to config / device-read-back modifier arrays.
     public static func modifiers(forFlagBits bits: UInt64) -> [Modifier] {
         var mods: [Modifier] = []
-        if bits & 0x40000  != 0 { mods.append(.control) }
-        if bits & 0x80000  != 0 { mods.append(.option) }
-        if bits & 0x20000  != 0 { mods.append(.shift) }
+        if bits & 0x40000 != 0 { mods.append(.control) }
+        if bits & 0x80000 != 0 { mods.append(.option) }
+        if bits & 0x20000 != 0 { mods.append(.shift) }
         if bits & 0x100000 != 0 { mods.append(.command) }
         return mods
     }

@@ -15,22 +15,25 @@ public enum KnownAppDefaults {
         // Conferencing apps with a well-known mute/unmute shortcut. These drive
         // the app's own mute (the only thing those apps honor — a system device
         // mute does not affect FaceTime/Zoom/Teams, which keep their own state).
-        "us.zoom.xos":            KeyCombo(modifiers: [.command, .shift], key: "A"),  // Zoom mute
-        "com.microsoft.teams2":   KeyCombo(modifiers: [.command, .shift], key: "M"),  // Teams mute
-        "com.microsoft.teams":    KeyCombo(modifiers: [.command, .shift], key: "M"),  // Teams (classic)
-        "com.apple.FaceTime":     KeyCombo(modifiers: [.command, .shift], key: "M"),  // FaceTime Video > Mute
-        "com.google.Chrome":      KeyCombo(modifiers: [.command],         key: "D"),  // Google Meet mic
+        "us.zoom.xos": KeyCombo(modifiers: [.command, .shift], key: "A"),  // Zoom mute
+        "com.microsoft.teams2": KeyCombo(modifiers: [.command, .shift], key: "M"),  // Teams mute
+        "com.microsoft.teams": KeyCombo(modifiers: [.command, .shift], key: "M"),  // Teams (classic)
+        "com.apple.FaceTime": KeyCombo(modifiers: [.command, .shift], key: "M"),  // FaceTime Video > Mute
+        "com.google.Chrome": KeyCombo(modifiers: [.command], key: "D"),  // Google Meet mic
 
         // Known apps — user must capture their own shortcut
-        "com.microsoft.VSCode":   nil,
-        "com.apple.dt.Xcode":     nil,
-        "com.apple.Terminal":     nil,
-        "com.googlecode.iterm2":  nil,
+        "com.microsoft.VSCode": nil,
+        "com.apple.dt.Xcode": nil,
+        "com.apple.Terminal": nil,
+        "com.googlecode.iterm2": nil,
     ]
 
     /// Returns the suggested `KeyCombo` for the given bundle ID, or `nil` if the app is
     /// unknown OR is known but has no seeded shortcut (the user must capture it).
     public static func suggestedShortcut(forBundleID id: String) -> KeyCombo? {
+        // `table` values are `KeyCombo?`, so a subscript yields `KeyCombo??`; the
+        // `?? nil` flattens it to `KeyCombo?` and is NOT redundant here.
+        // swiftlint:disable:next redundant_nil_coalescing
         return table[id] ?? nil
     }
 

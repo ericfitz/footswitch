@@ -28,6 +28,15 @@ if [ -z "${SIGN_IDENTITY:-}" ]; then
   exit 1
 fi
 
+# Lint before building a release. SwiftLint is optional for local dev, so skip
+# cleanly if it isn't installed; when present, any violation fails the build.
+if command -v swiftlint >/dev/null 2>&1; then
+  echo "Linting with SwiftLint (strict)…"
+  swiftlint lint --strict --quiet "$ROOT"
+else
+  echo "note: swiftlint not found — skipping lint (brew install swiftlint to enable)." >&2
+fi
+
 BIN="$(footswitch_build_binary "$ROOT" "$BUILD_FLAGS")"
 footswitch_assemble_app "$ROOT" "$BIN" "$APP"
 

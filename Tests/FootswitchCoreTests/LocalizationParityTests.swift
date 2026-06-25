@@ -1,5 +1,9 @@
 import XCTest
 
+// Force-try is fine in this test: the .strings fixtures are repo files, so a parse
+// failure is a real test failure we want surfaced, not handled.
+// swiftlint:disable force_try
+
 /// Verifies the hand-managed Localizable.strings files stay structurally in
 /// sync: same keys everywhere, and the same number of positional placeholders
 /// (%N$@) per key. Reads the source .strings files directly — no .app bundle.

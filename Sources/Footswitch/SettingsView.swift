@@ -27,9 +27,12 @@ enum SettingsWindowFactory {
 //
 // A native AppKit settings pane: a default-action toggle plus a rules table with
 // the standard +/- segmented bar. Every mutation auto-saves via `onSave` — there
-// is no Save button. Per-app rules are key-combo only in this UI; dictation is
-// the global default action (configured separately).
+// is no Save button. Per-app rules send a key combo or run a Shortcut; dictation
+// is the global default action (configured separately).
 
+// TODO: this controller has outgrown one file — split the rules-table data source
+// and the capture views into their own files, then drop these suppressions.
+// swiftlint:disable file_length type_body_length
 @MainActor
 final class SettingsViewController: NSViewController {
     private var rules: [Rule]
@@ -155,6 +158,7 @@ final class SettingsViewController: NSViewController {
 
     // MARK: UI construction
 
+    // swiftlint:disable:next function_body_length
     private func buildUI() {
         // Foot switch device section: row 1 = detection, row 2 = config verification.
         let deviceHeader = makeHeader(L10n.settingsHeaderDevice)

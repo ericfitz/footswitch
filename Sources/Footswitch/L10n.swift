@@ -1,5 +1,9 @@
 import Foundation
 
+// Each accessor is a deliberate one-liner pairing a key with its inline translator
+// note; wrapping them would hurt readability more than the line length does.
+// swiftlint:disable line_length
+
 /// Central catalog of every user-facing string. Each property/function is the one
 /// place a key is defined; the `comment:` is the authoritative translator note,
 /// mirrored as a /* */ header in every Localizable.strings file. Values resolve

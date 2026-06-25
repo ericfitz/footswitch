@@ -12,8 +12,8 @@ import Foundation
 public enum KeyComboFormatter {
     private static let canonicalOrder: [(Modifier, String)] = [
         (.control, "⌃"),
-        (.option,  "⌥"),
-        (.shift,   "⇧"),
+        (.option, "⌥"),
+        (.shift, "⇧"),
         (.command, "⌘"),
     ]
 

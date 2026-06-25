@@ -1,0 +1,58 @@
+# SwiftLint configuration for Footswitch.
+# Run on demand from the repo root:  swiftlint
+# Release builds (scripts/package-app.sh) run `swiftlint --strict` and fail on any violation.
+
+included:
+  - Sources
+  - Tests
+
+# Keep the linter pointed only at hand-written app code. Everything below is
+# build output, vendored deps, or generated/agent notes — not source we maintain.
+excluded:
+  - .build
+  - build
+  - scripts
+  - .superpowers
+  - .localization-reviews
+  - Sources/Footswitch/Resources
+
+disabled_rules:
+  # The codebase deliberately uses trailing commas in multiline literals (smaller
+  # diffs when appending). Keep that style rather than churn ~20 sites.
+  - trailing_comma
+  # TODO/FIXME markers are intentional breadcrumbs here, not lint failures.
+  - todo
+
+# A few files legitimately disable a rule for their whole length (file_length on
+# the large SettingsView, line_length on the L10n accessor table, force_try in a
+# fixture-reading test). Allow those blanket disables without nagging.
+blanket_disable_command:
+  always_blanket_disable:
+    - file_length
+    - type_body_length
+    - line_length
+    - force_try
+
+opt_in_rules:
+  - empty_count
+  - first_where
+  - contains_over_first_not_nil
+  - last_where
+  - sorted_first_last
+  - redundant_nil_coalescing
+  - closure_spacing
+  - operator_usage_whitespace
+
+# This project idiomatically uses short scratch names in tight scopes — `c` for a
+# Codable container, `d` for a device, `r`/`tk` for a local result, `i` for an
+# index. Don't enforce a minimum length; keep the rest of the rule (casing, etc.).
+identifier_name:
+  min_length:
+    warning: 1
+    error: 1
+
+line_length:
+  warning: 140
+  error: 250
+  ignores_comments: true
+  ignores_urls: true

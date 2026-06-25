@@ -23,6 +23,9 @@ enum ShortcutCatalog {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
         guard process.terminationStatus == 0 else { return [] }
+        // Non-failable decode is intentional: one stray byte in `shortcuts list`
+        // output shouldn't drop the whole catalog.
+        // swiftlint:disable:next optional_data_string_conversion
         return ShortcutListParser.parse(String(decoding: data, as: UTF8.self))
     }
 }

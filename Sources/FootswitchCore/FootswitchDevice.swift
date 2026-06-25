@@ -23,15 +23,15 @@ public struct SupportedDevice: Equatable, Sendable {
 public enum SupportedDevices {
     /// The recognized devices. IDs are decimal here; source table is hex.
     public static let all: [SupportedDevice] = [
-        SupportedDevice(vendorID: 0x0c45, productID: 0x7403, program: .footswitch,   name: "PCsensor FootSwitch"),
-        SupportedDevice(vendorID: 0x0c45, productID: 0x7404, program: .footswitch,   name: "PCsensor FootSwitch"),
-        SupportedDevice(vendorID: 0x413d, productID: 0x2107, program: .footswitch,   name: "FootSwitch"),
-        SupportedDevice(vendorID: 0x1a86, productID: 0xe026, program: .footswitch,   name: "FootSwitch"),
-        SupportedDevice(vendorID: 0x3553, productID: 0xb001, program: .footswitch,   name: "PCsensor FootSwitch"),
-        SupportedDevice(vendorID: 0x3553, productID: 0xc100, program: .footswitch,   name: "PCsensor FS17Pro"),
+        SupportedDevice(vendorID: 0x0c45, productID: 0x7403, program: .footswitch, name: "PCsensor FootSwitch"),
+        SupportedDevice(vendorID: 0x0c45, productID: 0x7404, program: .footswitch, name: "PCsensor FootSwitch"),
+        SupportedDevice(vendorID: 0x413d, productID: 0x2107, program: .footswitch, name: "FootSwitch"),
+        SupportedDevice(vendorID: 0x1a86, productID: 0xe026, program: .footswitch, name: "FootSwitch"),
+        SupportedDevice(vendorID: 0x3553, productID: 0xb001, program: .footswitch, name: "PCsensor FootSwitch"),
+        SupportedDevice(vendorID: 0x3553, productID: 0xc100, program: .footswitch, name: "PCsensor FS17Pro"),
         SupportedDevice(vendorID: 0x245A, productID: 0x8276, program: .footswitchBLE, name: "PCsensor FS17Pro"),
-        SupportedDevice(vendorID: 0x0426, productID: 0x3011, program: .scythe,       name: "Scythe FootSwitch"),
-        SupportedDevice(vendorID: 0x055a, productID: 0x0998, program: .scythe2,      name: "Scythe FootSwitch II"),
+        SupportedDevice(vendorID: 0x0426, productID: 0x3011, program: .scythe, name: "Scythe FootSwitch"),
+        SupportedDevice(vendorID: 0x055a, productID: 0x0998, program: .scythe2, name: "Scythe FootSwitch II"),
         SupportedDevice(vendorID: 0x5131, productID: 0x2019, program: .footswitch1p, name: "FootSwitch 1P"),
     ]
 
