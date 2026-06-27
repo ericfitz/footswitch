@@ -1,6 +1,6 @@
 # Footswitch
 
-Context-aware macOS menu bar app for iKKEGOL / PCsensor USB foot switches,
+Context-aware macOS menu bar app for iKKEGOL / PCsensor USB and Bluetooth foot switches,
 single- or multi-pedal. Press a pedal to run an action chosen by the frontmost
 app: a key combo or a macOS Shortcut for apps you've configured, or macOS
 dictation as the default action.
