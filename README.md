@@ -1,13 +1,13 @@
 # Footswitch
 
-Context-aware macOS menu bar app for iKKEGOL / PCsensor USB and Bluetooth foot switches,
-single- or multi-pedal. Press a pedal to run an action chosen by the frontmost
-app: a key combo or a macOS Shortcut for apps you've configured, or macOS
-dictation as the default action.
+Context-aware macOS menu bar app for iKKEGOL / PCsensor USB and Bluetooth foot
+switches, single- or multi-pedal. Press a pedal to run an action chosen by the
+frontmost app: a key combo or a macOS Shortcut for apps you've configured, or
+macOS dictation as the default action.
 
 The app is a universal binary (Apple Silicon + Intel), runs as a menu bar
-(`LSUIElement`) app, and is localized into 30 languages — it follows your macOS
-language automatically.
+app, and is localized into 30 languages — it follows your macOS language
+automatically.
 
 ## Typical uses
 
@@ -15,7 +15,8 @@ The app was designed for two use cases: to allow the pedal to enable dictation
 in apps that accept text input, and to allow the pedal to mute/unmute apps that
 use the microphone for voice communication. Because a pedal can also send any key
 combo or run any macOS Shortcut per app, you can map it to whatever else you like
-— a build command, a clipboard action, a multi-step automation, and so on.
+— page turning in music or reading applications, a script, a clipboard action, a
+multi-step automation, and so on.
 
 ## Multi-pedal switches
 
@@ -37,15 +38,18 @@ source instead, see [Build & run](#build--run).
 
 ## How it works
 
-The app programs each pedal to emit a function key — **F13** for a single pedal, and
-**F14 / F15** for the 2nd / 3rd pedals on multi-pedal units. These keys have no
-physical key on most Mac keyboards and no terminal escape sequence, so they never
-collide with normal typing or leak visible characters. The app installs a global
-event tap that catches and swallows those keys, identifies which pedal fired,
-looks at the frontmost application, and runs the action mapped to that app and
-pedal (falling back to a configurable default). The tap only catches keys for
-pedals your connected device actually has, so unused function keys pass through
-normally.
+The app programs each pedal to emit a function key — **F13** for a single pedal,
+and **F14 / F15** for the 2nd / 3rd pedals on multi-pedal units. You can choose
+any single key that you want, optionally including modifier keys, and program it
+to the pedal. F13-F19 were selected as the defauls as they have no physical key
+on most Mac keyboards and no terminal escape sequence, so they never collide
+with normal typing or leak visible characters.
+
+The app installs a global event tap that catches and swallows those keys,
+identifies which pedal fired, looks at the frontmost application, and runs the
+action mapped to that app for that pedal (falling back to a configurable default).
+The tap only catches keys for pedals your connected device actually has, so unused
+function keys pass through normally.
 
 A pedal's trigger isn't limited to a bare function key — you can program it to
 emit a key plus modifiers (⌃⌥⇧⌘), e.g. ⌥F13, and the app listens for that exact
@@ -54,7 +58,7 @@ combo. The defaults (F13 / F14 / F15, no modifiers) are what most people want.
 ## macOS dictation setup
 
 There is no public API to start dictation, so the app synthesizes a dictation
-keyboard shortcut. It reads your **real** macOS Dictation shortcut automatically,
+keyboard shortcut. It reads your actual macOS Dictation shortcut automatically,
 so the only setup is turning Dictation on:
 
 1. System Settings → Keyboard → Dictation → turn Dictation on.
